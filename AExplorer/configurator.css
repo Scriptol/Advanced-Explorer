@@ -1,0 +1,35 @@
+/*
+  Configurator CSS file (c) 2012 D. Sureau
+*/
+body
+{
+  margin:0;
+  padding:16px;  
+}
+h1
+{
+  font-size:24px;
+  margin:16px;
+  color:black;
+}
+
+#options
+{
+  background:white;
+  border:1px solid gray;
+  border-radius:8px;
+  padding:16px;
+}
+
+.group
+{
+	font-weight:bold;
+	display:block;
+	width:100%;
+}
+
+.label
+{
+	display:inline-block;
+	width:128px;
+}

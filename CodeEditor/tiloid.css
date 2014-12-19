@@ -1,0 +1,56 @@
+#body
+{
+	margin:0;
+	padding:4px;
+}
+
+#editor { 
+	position: absolute;
+	top: 44px;
+	right: 0;
+	bottom: 8px;
+	left: 0;
+	margin:8px 8px 0 8px;
+	padding:0px;
+	border:1px solid #999;
+}
+.toolbar {
+	height: 36px; 
+	background: url(images/back.png);
+	border:1px solid #CCC;
+	border-radius:4px;
+	padding:4px 8px 0px 8px;
+}
+.imagebutton 
+{
+	display:inline-block;
+	float:left;	
+	height: 34px; 
+	width: 34px; 
+	padding:1px 0px 1px 1px;
+	margin-right:2px;
+	border-radius:4px;
+   -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+    box-sizing: border-box;	
+}
+.imagebutton:hover
+{
+	border:1px solid #CCC;
+}
+.indicator
+{
+	display:inline-block;
+	float:right;
+	right:16px;
+	height: 34px; 
+	width: 34px; 
+	padding:1px 0px 1px 1px;	
+}
+.image {
+	position: relative; 
+	height:32px; 
+	width:32px; 
+	border:none;
+}
+

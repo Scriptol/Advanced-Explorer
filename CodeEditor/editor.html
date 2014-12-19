@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<!--
+Advanced Explorer Code Editor Interface 
+(c) 2012-2014 Denis Sureau
+License GPL 3.0
+
+Uses:
+* Ace Editor API, under the BSD Licence (included).
+* Tango public domain icons.
+-->
+<html lang="en">
+<head>
+<title>Advanced Explorer Editor (Ace based)</title>
+<link type="text/css" href="tiloid.css" rel="stylesheet">
+<script src="src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+
+<div class="toolbar" id="toolbar">
+<div class="imagebutton" id="save" onClick="act(this)"><img class="image" src="images/save.png" alt="Save" title="Save"></div>
+<div class="imagebutton" id="new" onClick="act(this)"><img class="image" src="images/new.png" alt="New blank page" title="New blank page"></div>
+<div class="imagebutton" id="find" onClick="act(this)"><img class="image" src="images/find.png" alt="Search" title="Search"></div>
+<div class="imagebutton" id="next" onClick="act(this)"><img class="image" src="images/next.png" alt="Find next" title="Find next"></div>
+
+<div class="imagebutton" id="outdent" onClick="act(this)"><img class="image" src="images/outdent.png" alt="Outdent" title="Unindent"></div>
+<div class="imagebutton" id="indent" onClick="act(this)"><img class="image" src="images/indent.png" alt="Indent" title="Indent"></div>
+<div class="imagebutton" id="cut" onClick="act(this)"><img class="image" src="images/cut.png" alt="Cut" title="Cut"></div>
+<div class="imagebutton" id="copy" onClick="act(this)"><img class="image" src="images/copy.png" alt="Copy" title="Copy"></div>
+<div class="imagebutton" id="paste" onClick="act(this)"><img class="image" src="images/paste.png" alt="Paste" title="Paste"></div>
+<div class="imagebutton" id="undo" onClick="act(this)"><img class="image" src="images/undo.png" alt="Undo" title="Undo"></div>
+<div class="imagebutton" id="redo" onClick="act(this)"><img class="image" src="images/redo.png" alt="Redo" title="Redo"></div>
+<div class="imagebutton" id="link" onClick="act(this)"><img class="image" src="images/link.png" alt="Insert Link" title="Insert Link"></div>
+<div class="imagebutton" id="table" onClick="act(this)"><img class="image" src="images/table.png" alt="Insert Table" title="Insert Table"></div>
+<div class="indicator"><img class="image" id="changed" src="images/saved.png" alt="Change status" title="Change status"></div>
+</div> <!--toolbar-->
+
+
+<div id="editor"></div>
+    
+<script>
+    var editorHasContent = false;
+	var socket = new WebSocket("ws://localhost:1030");
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/tomorrow");
+    editor.getSession().setMode("ace/mode/html"); 
+	var filename="";
+	var filetype=0;
+    editor.getSession().on('change', 
+		function() { 
+          if(editorHasContent == false)
+          {
+            changedStatus(true);
+          }    
+    });
+		
+	editor.commands.addCommand({
+    	name: 'saving',
+    	bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
+    	exec: function(editor) { save(); }
+	},{
+    name: "find",
+    bindKey: {win: "Ctrl-F", mac: "Command-F"},
+    exec: function(editor, needle) {
+        if (typeof needle == "object") {
+            var arg = this.name + " " + editor.getCopyText()
+            editor.cmdLine.setValue(arg, 1)
+            editor.cmdLine.focus()
+            return
+        }
+        editor.find(needle);
+    	}
+	},{
+    name: "gotoline",
+    bindKey: {win: "Ctrl-L", mac: "Command-L"},
+    exec: function(editor, line) {
+        if (typeof line == "object") {
+            var arg = this.name + " " + editor.getCursorPosition().row;
+            editor.cmdLine.setValue(arg, 1)
+            editor.cmdLine.focus()
+            return
+        }
+        line = parseInt(line, 10);
+        if (!isNaN(line))
+            editor.gotoLine(line);
+    	}
+	}
+	);	
+
+function updateStatusBar(message)
+{
+  parent.document.getElementById('status').innerHTML = message;
+}
+
+function newDoc()
+{
+	var temp = editor.getValue();
+	if(temp.length > 0)
+	{
+		temp = confirm("Erase current content?");
+		if(temp != true) return;
+	}
+  editorIcon(false);  
+  filename = "";
+  updateStatusBar("");
+}
+
+function editorIcon(actif)
+{
+  var edicon = parent.document.getElementById('tedit');
+  if(actif)
+    edicon.src = "/AExplorer/images/edit-active.png";
+  else
+  {
+    edicon.src = "/AExplorer/images/edit.png";
+    editor.setValue('');	        
+  }    
+}
+
+function clearDoc()
+{
+	if(editorHasContent == false) 
+    editorIcon(false);
+  else
+  	newDoc();
+  changedStatus(false);
+}
+
+function act(element)
+{
+	var command = element.id;
+	var temp;
+	//alert(command);
+	switch(command)
+	{
+		case "new":	      clearDoc();	break;
+		case "indent":		editor.indent();	break;	
+		case "outdent":		editor.blockOutdent();	break;					
+		case "link":
+			var temp = prompt("Enter a URL:", "http://");			
+			var current = editor.session.getTextRange(editor.getSelectionRange());
+			temp = "<a href='" + temp + "'>" + current + "</a>";	
+			editor.remove();
+			editor.insert(temp);	
+			break;
+		case "cut": 
+			editorMyClipboard = editor.getCopyText();
+			editor.remove(); 
+			break;	
+		case "copy":	editorMyClipboard = editor.getCopyText(); 	break;	
+		case "paste":	editor.insert(editorMyClipboard); break;	
+		case "set":
+		case "clear":
+			editorIcon(false);
+			break;
+		case "save":	
+			save();
+			break;
+		case "find":
+			var sea = prompt("Search ");
+			editor.find(sea,{
+    			backwards: false,
+			    wrap: false,
+			    caseSensitive: false,
+			    wholeWord: false,
+			    regExp: false
+			});
+			break;
+		case "next":	
+			editor.findNext();
+			break;
+		case "table":
+			buildtable(editor);
+			break;
+		case "undo":
+			editor.undo();
+			break;	
+		case "redo":
+			editor.redo();
+			break;	
+		default:
+			alert("Unknown command");
+	}			
+	editor.focus();
+}
+
+function changedStatus(status)
+{
+	var chg = document.getElementById("changed");
+	if(status)
+		chg.src="images/changed.png";
+	else
+		chg.src="images/saved.png";		
+  editorHasContent = status;  
+}
+
+socket.onmessage = function(event) {
+  var data = JSON.parse(event.data);
+  if(data.type == "editor") 
+  {
+    if(data.action == "prompt") 
+    {
+			var p = prompt(data.message);
+      socket.send(JSON.stringify( { "type":"answer", "data": p != null }));
+    }
+    else {
+      alert(data.message);
+    }  
+  }       
+}
+
+function save()
+{
+  var content = editor.getValue(); 
+	var x = prompt("Save as ", filename);
+	if(x != null && x != "")
+	{
+		filename = x;
+    updateStatusBar(x);
+    changedStatus(false);
+		var a = { 'app' : 'explorer',
+			'params': { 'command': 'save', 
+						'filename': x, 
+						'content' : content,
+						'overwrite' : true 
+					}
+		};
+		socket.send(JSON.stringify( { "type":"interface", "data": a }));
+	}
+}
+
+function buildtable(editor)
+{
+    var temp = prompt("Enter rows and cols: ");
+    var a = temp.split(" ");
+    var rows = parseInt(a[0]);
+    var cols = parseInt(a[1]);
+    if(rows > 0 && cols > 0) 
+	{
+		var table = "<table><tbody>\n";
+		for (var i=0; i < rows; i++) 
+		{
+			table += "<tr>";
+			for (var j=0; j < cols; j++) 
+			{
+				table += "<td></td>";
+			}
+			table += "</tr>\n";
+		}
+		table += "<tbody></table>\n";
+		editor.insert(table);   
+	}	
+}
+
+</script>
+
+</body>
+</html>
