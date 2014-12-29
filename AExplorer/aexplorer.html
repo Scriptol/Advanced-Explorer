@@ -19,13 +19,14 @@
 <div class="ticon"><img src="images/copy.png" id='tcopy' width="32" height="32" title="Copy selected files or dirs to right window"></div>
 <div class="ticon"><img src="images/copyren.png" id="tcopren" width="32" height="32" title="Copy/Rename"></div>
 <div class="ticon"><img src="images/archive.png" id='tzip' width="32" height="32" title="Make a zip archive"></div>
+<div class="ticon"><img src="images/sync.png" id='tsync' width="32" height="32" title="Synchronize target with source"></div>
 <div class="ticon"><img src="images/edit.png" id='tedit' width="32" height="32" title="View/Edit the selected file"></div>
 <div class="alignright" style="margin-right:8px;">
 <div class="ticon"><img src="images/options.png" id='topt' width="32" height="32" title="Setting up A.E."></div>
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.0</p>
+   <p>Version 2.1</p>
    <p>
     &copy; 2012-2015 Denis Sureau<br>
     www.scriptol.com<br>
@@ -49,9 +50,9 @@
   </div>
   <div class="fullpath">
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('lcontent')"></div>
-	<div class="fspath">
+	<div class="fspath" oncontextmenu="return false">
       <img src="images/star.png" id="lstar" class="fstar" onClick="bookmark('lcontent')">  
-      <input type="text" class="innpath" id="lcontentpath" value="/" >
+      <input type="text" class="innpath" id="lcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'lcontent')">
 	</div>   
   </div>
   <div id="lcontent"></div> 
@@ -69,9 +70,9 @@
   </div>
   <div class="fullpath"> 
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('rcontent')"></div>
-	<div class="fspath">
+	<div class="fspath" oncontextmenu="return false">
       <img src="images/star.png" id="rstar" class="fstar" onClick="bookmark('rcontent')">
-      <input type="text" class="innpath" id="rcontentpath" value="/">
+      <input type="text" class="innpath" id="rcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'rcontent')">
 	</div>  
   </div>
   <div id="rcontent"></div> 	  

@@ -1,11 +1,12 @@
 /* AECode, client side  code for Advanced Explorer
-   (c) 2012-2014 Denis Sureau - License GPL 3 */
+   (c) 2012-2015 Denis Sureau - License GPL 3 */
 
 var leftpanel = document.getElementById("lpane");
 var rightpanel = document.getElementById("rpane");
 var currpanel = leftpanel;
 var AExplorerDrag = {'lcontent': true, 'rcontent':false };
 var AExplorerBMFlag = {'lcontent': false, 'rcontent':false };
+var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
 
 function sameDir()
 {
@@ -52,8 +53,8 @@ function socketConfirm(jo) {
 }
 
 function socketDirdata(jobj) {
-  fileList(jobj);
   var target = jobj.target;
+  fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
   
   var letter = target.charAt(0)
@@ -207,7 +208,13 @@ socket.onmessage = function(event) {
         break; 
     case 'dirinfo':
         alert(jobj.content);
-        break;       
+        break;
+    case 'mouse':
+        var lp = document.getElementById('lcontent');
+        if (lp.style) lp.style.cursor=jobj.pointer;
+        var rp = document.getElementById('rcontent');
+        if (rp.style) rp.style.cursor=jobj.pointer;
+        break;           
     default:
         alert("unknow message");    
   }
@@ -239,6 +246,62 @@ function checkInBookmarks(target)
   }
   return false;
 }
+
+function setSortMode(panel, value)
+{
+  AExplorerSort[panel] = value;
+  var panelpath = panel + "path";
+	var xid = document.getElementById(panelpath);
+	var a = { 'app' : 'explorer',
+			  'params': { 'command': 'godir', 'path': xid.value, 'target': panel }
+	};
+	sendFromInterface(a);  
+}
+
+/*
+  Context menus
+*/
+
+function addListMenu(element, panel)
+{
+  var id = panel + "ctxm"; 
+  var x = document.getElementById(id);
+  if(x) x.parentNode.removeChild(x); 
+  
+  var parent = element.parentNode; 
+  var d = document.createElement('div');
+  parent.appendChild(d);
+  
+  d.id = id;
+  d.className = 'ctxmenu';
+  d.style.left = xMousePosition + "px";
+  d.style.top = yMousePosition + "px";
+  d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
+  d.onclick = function(e) { parent.removeChild(d);  }
+  document.body.onclick = function(e) {
+    try { parent.removeChild(d);}
+    catch(e) {}   
+  }
+  
+  var p = document.createElement('p');
+  d.appendChild(p);
+  p.onclick=function() { setSortMode(panel, 2); };
+  p.setAttribute('class', 'ctxline');
+  p.innerHTML = "Sort by dates"; 
+  
+  var p2 = document.createElement('p');
+  d.appendChild(p2);
+  p2.onclick=function() { setSortMode(panel, 1); };
+  p2.setAttribute('class', 'ctxline');
+  p2.innerHTML = "Sort by sizes"; 
+
+  var p3 = document.createElement('p');
+  d.appendChild(p3);
+  p3.onclick=function() { setSortMode(panel, 0); };
+  p3.setAttribute('class', 'ctxline');
+  p3.innerHTML = "Sort by names"; 
+  
+}  
 
 /*
 	Top Events building
@@ -323,13 +386,13 @@ var topZip = function (target)
 
 	var zipname = window.prompt("Zip archive name: ", "");
 	if(zipname == null || zipname == '') return;
-	var p = zipname.lastIndexOf(zipname);
-	if(zipname.slice(p) != "zip")	zipname += ".zip";
+	var p = zipname.lastIndexOf(".");
+	if(zipname.substr(p) != ".zip")	zipname += ".zip";
 
   var archiver = config.Archiver.input;
-	var source = document.getElementById('lcontent');
-	var target = document.getElementById('rcontent');
-	var node = source.firstChild;
+	//var source = document.getElementById('lcontent');
+	//var target = document.getElementById('rcontent');
+	//var node = source.firstChild;
 
 	var a = { 'app' : 'explorer',
 			  'params': { 'command': 'archive', 'archiver': archiver,
@@ -338,6 +401,46 @@ var topZip = function (target)
 	};
 	sendFromInterface(a);
 }
+
+var topSync = function (target)
+{
+	if(document.getElementById('dirpane').style.display=="none")	return;
+  
+  var x = document.getElementById('syncframe');
+  if(x) {
+    x.id=null;
+    panelReload('lcontent');
+    return;
+  }  
+  
+
+  var allFlag = false;
+	var nameList = getSelectedNames('lcontent');
+	if(nameList.length == 0)
+	{
+		allFlag = true; 
+	}
+  
+  var lc = document.getElementById("lcontent");
+  
+  var d = document.createElement('iframe');
+  d.src="synchronizer.html";   
+  lc.removeChild(lc.firstChild);
+  lc.appendChild(d);
+  d.width = "100%";
+  d.height = "100%";
+  d.style.border = "0";
+  d.id = 'syncframe';   
+
+	var fcontent = (d.contentWindow || d.contentDocument);
+  fcontent.socket = socket;
+	fcontent.sourcepath = document.getElementById('lcontentpath').value;
+	fcontent.targetpath = document.getElementById('rcontentpath').value;
+  fcontent.allFlag = allFlag;
+  fcontent.nameList = nameList;
+}
+
+
 
 var languageExt = {
   "js": "javascript",
@@ -370,7 +473,7 @@ function displayEditor(data)
 	if(epane.style.display=="none")
 	{
 		dpane.style.display = "none";
-        opane.style.display = "none";
+    opane.style.display = "none";
 		epane.style.display = "block";
 		edfra.style.display = "block";
 	}
@@ -379,8 +482,8 @@ function displayEditor(data)
 		epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-        if(fcontent.editor.getValue() != '')
-            fcontent.editorIcon(true);
+    if(fcontent.editor.getValue() != '')
+          fcontent.editorIcon(true);
 		return;
 	}
 
@@ -1035,6 +1138,7 @@ function buildEvents()
 	addEvent('tcopy', topCopy);
 	addEvent('tcopren', topCopyRename, 'lcontent');
 	addEvent('tzip', topZip);
+  addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
 	addEvent('thelp', topHelp);

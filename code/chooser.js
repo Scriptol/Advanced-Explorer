@@ -99,7 +99,7 @@ function buildDir(pathname, id)
   Building the entry for a file
 */  
 
-function buildLink(filepath, fname, panelid, timesize, ext)
+function buildLink(filepath, fname, panelid, timesize, filedate, ext)
 {
 	filepath = filepath.replace(/\\/gi, '/');
   var sep = '/';
@@ -133,12 +133,30 @@ function buildLink(filepath, fname, panelid, timesize, ext)
     case 'jar':
           balise += 'images/app.png';
           break;                           
+    case 'c':
+    case 'cpp':
+    case 'cs':
+    case 'css':
+    case 'h':    
+    case 'hpp':
+    case 'ini':    
+    case 'java':    
+    case 'jl':
+    case 'js':    
+    case 'py':
+    case 'rb':
+    case 'sol':    
+    case 'sql':
+    case 'svg':    
+    case 'xml': 
+          balise += 'images/code.png';
+          break;
     default:
           balise += 'images/doc.png'
   }
   balise += '">'; 
 	balise += fname;
-  balise += '<span class="timesize">' + timesize + '</span>'; 
+  balise += '<span class="timesize">' + timesize + ' ' + filedate + '</span>'; 
 	balise += '</div>';
 	//balise += " (" + fpath + ")";
 	return(balise);
@@ -209,7 +227,35 @@ function imageList(content)
   from the server.
 */
 
-function fileList(content)
+var SORT_BY_NAME = 0;
+var SORT_BY_SIZE = 1;
+var SORT_BY_DATE = 2;
+
+function sortBySize(a, b) {
+  if(a[0] == 'dir') { 
+    if(b[0] == 'dir') return 0;
+    return -1;
+  }
+  if(b[0] == 'dir') return 1;
+  return parseInt(a[2]) - parseInt(b[2]);
+}
+
+function sortByDate(a, b) {
+  if(a[0] == 'dir') { 
+    if(b[0] == 'dir') return 0;
+    return -1;
+  }
+  if(b[0] == 'dir') return 1;
+  var ad = a[3];
+  var bd = b[3];
+  var astr = parseInt(ad.substr(6,4) + ad.substr(3, 2) + ad.substr(0, 2));
+  var bstr = parseInt(bd.substr(6,4) + bd.substr(3, 2) + bd.substr(0, 2));
+  if(astr < bstr) return -1;
+  if(astr > bstr) return 1;
+  return 0;
+}
+
+function fileList(content, sortMode)
 {
 	var target = content.target;
 	insidezip[target]=content.iszip;
@@ -224,6 +270,15 @@ function fileList(content)
   
 	var listid = target + "list";
 	var dir = content['list'];
+  switch(sortMode) {
+    case SORT_BY_SIZE:
+      dir.sort(sortBySize);
+      break;
+    case SORT_BY_DATE:
+      dir.sort(sortByDate);
+      break;  
+    default: break;
+  }
 	var page = "<div class='filechooser'>";
 	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
 	var dirlist = "";
@@ -241,11 +296,12 @@ function fileList(content)
 		}
 		else
 		{
-			var timesize = item[2];    
+			var timesize = item[2];
+      var filedate = item[3];    
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
 			if(extmask && ext != extmask) continue; 
-			filelist += buildLink(filepath, name, target, timesize, ext) + "<br>";
+			filelist += buildLink(filepath, name, target, timesize, filedate, ext) + "<br>";
 		}
 	}
 	
@@ -393,6 +449,24 @@ function view(element, filepath, panelid, forcePage)
          'command': 'execute', 'filename': null, 'path': filepath,'target': panelid } };
       sendFromInterface(a);
       break;
+    case 'c':
+    case 'cpp':
+    case 'cs':
+    case 'css':
+    case 'h':    
+    case 'hpp':
+    case 'ini':    
+    case 'java':    
+    case 'jl':
+    case 'js':    
+    case 'py':
+    case 'rb':
+    case 'sol':    
+    case 'sql':
+    case 'svg':    
+    case 'xml':    
+     	edit(element);
+      break;      
     default:
      	if(filepath.slice(0, 5) != 'http:')
 	     filepath = "file:///" + filepath;
