@@ -52,5 +52,24 @@ var config={
                 ]
             }
         ]
+    },
+    "Editor": {
+        "list": [
+            {
+                "name": "Theme",
+                "label": "Theme",
+                "input": "Chaos"
+            },
+            {
+                "name": "FontSize",
+                "label": "Font size (px)",
+                "input": "14px"
+            },
+            {
+                "name": "lastprj",
+                "label": "Current project",
+                "input": ""
+            }
+        ]
     }
 }

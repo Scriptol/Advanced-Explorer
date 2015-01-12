@@ -13,13 +13,13 @@
 */
 
 
-var currentpath = new Array();
-var insidezip = new Array();
+var currentpath = [];
+var insidezip = [];
 var elementToSelect = null;
 var elementToOffset = null;
 var ChooserDrag = null;
 
-var customview = new Array();
+var customview = [];
 
 var socket = new WebSocket("ws://localhost:1030");
 
@@ -101,15 +101,15 @@ function buildDir(pathname, id)
 
 function buildLink(filepath, fname, panelid, timesize, filedate, ext)
 {
-	filepath = filepath.replace(/\\/gi, '/');
-  var sep = '/';
-  if(filepath.slice(-1) == '/')   sep = '';
+    filepath = filepath.replace(/\\/gi, '/');
+    var sep = '/';
+    if(filepath.slice(-1) == '/')   sep = '';
 	var fpath = filepath + sep + fname;
 	var balise ="<div class='file' onDblClick='view(this, \"" + fpath+ "\",\"" + panelid + "\")' onClick='sel(this)' oncontextmenu='return rsel(this)'>";
-  balise += '<img src="';
-  ext=ext.toLowerCase();
-  switch(ext)
-  {
+    balise += '<img src="';
+    ext=ext.toLowerCase();
+    switch(ext)
+    {
     case 'gif':
     case 'jpg':
     case 'png':
@@ -132,7 +132,10 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'exe':
     case 'jar':
           balise += 'images/app.png';
-          break;                           
+          break; 
+    case 'prj':
+          balise += 'images/prj.png';
+          break; 
     case 'c':
     case 'cpp':
     case 'cs':
@@ -142,7 +145,8 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'ini':    
     case 'java':    
     case 'jl':
-    case 'js':    
+    case 'js':
+    case 'json':    
     case 'py':
     case 'rb':
     case 'sol':    
@@ -153,12 +157,11 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
           break;
     default:
           balise += 'images/doc.png'
-  }
-  balise += '">'; 
+    }
+    balise += '">'; 
 	balise += fname;
-  balise += '<span class="timesize">' + timesize + ' ' + filedate + '</span>'; 
+    balise += '<span class="timesize">' + timesize + ' ' + filedate + '</span>'; 
 	balise += '</div>';
-	//balise += " (" + fpath + ")";
 	return(balise);
 }
 
@@ -177,10 +180,8 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
 
 function imageList(content)
 {
-	//alert(target);
-  var target = content.target;
+    var target = content.target;
 	var d = document.getElementById(target);
- 	//alert("filedisplay  target:" + d + " content: " + content);
 	var filepath = content['path'];
 	var dir = content['list'];
 	var page = "<div class='filechooser'>";
@@ -200,16 +201,16 @@ function imageList(content)
 		}
 		else
 		{
-      var timesize = item[2];     
+            var timesize = item[2];     
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
 			switch(ext) {
   			case 'gif':
 	   		case 'png':
 		  	case 'jpg':
-        case 'jpeg':
-             break;
-        default: continue;
+            case 'jpeg':
+                break;
+            default: continue;
 			}
 			filelist += buildLink(filepath, name, target, timesize, ext) + "<br>";      
 		}
@@ -261,16 +262,14 @@ function fileList(content, sortMode)
 	insidezip[target]=content.iszip;
 	var d = document.getElementById(target);
 	var extmask = content.extmask; 
-
-	var filepath = content['path'];
-  
+	var filepath = content.path;
 	var fpathid = target + "path";
 	var fpath = document.getElementById(fpathid);
 	fpath.value = filepath;
   
 	var listid = target + "list";
-	var dir = content['list'];
-  switch(sortMode) {
+	var dir = content.list;
+    switch(sortMode) {
     case SORT_BY_SIZE:
       dir.sort(sortBySize);
       break;
@@ -278,7 +277,7 @@ function fileList(content, sortMode)
       dir.sort(sortByDate);
       break;  
     default: break;
-  }
+    }
 	var page = "<div class='filechooser'>";
 	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
 	var dirlist = "";
@@ -297,7 +296,7 @@ function fileList(content, sortMode)
 		else
 		{
 			var timesize = item[2];
-      var filedate = item[3];    
+            var filedate = item[3];    
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
 			if(extmask && ext != extmask) continue; 
@@ -311,13 +310,10 @@ function fileList(content, sortMode)
 	page += "</div>";
 	d.innerHTML = page;
 
-  //alert(page); 
 	addKeyListEvents(target);
-  //alert(dragflag);
-  if(ChooserDrag[target])
-    setDrag(listid);
+    if(ChooserDrag[target])
+        setDrag(listid);
 
-  //alert(elementToSelect);
 	if(elementToSelect != null)
 	{
 		if(elementToSelect == '*')
@@ -340,7 +336,6 @@ function fileList(content, sortMode)
 
 function setDrag(id)
 {
-  //alert(id);
   var lid = document.getElementById(id);
   var follow = lid.firstChild;
   follow.setAttribute('draggable', true);
@@ -436,12 +431,12 @@ function view(element, filepath, panelid, forcePage)
     case 'jpeg':  
       var a = {  'app': 'explorer', 'params' : { 
         'command': 'loadimage', 'path': filepath, 'target': panelid } };
-      sendFromInterface(a);
+        sendFromInterface(a);
       break;
     case 'zip':
-      var a = {  'app': 'explorer', 'params' : { 
+        var a = {  'app': 'explorer', 'params' : { 
          'command': 'viewzip', 'path': filepath, 'target': panelid } };
-      sendFromInterface(a);
+        sendFromInterface(a);
       break;
     case 'exe':
     case 'jar':
@@ -449,6 +444,9 @@ function view(element, filepath, panelid, forcePage)
          'command': 'execute', 'filename': null, 'path': filepath,'target': panelid } };
       sendFromInterface(a);
       break;
+    case 'prj':
+          openProject(element);
+          break; 
     case 'c':
     case 'cpp':
     case 'cs':
@@ -458,7 +456,8 @@ function view(element, filepath, panelid, forcePage)
     case 'ini':    
     case 'java':    
     case 'jl':
-    case 'js':    
+    case 'js': 
+    case 'json':       
     case 'py':
     case 'rb':
     case 'sol':    
@@ -630,8 +629,26 @@ function edit(element)
   var target = pointFile(element);
 	var filename =  getNameSelected(element);
 	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'getcontent', 'path': filename, 'target': target }
+			  'params': { 
+          'command': 'getContent', 
+          'path': filename, 
+          'target': target, 
+          'inEditor' : false 
+        }
 	};
+	
+	sendFromInterface(a);
+}
+
+function openProject(element)
+{
+  var target = pointFile(element);
+	var filename =  getNameSelected(element);
+	var a = { 'app' : 'explorer',  'params': { 
+                'command': 'openPrj', 
+                'name': filename, 
+                'target': target 
+            } };
 	
 	sendFromInterface(a);
 }
@@ -1022,7 +1039,6 @@ document.onkeydown=function(evt)
         isCTRL = false;
         break;
       default:
-        //alert("Bad key code: " + code);
         break;       
     }
     return true;

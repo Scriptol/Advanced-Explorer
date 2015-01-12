@@ -127,20 +127,20 @@ function webComm(websocket)
   
 		    var app = data.app;
 		    var params = data.params;
-        switch(app)
-	      {   
+            switch(app)
+	        {   
 		    	case 'explorer':
 			 	    console.log(" ");
 				    explorer.shell(websocket, fs, params);
 				    break;
-          default:
+                default:
 				    var filename = params.path;
 				    fs.exists(filename, function(result) { 
 				    runScript(result, app, filename + " " + params)});
-         }   
+            }   
 		  }
       else
-        console.log("Unknow message type from browser...");
+            console.log("Unknow message type from browser...");
   });
   
   websocket.on('close', function() { console.log("Browser gone.") });
@@ -152,21 +152,21 @@ function loadBrowser(filename)
 {
 	var param="http://localhost:1032/" + filename;
 	var browserName = explorer.config.browser;
-  var browser = explorer.config[browserName];
-  if(browserName=='')
-  {
+    var browser = explorer.config[browserName];
+    if(browserName=='')
+    {
       browser = explorer.config.chrome;
       browserName='Chrome';
-  }
+    }
     
-  console.log('Loading browser: '+ browser);
+    console.log('Loading browser: '+ browser);
 
 	fs.exists(browser, function(result) {
 		if(!result) { console.log("File not found " + browser); return 0; }
 		var command = browser +  " " + param;
 		console.log("Running " + command);
 		runner.exec(command, function(err, stdout, stderr) { 
-      console.log("Terminated. "+ stderr); 
+        console.log("Terminated. "+ stderr); 
     });
 	});
 

@@ -22,34 +22,30 @@ function socketNotification(jobj)
 	//alert(action + " " + target);
 	switch(action)
 	{
-		case 'update':
-      if(sameDir())
-      {
-        panelReload('lcontent');
-        target = 'rcontent';
-      }
+        case 'update':
+            if(sameDir())
+            {
+                panelReload('lcontent');
+                target = 'rcontent';
+            }
 			panelReload(target);
 			break;
 		default:
-			//alert("Unknown notification from server " + action);
 	}
 }
 
 function socketConfirm(jo) {
 	var answer = confirm(jo.question);
-  var data = jo.data;
-  switch(data.command) {
-    case "copyover":
-        if(answer==true){
-          socket.send(JSON.stringify( {
-            "type":"answer",
-            "data": jo.data
-          }));
-        }
-        break;
-     default:
-        break;   
-  }
+    var data = jo.data;
+    switch(data.command) {
+        case "copyover":
+            if(answer===true) {
+                socket.send(JSON.stringify( { "type":"answer", "data": jo.data  }));
+            }
+            break;
+        default:
+            break;   
+    }
 }
 
 function socketDirdata(jobj) {
@@ -57,7 +53,7 @@ function socketDirdata(jobj) {
   fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
   
-  var letter = target.charAt(0)
+  var letter = target.charAt(0);
   var id = letter + 'star';
   var elem = document.getElementById(id);
   elem.style.visibility="visible";
@@ -65,15 +61,11 @@ function socketDirdata(jobj) {
   var img = document.getElementById(delid);
   img.src = "images/delete.png";
   img.title="Delete selected file/dir";
-  var crid = letter + "create"
-  document.getElementById(crid).title="Create directory"
+  var crid = letter + "create";
+  document.getElementById(crid).title="Create directory";
   AExplorerBMFlag[target]=false;
 }
 
-
-function socketEditor(e) { 
-  displayEditor(e); 
-}
 
 function socketImage(jobj) {
   var store = document.getElementById('rcontent');
@@ -87,7 +79,6 @@ function socketImage(jobj) {
 		default:
 			ext = 'jpeg';
 	}
-
   var inner = document.createElement('div');
   store.innerHTML ='';
   store.appendChild(inner);
@@ -102,7 +93,6 @@ function socketImage(jobj) {
   { 
     var w = image.width;
     var h = image.height;
- 
     var cw = store.scrollWidth;
     var ch = store.scrollHeight;
 
@@ -176,11 +166,12 @@ function socketImage(jobj) {
       message += ", resized to " + w.toFixed() + " x "+ h.toFixed();
     document.getElementById('status').innerHTML = message;
     return;
-  }
+  };
 
 	image.src = 'data:image/'+ext+';base64, ' + jobj.content;
-  image.src = "file:///" + imagepath;
-};
+	// using the file path does not work locally with Chrome
+    //image.src = "file:///" + imagepath;
+}
 
 socket.onmessage = function(event) {
   var jobj =   JSON.parse(event.data);
@@ -195,8 +186,8 @@ socket.onmessage = function(event) {
         socketDirdata(jobj); 
         break;   
     case 'editor':
-        socketEditor(jobj);
-        break;    
+        displayEditor(jobj, false);
+        break;
     case 'message':
         alert(jobj.content); 
         break;    
@@ -209,14 +200,17 @@ socket.onmessage = function(event) {
     case 'dirinfo':
         alert(jobj.content);
         break;
+    case 'updateIni':
+        eval(jobj.content);
+        break;
     case 'mouse':
         var lp = document.getElementById('lcontent');
         if (lp.style) lp.style.cursor=jobj.pointer;
         var rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
-        break;           
+        break;
     default:
-        alert("unknow message");    
+        alert("Message '" + jobj.type + "' not handled here.");    
   }
 };
 
@@ -241,7 +235,7 @@ function getCurrentDirectory(target)
 function checkInBookmarks(target)
 {
   if(AExplorerBMFlag[target]) {
-    alert("Can not do that in bookmarks!")
+    alert("Can not do that in bookmarks!");
     return true;
   }
   return false;
@@ -276,12 +270,12 @@ function addListMenu(element, panel)
   d.className = 'ctxmenu';
   d.style.left = xMousePosition + "px";
   d.style.top = yMousePosition + "px";
-  d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
-  d.onclick = function(e) { parent.removeChild(d);  }
+  d.onmouseover = function(e) { this.style.cursor = 'pointer'; }; 
+  d.onclick = function(e) { parent.removeChild(d);  };
   document.body.onclick = function(e) {
     try { parent.removeChild(d);}
     catch(e) {}   
-  }
+  };
   
   var p = document.createElement('p');
   d.appendChild(p);
@@ -389,10 +383,7 @@ var topZip = function (target)
 	var p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
 
-  var archiver = config.Archiver.input;
-	//var source = document.getElementById('lcontent');
-	//var target = document.getElementById('rcontent');
-	//var node = source.firstChild;
+    var archiver = config.Archiver.input;
 
 	var a = { 'app' : 'explorer',
 			  'params': { 'command': 'archive', 'archiver': archiver,
@@ -408,10 +399,10 @@ var topSync = function (target)
   
   var x = document.getElementById('syncframe');
   if(x) {
-    x.id=null;
-    panelReload('lcontent');
-    return;
-  }  
+        x.id=null;
+        panelReload('lcontent');
+        return;
+    }  
   
 
   var allFlag = false;
@@ -421,8 +412,7 @@ var topSync = function (target)
 		allFlag = true; 
 	}
   
-  var lc = document.getElementById("lcontent");
-  
+  var lc = document.getElementById('lcontent');
   var d = document.createElement('iframe');
   d.src="synchronizer.html";   
   lc.removeChild(lc.firstChild);
@@ -442,79 +432,100 @@ var topSync = function (target)
 
 
 
-var languageExt = {
-  "js": "javascript",
-  "html": "html",
-  "xml": "xml",
-  "rss": "xml",
-  "svg": "svg",      
-  "css": "css",
-  "jl": "julia",
-  "py": "python",
-  "rb": "ruby",
-  "cs": "cshart",
-  "java": "java",
-  "c": "c_cpp",
-  "cpp": "c_cpp",
-  "ini": "ini",
-  "sql": "sql",
-  "txt": "plain_text"              
-};
-
-function displayEditor(data)
-{        
-	var dpane = document.getElementById('dirpane');
+function displayEditor(data, fromTop)
+{               
+  var dpane = document.getElementById('dirpane');
 	var epane = document.getElementById('editpane');
 	var edfra = document.getElementById('editor');
 	var opane = document.getElementById('optpane');
-
 	var framedit = document.getElementById("editor");
-	var fcontent = (framedit.contentWindow || framedit.contentDocument);
+	var fc = (framedit.contentWindow || framedit.contentDocument);
+
 	if(epane.style.display=="none")
 	{
-		dpane.style.display = "none";
+    if(fromTop)
+    {
+      if(fc.projectName == undefined || fc.projectName.length == 0) 
+      {
+        fc.projectName=config.Editor.list[2].input;
+        if(fc.projectName != undefined && fc.projectName.length > 0) 
+        {
+          var a = { 'app' : 'explorer', 'params': { 
+              'command': 'openPrj', 
+              'name': fc.projectName,
+              'inEditor': false, 
+						  'target' : null
+			 		  } };
+          sendFromInterface(a);
+          return;
+        }
+      } 
+    }
+
+    dpane.style.display = "none";
     opane.style.display = "none";
 		epane.style.display = "block";
 		edfra.style.display = "block";
 	}
-	else
+	else // closing
 	{
 		epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-    if(fcontent.editor.getValue() != '')
-          fcontent.editorIcon(true);
+    if(fc.editor.getValue() != '')
+      fc.editorIcon(true);
+    fc.setActiveRow();
+    fc.saveProject();  
+    config.Editor.list[2].input = fc.projectName;
+    updateIni();
 		return;
 	}
+  fc.editor.setTheme("ace/theme/" + config.Editor.list[0].input.toLowerCase());  
+  var fontSize = parseInt(config.Editor.list[1].input);
+  fc.editor.setFontSize(fontSize);
 
 	if(data.content != null)
 	{
-    fcontent.clearDoc();
+    fc.setActiveRow();
+    fc.clearDoc();
     if(data.content.length > 127)
-        fcontent.editor.setValue(data.content.slice(9), -1);
+      fc.editor.setValue(data.content.slice(9), -1);
     else
-		    fcontent.editor.setValue(data.content, -1);
+      fc.editor.setValue(data.content, -1);
     var mode = "plain_text";
-    if(data.ext in languageExt)   
-        mode = "ace/mode/" + languageExt[data.ext];
-    fcontent.editor.getSession().setMode(mode);    
-		fcontent.editor.scrollToLine(0);
+    if(data.ext in fc.languageExt)   
+        mode = "ace/mode/" + fc.languageExt[data.ext];
+    fc.editor.getSession().setMode(mode);    
 		var filename = data.filename;
-		var filetype = data.filetype;
-		fcontent.filename=filename;
-		fcontent.filetype=filetype;
-		fcontent.changedStatus(false);
-    //var seln = new Selection();
-    //seln.clearAll();
-    //Selection.clearAll();
+		fc.filename=filename;
+    fc.changedStatus(false);
 		document.getElementById('status').innerHTML = filename;
-    fcontent.editorIcon(true);
+    fc.editorIcon(true);
+    if("project" in data && data.project != null) {
+            fc.project = data.project.list;
+            fc.projectName = data.project.projectName;
+            fc.editor.scrollToLine(fc.getActiveRow(filename));
+    }
+    fc.projectDisplay();  
 	}
-	fcontent.editor.focus();
+  
+  fc.editor.focus();
+  config.Editor.list[2].input = fc.projectName;
+  updateIni();
 }
 
 var topEdit = function() {
-		displayEditor({ 'content': null, 'filename': null, 'filetype':1 } );
+	displayEditor({ 'content': null, 'filename': null } , true );
+}
+
+function updateIni() 
+{
+  var a = {  'app': 'explorer', 'params' :  {
+            'command': 'updateIni',
+            'path': '/AExplorer/aexplorer.ini.js', 
+            'target': null  
+          } };
+  sendFromInterface(a); 
 }
 
 var topSetup = function() {
@@ -524,19 +535,23 @@ var topSetup = function() {
 
 	if(opane.style.display=="none")
 	{
-		dpane.style.display = "none";
     epane.style.display = "none";
+		dpane.style.display = "none";
 		opane.style.display = "block";
 
-  	var frameopt = document.getElementById("options");
-    var fcontent = (frameopt.contentWindow || frameopt.contentDocument);
-    fcontent.iniSetup(config, '/AExplorer/aexplorer.ini.js');
+    var framed = document.getElementById("editor");
+    var fc = (framed.contentWindow || framed.contentDocument);
+    config.Editor.list[2].input = fc.projectName;
+
+    var frameopt = document.getElementById("options");
+    var oc = (frameopt.contentWindow || frameopt.contentDocument);
+    oc.iniSetup(config, '/AExplorer/aexplorer.ini.js');
     return;
 	}
 
 	opane.style.display = "none";
 	dpane.style.display = "block";
-
+    updateIni();
 }
 
 var topHelp = function (target) {
@@ -647,44 +662,43 @@ var elementRename = function(spanitem, panelName)
 	var saved = spanitem.innerHTML;
 	var p1 = saved.indexOf('>');
 	var p2 = saved.indexOf('<', p1);
-  if(p2 == -1)
-    p2 = saved.length;
+    if(p2 == -1)
+        p2 = saved.length;
 	var oldname = saved.slice(p1 + 1, p2);
-  oldname = noHTMLchars(oldname);
-	//alert(saved);
+    oldname = noHTMLchars(oldname);
+
 	var x = document.createElement("input");
 	x.setAttribute('type', 'text');
 	x.setAttribute('value', oldname);
 	x.setAttribute('size', '40');
 
-  x.onkeypress = function(evt) {
+    x.onkeypress = function(evt) {
     evt.stopPropagation();
   	var code = evt.keyCode || evt.which;
 		//alert(code);
     if(code == 13)
     {
-			var newname = x.value;
-			if(newname)
-			{
-        if(alreadyInList(spanitem.parentNode, newname))
-        {
-          alert("Name already used");
-        }
-        else
-        {
+		var newname = x.value;
+		if(newname)
+		{
+            if(alreadyInList(spanitem.parentNode, newname))
+            {
+            alert("Name already used");
+            }
+            else
+            {
 				  acceptRename(oldname, newname, panelName);
 				  saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-        }
-			}
-			x.blur();
+            }
+		}
+		x.blur();
     }
     else
     if(evt.ctrlKey)
     switch(code)
     {
-      case 17:
-	   		x.blur();
-        break;
+      case 17: 	x.blur();
+            break;
     }
 
 	};
@@ -731,7 +745,7 @@ function panelFileInfo(target)
 
 var panelDelete = function(target)
 {
-  selectToDelete(target);
+    selectToDelete(target);
 	var namelist = getSelectedNames(target);
 	var message = "Delete ";
 
@@ -741,16 +755,17 @@ var panelDelete = function(target)
 		return;
 	}
 
-  if(AExplorerBMFlag[target]) {
-    var idx = (target == 'lcontent') ? 0 : 1;
-    for(var i=0; i < namelist.length; i++) {
-      var name = namelist[i];
-      bookmarkDelete(idx, name);
+    if(AExplorerBMFlag[target]) {
+        var idx = (target == 'lcontent') ? 0 : 1;
+        for(var i=0; i < namelist.length; i++) 
+        {
+            var name = namelist[i];
+            bookmarkDelete(idx, name);
+        }
+        AExplorerBMFlag[target]=false;
+        computer(target);
+        return;
     }
-    AExplorerBMFlag[target]=false;
-    computer(target);
-    return;
-  }
 
 	if(namelist.length > 1)
 		message += namelist.length + " files?";
@@ -1138,9 +1153,9 @@ function buildEvents()
 	addEvent('tcopy', topCopy);
 	addEvent('tcopren', topCopyRename, 'lcontent');
 	addEvent('tzip', topZip);
-  addEvent('tsync', topSync);
+    addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
-  addEvent('topt', topSetup);
+    addEvent('topt', topSetup);
 	addEvent('thelp', topHelp);
 	addEvent('tquit', topQuit);
 

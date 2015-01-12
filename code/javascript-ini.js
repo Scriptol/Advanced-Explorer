@@ -170,7 +170,7 @@ function iniSetup(cfg, inifile)
 	 form += "<p class='group'>" + group + "</p>";
 	 parseGroup(config[group]);	
   }
-  form += "<p><input type='button' onclick='saveIni(\""+inifile+"\")' value='Save configuration'></p>";
+  form += "<p><input type='button' onclick='saveIni(\""+inifile+"\")' value=' Apply '></p>";
   var target = document.getElementById("options");
   target.innerHTML = form;
 }  

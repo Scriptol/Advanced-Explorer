@@ -5,8 +5,8 @@
 <title>Advanced Explorer</title>
 <link rel="stylesheet" href="aexplorer.css"> 
 <script type="text/javascript" src="/code/chooser.js"></script>
-<script type="text/javascript" src="aecode.js"></script>
 <script type="text/javascript" src="aexplorer.ini.js"></script>
+<script type="text/javascript" src="aecode.js"></script>
 </head>
 
 <body>
@@ -26,7 +26,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.1</p>
+   <p>Version 2.2</p>
    <p>
     &copy; 2012-2015 Denis Sureau<br>
     www.scriptol.com<br>
@@ -81,7 +81,7 @@
 
 <div id="editpane" style="display:none">
   <div style="width:100%;height:100%;position:relative; padding:0px; display:block;overflow:hidden">
-    <iframe name="editor" id="editor" src="/CodeEditor/editor.html"></iframe>
+    <iframe name="editor" id="editor" src="/Editor/editor.html" scrolling="no"></iframe>
   </div>
 </div> <!--editpane-->
 
@@ -89,7 +89,7 @@
   <div style="width:100%;height:100%;position:relative; padding:0px; display:block;overflow:hidden">
     <iframe name="options" id="options" src="configurator.html"></iframe>
   </div>
-</div> <!--editpane-->
+</div> <!--confpane-->
 
 </div> <!--outer-->
 <div id="statubar">
@@ -117,12 +117,12 @@ function startExplorer()
 function exitExplorer()
 {
 	var framedit = document.getElementById("editor");
-	var fcontent = (framedit.contentWindow || framedit.contentDocument);
-  if(fcontent.editorHasContent)
-    fcontent.save();
+	var fc = (framedit.contentWindow || framedit.contentDocument);
+  if(fc.editorHasContent) fc.save(false);
 
   config.Memory.list[0].input = currentpath['lcontent'];
   config.Memory.list[1].input = currentpath['rcontent'];
+  config.Editor.list[2].input = fc.projectName;
   
   var frameopt = document.getElementById("options");
   var fcontent = (frameopt.contentWindow || frameopt.contentDocument);
