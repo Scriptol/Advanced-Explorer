@@ -125,10 +125,6 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'zip':
           balise += 'images/zip.png';
           break;
-    case 'bak':
-    case 'tmp':
-          balise += 'images/trash.png';
-          break;  
     case 'exe':
     case 'jar':
           balise += 'images/app.png';

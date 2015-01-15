@@ -26,7 +26,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.2</p>
+   <p>Version 2.3</p>
    <p>
     &copy; 2012-2015 Denis Sureau<br>
     www.scriptol.com<br>
@@ -47,15 +47,18 @@
 	<div class="icon"><img src="images/create.png" width="32" height="32" id="lcreate" title="Create directory"></div>
 	<div class="icon"><img src="images/rename.png" width="32" height="32" id="lrename" title="Rename"></div>
   <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected file/dir"></div>
+  <!--
+  <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Show boxes"></div>
+  -->
   </div>
   <div class="fullpath">
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('lcontent')"></div>
-	<div class="fspath" oncontextmenu="return false">
+    <div class="fspath" oncontextmenu="return false">
       <img src="images/star.png" id="lstar" class="fstar" onClick="bookmark('lcontent')">  
       <input type="text" class="innpath" id="lcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'lcontent')">
 	</div>   
   </div>
-  <div id="lcontent"></div> 
+  <div id="lcontent"></div>
 </div>
 
 <div id="rpane">
@@ -66,17 +69,22 @@
     <div class="icon"><img src="images/home.png" width="32" height="32" id="rhome" title="Go to root"></div>	
     <div class="icon"><img src="images/create.png" width="32" height="32" id="rcreate" title="Create directory"></div>
     <div class="icon"><img src="images/rename.png" width="32" height="32" id="rrename" title="Rename"></div>	  
-    <div class="icon"><img src="images/delete.png" width="32" height="32" id="rdelete" title="Delete selected file/dir"></div>
+    <div class="icon"><img src="images/delete.png" width="32" height="32" id="rdelete" title="Delete selected file/dir">
+    <!--
+    <div class="icon"><img src="images/box.png" width="32" height="32" id="rbox" title="Show boxes"></div>
+-->
+</div>
   </div>
   <div class="fullpath"> 
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('rcontent')"></div>
-	<div class="fspath" oncontextmenu="return false">
+	  <div class="fspath" oncontextmenu="return false">
       <img src="images/star.png" id="rstar" class="fstar" onClick="bookmark('rcontent')">
       <input type="text" class="innpath" id="rcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'rcontent')">
-	</div>  
+	  </div>  
   </div>
   <div id="rcontent"></div> 	  
 </div>
+
 </div> <!--dirpane-->
 
 <div id="editpane" style="display:none">
@@ -103,14 +111,19 @@
 <script>
 function startExplorer()
 {
-  ChooserDrag = AExplorerDrag;
-  var lpath = config.Memory.list[0].input;
-  var rpath = config.Memory.list[1].input;
-  if(lpath == '') { lpath = "/"; rpath = "/"; }
+    ChooserDrag = AExplorerDrag;
+    var lpath = config.Memory.list[0].input;
+    var rpath = config.Memory.list[1].input;
+    if(lpath == '') { 
+        lpath = "/"; rpath = "/"; 
+    }
 	currentpath['lcontent'] = lpath;
 	currentpath['rcontent'] = rpath;	
 	fileButton('lcontent', true);
-	fileButton('rcontent', false);	
+	fileButton('rcontent', false);
+    var loc = window.location.href;
+    var p = loc.lastIndexOf("/");	
+    AERoot = loc.substr(0, p + 1); 
 	buildEvents();
 }
 
@@ -118,15 +131,17 @@ function exitExplorer()
 {
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-  if(fc.editorHasContent) fc.save(false);
+    if(fc.editorHasContent) fc.save(false);
+    fc.setActiveRow();
+    fc.saveProject();
 
-  config.Memory.list[0].input = currentpath['lcontent'];
-  config.Memory.list[1].input = currentpath['rcontent'];
-  config.Editor.list[2].input = fc.projectName;
+    config.Memory.list[0].input = currentpath['lcontent'];
+    config.Memory.list[1].input = currentpath['rcontent'];
+    config.Editor.list[2].input = fc.projectName;
   
-  var frameopt = document.getElementById("options");
-  var fcontent = (frameopt.contentWindow || frameopt.contentDocument);
-  fcontent.saveFromAE('/AExplorer/aexplorer.ini.js', config);       
+    var frameopt = document.getElementById("options");
+    var fo = (frameopt.contentWindow || frameopt.contentDocument);
+    fo.saveFromAE('/AExplorer/aexplorer.ini.js', config);       
 }
 
 window.onload=startExplorer;

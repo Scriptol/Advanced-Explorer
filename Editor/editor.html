@@ -47,7 +47,7 @@ Make use of:
     
 <script>
   var editorHasContent = false;
-	var socket = new WebSocket("ws://localhost:1030");
+  var socket = new WebSocket("ws://localhost:1030");
   var editor = ace.edit("editor");
   var project = [];
   var projectName = "";
@@ -106,12 +106,12 @@ function newDoc()
 	var temp = editor.getValue();
 	if(temp.length > 0)
 	{
-		temp = confirm("Erase current content?");
-		if(temp != true) return;
+    var savebefore = prompt("Save current content?", filename);
+    if(savebefore != null && savebefore != "") save(false);
 	}
-    editorIcon(false);  
-    filename = "";
-    updateStatusBar("");
+  editorIcon(false);  
+  filename = "";
+  updateStatusBar("");
 }
 
 function editorIcon(actif)
@@ -128,11 +128,12 @@ function editorIcon(actif)
 
 function clearDoc()
 {
-	if(editorHasContent == false) 
-        editorIcon(false);
-    else
-  	    newDoc();
-    changedStatus(false);
+  if(editorHasContent == false) 
+    editorIcon(false);
+  else {
+    newDoc();  
+  }
+  changedStatus(false);
 }
 
 /* Project Management */
@@ -310,7 +311,6 @@ function act(element)
 {
 	var command = element.id;
 	var temp;
-	//alert(command);
 	switch(command)
 	{
 		case "new":	      clearDoc();	break;
@@ -413,9 +413,9 @@ socket.onmessage = function(event) {
         filename = data.filename;
         clearDoc();
         if(data.content.length > 127)
-            editor.setValue(data.content.slice(9), -1);
+          editor.setValue(data.content.slice(9), -1);
         else
-		    editor.setValue(data.content, -1);
+		      editor.setValue(data.content, -1);
         var mode = "plain_text";
         if(data.ext in languageExt)   
             mode = "ace/mode/" + languageExt[data.ext];
@@ -430,7 +430,7 @@ socket.onmessage = function(event) {
 
     case "editor":
         if(data.action == "prompt") {
-		    var p = prompt(data.message);
+		        var p = prompt(data.message);
             socket.send(JSON.stringify( { "type":"answer", "data": p != null }));
         }
         else {
@@ -439,7 +439,9 @@ socket.onmessage = function(event) {
         break;
     case "message":    
     case "mouse":
-    case "status":    
+        break;  
+    case "status":  
+        updateStatusBar(data.content);   
         break;    
     default:
         alert("Unknow message '" + data.type + "' in editor");
@@ -459,8 +461,7 @@ function save(pflag)
     editor.focus();
     
   setActiveRow();
-  saveProject();  
-    
+
   var content = editor.getValue(); 
   updateStatusBar(x);
   changedStatus(false);
@@ -502,6 +503,7 @@ window.onload=function() {
   ib.addEventListener("change", readFile, false);
 }
 */
+
 
 </script>
 

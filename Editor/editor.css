@@ -71,13 +71,15 @@
 	margin:0px;
 	background:white;
 	overflow:hidden;
-	border-top:1px solid #ccc;	
+	border-top:1px solid #ccc;
 }
 
 #prjlist p {
-  margin:2px 0 2px 0;
-  padding:0;
-  overflow:hidden;
+    margin:2px 0 2px 0;
+    padding:0;
+    overflow:hidden;
+    font-size:14px;
+	font-family:"Tahoma, Candara, sans-serif";
 }
 
 #editor { 

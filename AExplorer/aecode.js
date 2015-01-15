@@ -173,6 +173,13 @@ function socketImage(jobj) {
     //image.src = "file:///" + imagepath;
 }
 
+var leftFiles;
+var leftDirs;
+var leftSize;
+var rightFiles;
+var rightDirs;
+var rightSize;
+
 socket.onmessage = function(event) {
   var jobj =   JSON.parse(event.data);
   switch(jobj.type) {
@@ -209,6 +216,31 @@ socket.onmessage = function(event) {
         var rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
+    case 'stats':
+        if(jobj.target == 'lcontent') {
+          leftDirs = jobj.dirs;
+          leftFiles = jobj.files;
+          leftSize = jobj.size;
+        }
+        else {
+          rightDirs = jobj.dirs;
+          rightFiles = jobj.files;
+          rightSize = jobj.size;
+        }
+        var lpd = leftDirs > 1 ? 's, ' : ', ';
+        var lpf = leftFiles > 1 ? 's, ' : ', ';
+        var rpd = rightDirs > 1 ? 's, ' : ', ';
+        var rpf = rightFiles > 1 ? 's, ' : ', ';
+        
+        var stats = "<span class='lstats'>"
+        + leftDirs + " dir" + lpd
+        + leftFiles + " file" + lpf
+        + leftSize + " bytes.</span><span class='rstats'>"
+        + rightDirs + " dir" + rpd
+        + rightFiles + " file" + rpf
+        + rightSize + " bytes.</span>"; 
+        document.getElementById('status').innerHTML = stats;
+        break;    
     default:
         alert("Message '" + jobj.type + "' not handled here.");    
   }
@@ -472,17 +504,18 @@ function displayEditor(data, fromTop)
 		epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-    if(fc.editor.getValue() != '')
-      fc.editorIcon(true);
-    fc.setActiveRow();
-    fc.saveProject();  
-    config.Editor.list[2].input = fc.projectName;
-    updateIni();
+        if(fc.editor.getValue() != '')
+            fc.editorIcon(true);
+        fc.setActiveRow();
+        fc.saveProject();  
+        config.Editor.list[2].input = fc.projectName;
+        updateIni();
 		return;
 	}
-  fc.editor.setTheme("ace/theme/" + config.Editor.list[0].input.toLowerCase());  
-  var fontSize = parseInt(config.Editor.list[1].input);
-  fc.editor.setFontSize(fontSize);
+    fc.editor.setTheme("ace/theme/" + config.Editor.list[0].input.toLowerCase());  
+    var fontSize = parseInt(config.Editor.list[1].input);
+    fc.editor.setFontSize(fontSize);
+    fc.editor.setShowPrintMargin(false);
 
 	if(data.content != null)
 	{
