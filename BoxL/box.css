@@ -1,0 +1,26 @@
+body
+{
+  background-color:black;
+  font-family:Tahoma, sans-serif, Arial;
+  font-size:13px;
+}
+
+div, a {
+  display:inline-block;
+  text-align:center;
+  color:white;
+  text-decoration:none;
+  min-width:96px;
+  min-height:64px;
+}
+
+div {
+  margin:4px;
+}
+
+div img {
+}
+
+div p {
+  margin:2px;
+}

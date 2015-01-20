@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<!-- Advanced Explorer Box Panel (c) 2012-2015 -->
+<html>
+<head>
+<title>Advanced Explorer Box</title>
+<link type="text/css" href="box.css" rel="stylesheet">
+<script>
+    var socket=new WebSocket("ws://localhost:1030")
+</script>
+</head>
+<body>
+<div id="content">
+</div>
+<script>
+
+var container;
+
+function fillBox(name)
+{   
+  path = "/BoxR/" + name;
+  var href = document.createElement("a");
+  container.appendChild(href);
+  
+  var divtag = document.createElement("div");
+  href.appendChild(divtag);
+
+  var contentpath = path + "/" + name;
+  var pagepath = contentpath + ".html";
+  href.setAttribute("href", pagepath);
+  href.setAttribute("title", pagepath);
+
+  var iconpath =  contentpath + ".png";
+  var icon = document.createElement("img");
+  divtag.appendChild(icon);
+  icon.src = iconpath;
+  
+  var par = document.createElement("p")
+  divtag.appendChild(par);
+  
+  var label = document.createTextNode(name);
+  par.appendChild(label);
+    
+}
+
+function fillBoxes(lst)
+{             
+  for(var i = 0; i < lst.length; i++)
+  {                   
+      fillBox(lst[i]);    
+  }
+}
+
+socket.onmessage = function(event) {
+//alert(event.data)
+  var jobj =   JSON.parse(event.data);
+  switch(jobj.type) {
+    case 'box':
+        fillBoxes(jobj.list);
+        break;
+  }
+}        
+
+  
+socket.onopen = function() {
+  container = document.getElementById("content");
+	var a = { 
+    'app' : 'explorer', 
+    'params': { 
+        'path' : "BoxR", 
+        'command': 'fillBox', 
+        'target': 'lcontent' 
+        } 
+  };  
+  socket.send(
+    JSON.stringify( { "type":"interface", "data": a })
+  );
+}  
+   
+</script>
+</body>
+
+</html>
