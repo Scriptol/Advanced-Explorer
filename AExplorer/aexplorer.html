@@ -26,7 +26,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.3</p>
+   <p>Version 2.4</p>
    <p>
     &copy; 2012-2015 Denis Sureau<br>
     www.scriptol.com<br>
@@ -46,10 +46,8 @@
 	<div class="icon"><img src="images/home.png" width="32" height="32" id="lhome" title="Go to root"></div>	
 	<div class="icon"><img src="images/create.png" width="32" height="32" id="lcreate" title="Create directory"></div>
 	<div class="icon"><img src="images/rename.png" width="32" height="32" id="lrename" title="Rename"></div>
-  <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected file/dir"></div>
-  <!--
-  <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Show boxes"></div>
-  -->
+   <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected file/dir"></div>
+   <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Open the box"></div>
   </div>
   <div class="fullpath">
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('lcontent')"></div>
@@ -70,9 +68,7 @@
     <div class="icon"><img src="images/create.png" width="32" height="32" id="rcreate" title="Create directory"></div>
     <div class="icon"><img src="images/rename.png" width="32" height="32" id="rrename" title="Rename"></div>	  
     <div class="icon"><img src="images/delete.png" width="32" height="32" id="rdelete" title="Delete selected file/dir">
-    <!--
-    <div class="icon"><img src="images/box.png" width="32" height="32" id="rbox" title="Show boxes"></div>
--->
+    <div class="icon"><img src="images/box.png" width="32" height="32" id="rbox" title="Open the box"></div>
 </div>
   </div>
   <div class="fullpath"> 
@@ -122,7 +118,7 @@ function startExplorer()
 	fileButton('lcontent', true);
 	fileButton('rcontent', false);
     var loc = window.location.href;
-    var p = loc.lastIndexOf("/");	
+    var p = loc.indexOf("/");	
     AERoot = loc.substr(0, p + 1); 
 	buildEvents();
 }

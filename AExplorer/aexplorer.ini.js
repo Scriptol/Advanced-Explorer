@@ -23,13 +23,13 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "p:\\AExplorer\\AExplorer"
+                "input": ""
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": "p:\\Advanced-Explorer\\AExplorer"
+                "input": ""
             }
         ]
     },
@@ -38,27 +38,17 @@ var config={
             {
                 "name": "lcontent",
                 "label": "Left panel",
-                "initial": "c:\\",
+                "initial": "",
                 "select": [
-                    "c:\\",
-                    "w:/",
-                    "p:/",
-                    "d:/",
-                    "e:/"
+                    "c:\\"
                 ]
             },
             {
                 "name": "rcontent",
                 "label": "Right panel",
-                "initial": "c:\\",
+                "initial": "",
                 "select": [
-                    "c:\\",
-                    "w:\\",
-                    "d:/",
-                    "c:/MinGW",
-                    "c:/MinGW/mingw32/bin",
-                    "p:/",
-                    "e:/"
+                    "c:\\"
                 ]
             }
         ]
@@ -78,7 +68,7 @@ var config={
             {
                 "name": "lastprj",
                 "label": "Current project",
-                "input": "p:\\AExplorer\\demo.prj"
+                "input": ""
             }
         ]
     }

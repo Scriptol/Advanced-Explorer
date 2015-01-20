@@ -147,7 +147,8 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'rb':
     case 'sol':    
     case 'sql':
-    case 'svg':    
+    case 'svg':
+    case 'ts':    
     case 'xml': 
           balise += 'images/code.png';
           break;
@@ -458,7 +459,8 @@ function view(element, filepath, panelid, forcePage)
     case 'rb':
     case 'sol':    
     case 'sql':
-    case 'svg':    
+    case 'svg': 
+    case 'ts':   
     case 'xml':    
      	edit(element);
       break;      
@@ -976,9 +978,9 @@ function selectToDelete(source)
 	for(i = 0; i < slist.length; i++)
 	{
 		var element = slist[i];
-    element.style.backgroundColor = 'white';
-    element.style.textDecoration = 'line-through';
-    element.style.color = 'red';
+        element.style.backgroundColor = 'white';
+        element.style.textDecoration = 'line-through';
+        element.style.color = 'red';
 	}
 }
 
@@ -987,7 +989,7 @@ var isSHIFT = false;
 document.onkeyup=function(evt)
 {
 	if(!evt.ctrlKey) isCTRL=false;
-  if(!evt.shiftKey) isSHIFT = false;
+    if(!evt.shiftKey) isSHIFT = false;
 }
 
 document.onkeydown=function(evt)

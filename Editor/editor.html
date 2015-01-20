@@ -20,6 +20,7 @@ Make use of:
 <div class="imagebutton" id="new"  onClick="act(this)"><img class="image" src="images/new.png" alt="New blank page" title="New blank page"></div>
 <div class="imagebutton" id="find" onClick="act(this)"><img class="image" src="images/find.png" alt="Search" title="Search"></div>
 <div class="imagebutton" id="next" onClick="act(this)"><img class="image" src="images/next.png" alt="Find next" title="Find next"></div>
+<div class="imagebutton" id="replace" onClick="act(this)"><img class="image" src="images/replace.png" alt="Search & replace" title="Search & replace"></div>
 
 <div class="imagebutton" id="outdent" onClick="act(this)"><img class="image" src="images/outdent.png" alt="Outdent" title="Unindent"></div>
 <div class="imagebutton" id="indent"  onClick="act(this)"><img class="image" src="images/indent.png" alt="Indent" title="Indent"></div>
@@ -98,7 +99,15 @@ Make use of:
 
 function updateStatusBar(message)
 {
-  parent.document.getElementById('status').innerHTML = message;
+    parent.document.getElementById('status').innerHTML = message;
+}
+
+function updateProjectName()
+{
+    if(parent.config.Editor.list[2].input != projectName) { 
+      parent.config.Editor.list[2].input = projectName;
+      parent.updateIni();
+    }
 }
 
 function newDoc()
@@ -109,9 +118,9 @@ function newDoc()
     var savebefore = prompt("Save current content?", filename);
     if(savebefore != null && savebefore != "") save(false);
 	}
-  editorIcon(false);  
-  filename = "";
-  updateStatusBar("");
+    editorIcon(false);  
+    filename = "";
+    updateStatusBar("");
 }
 
 function editorIcon(actif)
@@ -128,12 +137,46 @@ function editorIcon(actif)
 
 function clearDoc()
 {
-  if(editorHasContent == false) 
-    editorIcon(false);
-  else {
-    newDoc();  
-  }
-  changedStatus(false);
+    if(editorHasContent == false) 
+        editorIcon(false);
+    else 
+        newDoc();  
+    changedStatus(false);
+}
+
+function display(data)
+{       
+  editor.setTheme("ace/theme/" + parent.config.Editor.list[0].input.toLowerCase());  
+  var fontSize = parseInt(parent.config.Editor.list[1].input);
+  editor.setFontSize(fontSize);
+  editor.setShowPrintMargin(false);
+
+  if(data.content != null)
+  {
+    setActiveRow();
+    clearDoc();
+    if(data.content.length > 127)
+      editor.setValue(data.content.slice(9), -1);
+    else
+      editor.setValue(data.content, -1);
+    var mode = "plain_text";
+    if(data.ext in languageExt)   
+      mode = "ace/mode/" + languageExt[data.ext];
+    editor.getSession().setMode(mode);    
+    var fname = data.filename;
+    filename=fname;
+    changedStatus(false);
+    updateStatusBar(filename);
+    editorIcon(true);
+    if("project" in data && data.project != null) {
+      project = data.project.list;
+      projectName = data.project.projectName;
+      editor.scrollToLine(getActiveRow(filename));
+    }
+    projectDisplay();  
+	}
+  editor.focus();
+  updateProjectName();
 }
 
 /* Project Management */
@@ -147,32 +190,32 @@ function openDoc(filepath){
         'target': null,
         'inEditor': true 
         } 
-  };
-  socket.send(
-    JSON.stringify( { "type":"interface", "data": a })
-  );
+    };
+    socket.send(
+        JSON.stringify( { "type":"interface", "data": a })
+    );
 }
 
 function getActiveRow(fname) 
 {
-  for(var i = 0; i < project.length; i++)
-  {
-    if(fname == project[i][0])  
-      return project[i][1];
-  }
-  return 0;
+    for(var i = 0; i < project.length; i++)
+    {
+        if(fname == project[i][0])  
+            return project[i][1];
+    }
+    return 0;
 }
 
 function setActiveRow() 
 {     
-  if(filename == undefined || filename == "") return;
-  for(var i = 0; i < project.length; i++)
-  {
-    if(filename == project[i][0]) {
-      project[i][1] = editor.getFirstVisibleRow();
-      return;
-    }  
-  }
+    if(filename == undefined || filename == "") return;
+    for(var i = 0; i < project.length; i++)
+    {
+        if(filename == project[i][0]) {
+            project[i][1] = editor.getFirstVisibleRow();
+            return;
+        }  
+    }
 }
 
 function extractDir(fullpath) {
@@ -223,7 +266,7 @@ function rmb(element)
 }
 
 function saveProject() {
-  if(projectName == undefined || projectName == "") return;
+    if(projectName == undefined || projectName == "") return;
 	var a = { 
     'app' : 'explorer', 
     'params': { 
@@ -300,9 +343,9 @@ function addFileToList() {
 }
 
 function closeProject() {
-  project=[];
-  projectName="";
-  projectDisplay();
+    project=[];
+    projectName="";
+    projectDisplay();
 }
 
 /* Shell */
@@ -313,9 +356,15 @@ function act(element)
 	var temp;
 	switch(command)
 	{
-		case "new":	      clearDoc();	break;
-		case "indent":		editor.indent();	break;	
-		case "outdent":		editor.blockOutdent();	break;					
+		case "new":	      
+      clearDoc();	
+      break;
+		case "indent":		
+      editor.indent();	
+      break;	
+		case "outdent":		
+      editor.blockOutdent();	
+      break;					
 		case "link":
 			var temp = prompt("Enter a URL:", "http://");			
 			var current = editor.session.getTextRange(editor.getSelectionRange());
@@ -350,6 +399,9 @@ function act(element)
 			    regExp: false
 			});
 			break;
+    case "replace":
+      editor.execCommand("replace")
+      break;
 		case "next":	
 			editor.findNext();
 			break;
@@ -375,7 +427,7 @@ function changedStatus(status)
 		chg.src="images/changed.png";
 	else
 		chg.src="images/saved.png";		
-  editorHasContent = status;  
+    editorHasContent = status;  
 }
 
 var languageExt = {
@@ -410,8 +462,8 @@ socket.onmessage = function(event) {
     {
     case "openDoc":
         setActiveRow();
-        filename = data.filename;
         clearDoc();
+        filename = data.filename;
         if(data.content.length > 127)
           editor.setValue(data.content.slice(9), -1);
         else
@@ -420,8 +472,8 @@ socket.onmessage = function(event) {
         if(data.ext in languageExt)   
             mode = "ace/mode/" + languageExt[data.ext];
         editor.getSession().setMode(mode); 
-        var activeRow = getActiveRow(filename);   
-        editor.scrollToLine(activeRow);
+        var row = getActiveRow(filename);   
+        editor.scrollToLine(row);
         changedStatus(false);
         editorIcon(true);
         projectDisplay();
@@ -452,26 +504,26 @@ socket.onmessage = function(event) {
 
 function save(pflag)
 {
-  if(pflag) {
-  	var x = prompt("Save as ", filename);
-    if(x != null && x != "")
-	   filename = x;
-  }
-  else
-    editor.focus();
+    if(pflag || filename == undefined || filename == "") {
+      	var x = prompt("Save as ", filename);
+        if(x != null && x != "")
+	        filename = x;
+    }
+    else
+        editor.focus();
     
-  setActiveRow();
+    setActiveRow();
 
-  var content = editor.getValue(); 
-  updateStatusBar(x);
-  changedStatus(false);
-  var a = { 'app' : 'explorer', 'params': { 
+    var content = editor.getValue(); 
+    updateStatusBar(x);
+    changedStatus(false);
+    var a = { 'app' : 'explorer', 'params': { 
 	            'command': 'save', 
 				'filename': filename, 
 				'content' : content,
 				'overwrite' : true 
 				}};
-  socket.send(JSON.stringify( { "type":"interface", "data": a }));  
+    socket.send(JSON.stringify( { "type":"interface", "data": a }));  
 }
 
 function buildtable(editor)

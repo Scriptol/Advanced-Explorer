@@ -7,6 +7,7 @@ var currpanel = leftpanel;
 var AExplorerDrag = {'lcontent': true, 'rcontent':false };
 var AExplorerBMFlag = {'lcontent': false, 'rcontent':false };
 var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
+var AERoot = null;
 
 function sameDir()
 {
@@ -483,11 +484,11 @@ function displayEditor(data, fromTop)
         if(fc.projectName != undefined && fc.projectName.length > 0) 
         {
           var a = { 'app' : 'explorer', 'params': { 
-              'command': 'openPrj', 
-              'name': fc.projectName,
-              'inEditor': false, 
-						  'target' : null
-			 		  } };
+                 'command': 'openPrj', 
+                 'name': fc.projectName,
+                 'inEditor': false, 
+                 'target' : null
+		              } };
           sendFromInterface(a);
           return;
         }
@@ -496,55 +497,25 @@ function displayEditor(data, fromTop)
 
     dpane.style.display = "none";
     opane.style.display = "none";
-		epane.style.display = "block";
-		edfra.style.display = "block";
+    epane.style.display = "block";
+    edfra.style.display = "block";
 	}
 	else // closing
 	{
 		epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-        if(fc.editor.getValue() != '')
-            fc.editorIcon(true);
-        fc.setActiveRow();
-        fc.saveProject();  
-        config.Editor.list[2].input = fc.projectName;
-        updateIni();
+    if(fc.editor.getValue() != '')
+       fc.editorIcon(true);
+    fc.setActiveRow();
+    fc.saveProject(); 
+    if(config.Editor.list[2].input != fc.projectName) { 
+       config.Editor.list[2].input = fc.projectName;
+       updateIni();
+    }
 		return;
 	}
-    fc.editor.setTheme("ace/theme/" + config.Editor.list[0].input.toLowerCase());  
-    var fontSize = parseInt(config.Editor.list[1].input);
-    fc.editor.setFontSize(fontSize);
-    fc.editor.setShowPrintMargin(false);
-
-	if(data.content != null)
-	{
-    fc.setActiveRow();
-    fc.clearDoc();
-    if(data.content.length > 127)
-      fc.editor.setValue(data.content.slice(9), -1);
-    else
-      fc.editor.setValue(data.content, -1);
-    var mode = "plain_text";
-    if(data.ext in fc.languageExt)   
-        mode = "ace/mode/" + fc.languageExt[data.ext];
-    fc.editor.getSession().setMode(mode);    
-		var filename = data.filename;
-		fc.filename=filename;
-    fc.changedStatus(false);
-		document.getElementById('status').innerHTML = filename;
-    fc.editorIcon(true);
-    if("project" in data && data.project != null) {
-            fc.project = data.project.list;
-            fc.projectName = data.project.projectName;
-            fc.editor.scrollToLine(fc.getActiveRow(filename));
-    }
-    fc.projectDisplay();  
-	}
-  
-  fc.editor.focus();
-  config.Editor.list[2].input = fc.projectName;
-  updateIni();
+  fc.display(data);
 }
 
 var topEdit = function() {
@@ -815,6 +786,20 @@ var panelDelete = function(target)
 			  'params': { 'command': 'unlink', 'list': namelist, 'target': target }
 	};
 	sendFromInterface(a);
+}
+
+var panelBox = function(target)
+{
+  var boxpath = AERoot + "Box" + target.charAt(0).toUpperCase() + "/box.html";
+  var box = document.createElement("iframe");
+  var parent = document.getElementById(target);
+  //box.width = parent.style.width;
+  //box.height = parent.style.height;  
+  box.width = "100%";
+  box.height = "100%";  
+  parent.innerHTML = "";
+  parent.appendChild(box);
+  box.src = boxpath;
 }
 
 var panelGo = function(target, x) {
@@ -1088,6 +1073,10 @@ var keydownHandler = function(evt, code, target)
       panelDelete(target);
       evt.stopPropagation();
       break;
+    case 82:
+      evt.keyCode = 0;
+      evt.cancelBubble = true;
+      break;
     default:
       break;
   }
@@ -1101,30 +1090,27 @@ var keypressHandler = function(evt, code, target)
   switch(code)
   {
     case 9:  // ctrl-i
-      panelFileInfo(target);
-      break;
+        panelFileInfo(target);
+        break;
     case 13: // enter
-      var element = getPointedContent(target);
-      var filename =  getNameSelected(element);
-      //alert(target + " " + element + " " + filename);
-      if(isDirectory(element))
-      {
-        /*
-        if(filename == '..')
-          elementToSelect = getCurrentDirectory(target);
+        var element = getPointedContent(target);
+        var filename =  getNameSelected(element);
+        if(isDirectory(element))
+        {
+            elementToSelect = '*';
+            chDir(filename, target);
+        }
         else
-          elementToSelect = '*';
-        */
-        elementToSelect = '*';
-        chDir(filename, target);
-      }
-      else
-        open(element, true);
-      break;
+            open(element, true);
+        break;
+    case 18: // ctrl-r
+        evt.keyCode = 0;
+        evt.cancelBubble = true;
+        break;    
     case 19: // ctrl-s
-      break;
+        break;
     default:
-      break;
+        break;
   }
   isCTRL = false;
   return false;
@@ -1198,6 +1184,7 @@ function buildEvents()
 	addEvent('lcreate', panelCreate, 'lcontent');
 	addEvent('lrename', panelRename, 'lcontent');
 	addEvent('ldelete', panelDelete, 'lcontent');
+  addEvent('lbox', panelBox, 'lcontent');
 
 	addInputEvent('lcontentpath', panelGo, 'lcontent');
 
@@ -1207,6 +1194,7 @@ function buildEvents()
 	addEvent('rcreate', panelCreate, 'rcontent');
 	addEvent('rrename', panelRename, 'rcontent');
 	addEvent('rdelete', panelDelete, 'rcontent');
+  addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 

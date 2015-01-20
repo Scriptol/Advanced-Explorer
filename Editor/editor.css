@@ -2,18 +2,18 @@
 #body
 {
 	margin:0;
-	padding:0px;
+	padding:0;
 	overflow: hidden;
 }
 
 #main {
 	position: absolute;
 	top: 44px;
-	right: 0px;
-	bottom: 0px;
+	right: 0;
+	bottom: 0;
 	left: 0;
 	margin:8px 8px 8px 8px;	
-	padding:0px;
+	padding:0;
 	border:1px solid #999;
 }
 
@@ -79,7 +79,7 @@
     padding:0;
     overflow:hidden;
     font-size:14px;
-	font-family:"Tahoma, Candara, sans-serif";
+	font-family:Arial, Tahoma, sans-serif;
 }
 
 #editor { 
