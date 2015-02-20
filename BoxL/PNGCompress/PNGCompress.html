@@ -1,0 +1,134 @@
+<DOCTYPE HTML>
+<html>
+<head>
+<meta charset=utf-8>
+<title>Search</title>
+<style>
+body, input {
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+}
+body {
+	padding:32px;
+}
+
+#target {
+  padding:4px 4px 6px 8px;
+  border:1px solid #ccc;
+  border-radius:6px;
+  font-weight:bold;
+}
+#result {
+  padding:4px 4px 6px 8px;
+  min-height:128px;
+  overflow:hidden;  
+}
+</style>
+<script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
+<script>
+
+var socket = new WebSocket("ws://localhost:1030");
+
+function message(content)
+{
+  var target = document.getElementById('result');
+  target.innerHTML += content;
+}
+
+
+function updateInfo()
+{
+	var sourcePath = xdata.source.path;
+    var lst = xdata.source.list; 
+    var searchinfo = document.getElementById("info");
+    if(lst.length > 0) {
+	    if(lst.length == 1) {
+	        if(getExt(lst[0]) != "png")
+	            searchinfo.innerHTML = "Select a PNG file to compress, please.";
+	        else
+	            searchinfo.innerHTML = "Compressing <b><i>" + lst[0] + "</i></b>.";
+	    }
+	    else {
+	        searchinfo.innerHTML = "Compressing <b><i>" + lst.length + " selected files</i></b> file.";
+	    }
+	} 
+	else
+	{
+	    searchinfo.innerHTML = "Compressing all PNG files in <b>" + sourcePath + "</b>.";
+	}
+	
+	var telem = document.getElementById("target");
+	telem.innerHTML = sourcePath;
+}
+
+function getExt(name) {
+    var p = name.lastIndexOf(".");
+    if(p < 1) return "";
+    return name.substr(p + 1).toLowerCase();
+}
+
+function compress() 
+{
+    var opt = "";
+
+	var lst = xdata.source.list;
+	if(lst.length == 0)
+	{
+	    opt += "all " + xdata.source.path;
+	}
+  else
+  {
+        opt += "list " + xdata.source.path + " ";
+	    for(var i=0; i < lst.length; i++)
+	    {
+	        var png = lst[i];
+	        if(getExt(png) != "png") {
+	            alert("Please, select only PNG files");
+	            return;
+	        }
+	        opt += png + " ";
+	    }
+  }
+
+  var a = { 
+    'app' : 'explorer', 
+    'params': { 
+        'command': 'run',
+        'program': 'node',
+        'script' : "BoxL/PNGCompress/png.js",
+        'options': opt
+        } 
+  };
+  socket.send(
+      JSON.stringify( { "type":"interface", "data": a })
+  );	
+}
+
+socket.onmessage = function(event) {
+    var jobj = JSON.parse(event.data);
+    if(jobj.type == "message" && jobj.app == "PNGCompress")
+    {      
+        message(jobj.content);
+    }
+}
+
+window.onload=updateInfo;
+</script>
+</head>
+
+<body>
+<h1>Compress PNG images</h1>
+<p id="info"></p>
+<p>Source and target directory (files will be overwritten): </p>
+<p style="padding-left:64px"><img src="/AExplorer/images/down.png"></p>
+<div id="target"></div>
+<form method="" action="">
+<p>    
+	<input type="button" value="Compress" onclick="compress()"> &nbsp; 
+	<input type="button" value="Cancel" onclick="parent.panelBox('lcontent')">
+</p>	
+
+<fieldset id="result"></fieldset>
+
+</form>
+</body>
+</html>

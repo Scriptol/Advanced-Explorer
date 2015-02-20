@@ -26,7 +26,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.4</p>
+   <p>Version 2.5</p>
    <p>
     &copy; 2012-2015 Denis Sureau<br>
     www.scriptol.com<br>
@@ -119,7 +119,7 @@ function startExplorer()
 	fileButton('rcontent', false);
     var loc = window.location.href;
     var p = loc.indexOf("/");	
-    AERoot = loc.substr(0, p + 1); 
+    AERoot = loc.substr(0, p + 1);
 	buildEvents();
 }
 
@@ -127,17 +127,16 @@ function exitExplorer()
 {
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-    if(fc.editorHasContent) fc.save(false);
-    fc.setActiveRow();
-    fc.saveProject();
+  if(fc.editorHasContent) fc.save(false);
+  fc.setActiveRow();
+  fc.saveProject();
 
-    config.Memory.list[0].input = currentpath['lcontent'];
-    config.Memory.list[1].input = currentpath['rcontent'];
-    config.Editor.list[2].input = fc.projectName;
-  
-    var frameopt = document.getElementById("options");
-    var fo = (frameopt.contentWindow || frameopt.contentDocument);
-    fo.saveFromAE('/AExplorer/aexplorer.ini.js', config);       
+  config.Memory.list[0].input = currentpath['lcontent'];
+  config.Memory.list[1].input = currentpath['rcontent'];
+  config.Editor.list[2].input = fc.projectName;
+  var frameopt = document.getElementById("options");
+  var fo = (frameopt.contentWindow || frameopt.contentDocument);
+  fo.saveFromAE('/AExplorer/aexplorer.ini.js', config);    
 }
 
 window.onload=startExplorer;

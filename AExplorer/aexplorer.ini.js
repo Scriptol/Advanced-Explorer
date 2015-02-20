@@ -23,13 +23,13 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": ""
+                "input": "/"
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": ""
+                "input": "/"
             }
         ]
     },
@@ -38,7 +38,7 @@ var config={
             {
                 "name": "lcontent",
                 "label": "Left panel",
-                "initial": "",
+                "initial": "c:\\",
                 "select": [
                     "c:\\"
                 ]
@@ -46,7 +46,7 @@ var config={
             {
                 "name": "rcontent",
                 "label": "Right panel",
-                "initial": "",
+                "initial": "c:\\",
                 "select": [
                     "c:\\"
                 ]

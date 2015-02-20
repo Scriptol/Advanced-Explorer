@@ -3,10 +3,88 @@
 <head>
 <meta charset=utf-8>
 <title>Hello</title>
+<style>
+body {
+	padding:32px;
+}
+</style>
+<script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
+<script>
+
+var socket = new WebSocket("ws://localhost:1030");
+
+// display message from the server
+
+function message(content)
+{
+    var info = document.getElementById("helloinfo");
+    info.innerHTML += content;
+}
+
+// display data from the xdata file
+
+function dispInfo()
+{
+	var sourcePath = xdata.source.path;
+	var targetPath = xdata.target.path;
+	message("Source path "+ sourcePath + "<br>Target path " + targetPath + "<br>");
+}
+
+// launch the hello.js script
+
+socket.onopen = function (event) {
+    var a = { 
+    'app' : 'explorer', 
+    'params': { 
+        'command': 'run',
+        'program': 'node',
+        'script' : "BoxL/Hello/hello.js",
+        'options': "Hello server!"
+        } 
+    };
+    socket.send(JSON.stringify( { "type":"interface", "data": a }));
+    message("Sent to server: Hello server! (to be displayed by the console)");
+};
+
+socket.onmessage = function(event) {
+    var jobj = JSON.parse(event.data);
+    if(jobj.type == "message" && jobj.app == "Hello")
+    {      
+        message("<br>From the server: " + jobj.content);
+    }
+}
+
+/*
+xmessage = function(e) {
+  if(e.origin !== "http://localhost:1032") return;
+  //var data = e.source.postMessage(e.data, 'http://localhost:1032');
+  alert(e.data);
+  message(e.data); 
+}
+
+window.addEventListener('message', xmessage, false);
+*/
+
+window.onload=function()
+{
+    dispInfo();
+};
+
+</script>
 </head>
 
 <body>
-<p>Hello World!</p>
-<p><input type="button" value="Bye!" onclick="window.history.back()"></p>
+<h1>Hello World!</h1>
+<hr>
+<div id="helloinfo"></div>
+</hr>
+<form method="" action="">
+<p>    
+	<input type="button" value="Bye!" onclick="parent.panelBox('lcontent')">
+</p>	
+
+</form>
 </body>
 </html>
+
+

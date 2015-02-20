@@ -197,7 +197,8 @@ socket.onmessage = function(event) {
         displayEditor(jobj, false);
         break;
     case 'message':
-        alert(jobj.content); 
+        if(jobj.app == "AExplorer")
+          alert(jobj.content); 
         break;    
     case 'status':
         document.getElementById('status').innerHTML = jobj.content;
@@ -217,6 +218,9 @@ socket.onmessage = function(event) {
         var rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
+    case 'box':
+        openBox(jobj);
+        break;    
     case 'stats':
         if(jobj.target == 'lcontent') {
           leftDirs = jobj.dirs;
@@ -243,9 +247,10 @@ socket.onmessage = function(event) {
         document.getElementById('status').innerHTML = stats;
         break;    
     default:
-        alert("Message '" + jobj.type + "' not handled here.");    
+        //alert("AECode Message '" + jobj.type + "' not handled here.");    
   }
 };
+
 
 /*
   Utilities
@@ -329,6 +334,26 @@ function addListMenu(element, panel)
   p3.innerHTML = "Sort by names"; 
   
 }  
+
+/* Data exchange file */
+
+function buildXData(target)
+{
+  var xdata = {};
+  xdata['source']= {}
+  xdata.source['path'] = document.getElementById("lcontentpath").value;
+  xdata.source['list'] = getSelectedNames('lcontent');
+  xdata['target'] = {}
+  xdata.target['path'] = document.getElementById("rcontentpath").value;
+  xdata.target['list'] = getSelectedNames('lcontent');
+  var a = { 'app' : 'explorer', 'params': { 
+	      'command': 'store', 
+				'filename': "xdata.js",
+				'content' : "var xdata =" + JSON.stringify(xdata, " "),
+				'overwrite' : true 
+				}};
+  socket.send(JSON.stringify( { "type":"interface", "data": a }));
+}
 
 /*
 	Top Events building
@@ -473,7 +498,6 @@ function displayEditor(data, fromTop)
 	var opane = document.getElementById('optpane');
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-
 	if(epane.style.display=="none")
 	{
     if(fromTop)
@@ -488,7 +512,8 @@ function displayEditor(data, fromTop)
                  'name': fc.projectName,
                  'inEditor': false, 
                  'target' : null
-		              } };
+		              } 
+          };
           sendFromInterface(a);
           return;
         }
@@ -499,6 +524,7 @@ function displayEditor(data, fromTop)
     opane.style.display = "none";
     epane.style.display = "block";
     edfra.style.display = "block";
+    fc.display(data);
 	}
 	else // closing
 	{
@@ -515,7 +541,6 @@ function displayEditor(data, fromTop)
     }
 		return;
 	}
-  fc.display(data);
 }
 
 var topEdit = function() {
@@ -545,7 +570,6 @@ var topSetup = function() {
 
     var framed = document.getElementById("editor");
     var fc = (framed.contentWindow || framed.contentDocument);
-    config.Editor.list[2].input = fc.projectName;
 
     var frameopt = document.getElementById("options");
     var oc = (frameopt.contentWindow || frameopt.contentDocument);
@@ -555,7 +579,7 @@ var topSetup = function() {
 
 	opane.style.display = "none";
 	dpane.style.display = "block";
-    updateIni();
+  updateIni();
 }
 
 var topHelp = function (target) {
@@ -575,11 +599,11 @@ var topQuit = function (target) {
   }
   else // from desktop
   {
-	var a = { 'app' : 'explorer',
+	  var a = { 'app' : 'explorer',
 			  'params': { 'command': 'quit', }
-	};
-	sendFromInterface(a);
-  this.close();
+	  };
+	  sendFromInterface(a);
+    setTimeout(function() { socket.close(); this.close();}, 100);
   }
 }
 
@@ -788,18 +812,41 @@ var panelDelete = function(target)
 	sendFromInterface(a);
 }
 
-var panelBox = function(target)
-{
-  var boxpath = AERoot + "Box" + target.charAt(0).toUpperCase() + "/box.html";
+function openBox(jobj)
+{                      
+  var target = jobj.target;
+  var letter = target.charAt(0).toUpperCase();
+  
+  var boxpath = AERoot + "Box" + letter + "/box.html";
+  var parent = window.document.getElementById(target);
   var box = document.createElement("iframe");
-  var parent = document.getElementById(target);
-  //box.width = parent.style.width;
-  //box.height = parent.style.height;  
   box.width = "100%";
-  box.height = "100%";  
+  box.height = "100%";
+  box.id="Box" + letter;  
   parent.innerHTML = "";
   parent.appendChild(box);
   box.src = boxpath;
+}
+
+var panelBox = function(target)
+{
+  var id = target + "list";
+  var check = document.getElementById(id);  // file list displayed?
+  if(check != null)
+    buildXData();
+    
+  var boxDir = "Box" + target.charAt(0).toUpperCase();    
+    
+	var a = { 
+    'app' : 'explorer', 
+    'params': { 
+        'path' : boxDir, 
+        'command': 'box', 
+        'target': 'lcontent' 
+        } 
+  };  
+  socket.send(JSON.stringify( { "type":"interface", "data": a }));     
+
 }
 
 var panelGo = function(target, x) {

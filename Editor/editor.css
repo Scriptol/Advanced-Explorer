@@ -41,25 +41,7 @@
 	background: url(images/prjback.png);
 	padding:4px 4px 0px 4px;
 }
-/*
-#addto {
-  display:inline;
-	position: relative; 
-	height:22px; 
-	width:24px;
-  padding:0; 
-  background: url(images/prjadd.png) no-repeat;
-  float:left;
-}
 
-#addto input {
-  width:22px;
-  height:24px;
-  filter: alpha(opacity=0);
-  opacity: 0;
-  overflow:hidden;
-}
-*/
 #prjlist {
 	position:absolute;
 	top:29px;
@@ -114,20 +96,47 @@
 {
 	border:1px solid #CCC;
 }
-.indicator
-{
+
+.sideright {
+  position:relative;
 	float:right;
-	right:16px;
+	right:0px;
+  padding:0;
+}
+
+.tfield {
+  position:relative;
+  display:inline-block;
+  float:left;
+  line-height:20px;
+  padding:2px 8px 2px 8px;
+  margin:4px 4px 0px 0;
+  background:#ddd;
+  border:1px solid #999;
+  border-radius:4px;
+  opacity:0.5;
+  overflow:hidden;
+  color:#000;
+  font-weight:bold;
+  font-family:Arial, sans-serif;
+}
+
+.indicator {
+  position:relative;
+  right:0px;
+  display:inline-block;
 	height: 34px; 
 	width: 34px; 
 	padding:1px 0 1px 1px;	
 }
+
 .image {
 	position: relative; 
 	height:32px; 
 	width:32px; 
 	border:none;
 }
+
 .pimage, .primage, {
 	position: relative; 
 	height:22px; 

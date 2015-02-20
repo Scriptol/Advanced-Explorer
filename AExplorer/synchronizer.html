@@ -65,14 +65,14 @@ function startSync() {
 
 <body>
 <h1>Synchronizer</h1>
-<p>About to synchronize the content of the right panel with the left panel. Files and dirs in the right panel will be overwriten by newer files with same names from the left panel.</p>
+<p>About to synchronize the content of the right panel with the left panel. Files in the right panel will be overwriten by newer files.</p>
 <div id="sourceid"></div>
 <p style="padding-left:64px"><img src="images/down.png"></p>
 <div id="targetid"></div>
 
 <p>Process recursively sub-directories <input id="idrec" type="checkbox" value="" onClick="cbChange(this)"></p>
 <p>Update only existing files <input id="idupd" type="checkbox" value="" onClick="upChange(this)"></p>
-<p><i>In case of a selection, if directories are included they are parsed recursively.</i><p>
+<p><i>If directories are included in a selection, check the recurse option.</i><p>
 <center>
 <p><input type="button" value="Synchronize" class="process" onclick="startSync()"></p>
 <p>Click again on the <img src="images/sync.png"> button to cancel.</p>

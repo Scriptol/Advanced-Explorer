@@ -647,7 +647,6 @@ function openProject(element)
                 'name': filename, 
                 'target': target 
             } };
-	
 	sendFromInterface(a);
 }
 

@@ -13,7 +13,6 @@ var http = require("http"),
 
 var WebSocketServer = require("ws").Server;
 var websocket = new WebSocketServer( { port: 1030 } );
-
 var explorer = require("explorer");
 
 
@@ -61,44 +60,32 @@ function getFilename(request, response)
     fs.exists(localpath, function(result) { getFile(result, response, localpath)});
 }
 
-function nativeComm(ncom)
-{
-    console.log('TCP connection: ' + ncom.remoteAddress +':'+ ncom.remotePort);
-    ncom.setEncoding("utf8");
 
-    ncom.on('data',
-      function(data)
-      {
-        //listener.sockets.emit('notification', data);
-      }
-    );
-    ncom.on('end',
-      function() {
-        console.log('Native connection closed.');
-      }
-    );
-}
-
-function runScript(exists, file, param) // Run a local script a the Web interface request
+function runScript(exists, file, param) // Run a local script at the Web interface request
 {
   if(!exists)
   {
     console.log("File not found");
     return false;
   }
+
   console.log("Running...");
-  var r = runner.exec(file + " " + param,
-    function(err, stdout, stderr) { console.log(stdout);}
+  
+  var r = runner.exec(file, param,// { env: childEnv },
+    function(err, stdout, stderr) { 
+      console.log(stderr);
+    }
   );
   console.log(file + " launched by the server...");
   r.on('exit', function (code) {
     console.log('Local script terminated.');
-  });
+  });  
+  
 }
 
 function webComm(websocket)
 {
-  console.log("Browser connected online...")
+  console.log("Server: WebSocket activated by the browser...")
   websocket.on( 'message' , function (e)
   { 
       var jo = JSON.parse(e);
@@ -122,29 +109,27 @@ function webComm(websocket)
 
       if(jo.type == "interface") 
       {
-        //console.log("type", jo.type);
-        //console.log("data", jo.data);
-  
 		    var app = data.app;
 		    var params = data.params;
             switch(app)
-	        {   
-		    	case 'explorer':
-			 	    console.log(" ");
-				    explorer.shell(websocket, fs, params);
-				    break;
-                default:
-				    var filename = params.path;
-				    fs.exists(filename, function(result) { 
-				    runScript(result, app, filename + " " + params)});
-            }   
-		  }
-      else
-            console.log("Unknow message type from browser...");
+	         {   
+		    	   case 'explorer':
+			 	        console.log(" ");
+				        explorer.shell(websocket, fs, params);
+				        break;
+             default:
+				        var filename = params.path;
+				        fs.exists(filename, function(result) { 
+				          runScript(result, app, filename + " " + params)});
+                }   
+	         }
+     else
+        console.log("Unknow message type from browser...");
   });
   
-  websocket.on('close', function() { console.log("Browser gone.") });
- 
+  websocket.on('close', function() { 
+    console.log("Server: WebSocket connection closed by the browser.")
+  });
 }
 
 
@@ -179,11 +164,33 @@ console.log("Server available...");
 loadBrowser('AExplorer/aexplorer.html');
 console.log("Browser loaded. Port 1030 ready.");
 
+var socket;
+
 // Create a TCP server to communicate with native script
-var nativeserver = net.createServer(function(n) { nativeComm(n);});
-nativeserver.listen(1031, '127.0.0.1');
-console.log('TCP local server active on port 1031.');
+var nativeServer = net.createServer(function(ncom) { 
+
+    console.log('Native connection activated: ' + ncom.remoteAddress +':'+ ncom.remotePort);
+    ncom.setEncoding("utf8");
+
+    ncom.on("error", function(err) {
+      console.log("TCP error: " + err.stack);
+    });    
+    ncom.on('data', function(data) { 
+        console.log("Data received: " + data);
+        socket.send(data);
+    });
+    ncom.on('end',  function() {  
+      console.log('Native connection closed.');  
+    });
+
+});
+
+//nativeServer.setTimeout(0);
+nativeServer.listen(1031, '127.0.0.1');
 
 // Create a websocket connection
 console.log("WebSocket started on port 1030.");
-websocket.on('connection', function (w) { webComm(w);} );
+websocket.on('connection', function (w) { 
+  socket = w;
+  webComm(w);} 
+);

@@ -31,7 +31,11 @@ Make use of:
 <div class="imagebutton" id="redo"    onClick="act(this)"><img class="image" src="images/redo.png" alt="Redo" title="Redo"></div>
 <div class="imagebutton" id="link"    onClick="act(this)"><img class="image" src="images/link.png" alt="Insert Link" title="Insert Link"></div>
 <div class="imagebutton" id="table"   onClick="act(this)"><img class="image" src="images/table.png" alt="Insert Table" title="Insert Table"></div>
-<div class="indicator"><img class="image" id="changed" src="images/saved.png" alt="Change status" title="Change status"></div>
+<div class="sideright">
+  <div class="tfield" id="filename"></div>
+  <div class="indicator"><img class="image" id="changed" src="images/saved.png" alt="Change status" title="Change status">
+</div>
+</div>
 </div> <!--toolbar-->
 
 <div id="main">
@@ -102,6 +106,14 @@ function updateStatusBar(message)
     parent.document.getElementById('status').innerHTML = message;
 }
 
+function setFileName(fname) {
+  filename = fname;
+  var pos = fname.lastIndexOf("/");
+  if(pos == -1) pos = fname.lastIndexOf("\\");
+  if(pos > 0) fname = fname.substr(pos + 1);
+  document.getElementById("filename").innerHTML = fname;
+}
+
 function updateProjectName()
 {
     if(parent.config.Editor.list[2].input != projectName) { 
@@ -115,8 +127,8 @@ function newDoc()
 	var temp = editor.getValue();
 	if(temp.length > 0)
 	{
-    var savebefore = prompt("Save current content?", filename);
-    if(savebefore != null && savebefore != "") save(false);
+    var sb = prompt("Save current content?", filename);
+    if(sb != null && sb != "") save(false);
 	}
     editorIcon(false);  
     filename = "";
@@ -140,14 +152,16 @@ function clearDoc()
     if(editorHasContent == false) 
         editorIcon(false);
     else 
-        newDoc();  
+        newDoc(); 
+    setFileName("");     
     changedStatus(false);
 }
 
 function display(data)
 {       
-  editor.setTheme("ace/theme/" + parent.config.Editor.list[0].input.toLowerCase());  
-  var fontSize = parseInt(parent.config.Editor.list[1].input);
+  var configEd = parent.config.Editor; 
+  editor.setTheme("ace/theme/" + configEd.list[0].input.toLowerCase());  
+  var fontSize = parseInt(configEd.list[1].input);
   editor.setFontSize(fontSize);
   editor.setShowPrintMargin(false);
 
@@ -164,7 +178,7 @@ function display(data)
       mode = "ace/mode/" + languageExt[data.ext];
     editor.getSession().setMode(mode);    
     var fname = data.filename;
-    filename=fname;
+    setFileName(fname);
     changedStatus(false);
     updateStatusBar(filename);
     editorIcon(true);
@@ -267,6 +281,7 @@ function rmb(element)
 
 function saveProject() {
     if(projectName == undefined || projectName == "") return;
+    if(project.length == 0) return;
 	var a = { 
     'app' : 'explorer', 
     'params': { 
@@ -291,6 +306,7 @@ function createProject() {
         }
         if(projectName.lastIndexOf(".") == -1)
             projectName += ".prj";
+        updateProjectName();    
     }    
     return true;
 }
@@ -299,17 +315,16 @@ function createProject() {
 function readFile(evt) {
     createProject();
     var fileobj = evt.target.files[0];
-    
-    var filename = fileobj.name;
     var root = extractDir(projectName);
-    filename = root + filename;
-    filename = window.prompt("Confirm or change path:", filename);
-    if(filename == null) return;
-    if(project.indexOf(filename) != -1) {
+    setFileName(filename);
+    fname = window.prompt("Confirm or change path:", filename);
+    if(fname == null) return;
+    if(project.indexOf(fname) != -1) {
         alert("Already included!");
         return;
     }    
-    project.push(filename);
+    project.push(fname);
+    setFileName(fname);
     project.sort();
     projectDisplay();
     saveProject();
@@ -317,9 +332,9 @@ function readFile(evt) {
 */
 
 function removeFromPrj() {
-    var filename = previousTagged.title;
+    var fname = previousTagged.title;
     previousTagged = null;
-    var pos = project.indexOf(filename);
+    var pos = project.indexOf(fname);
     project.splice(pos, 1);    
     projectDisplay();
     saveProject();
@@ -463,7 +478,7 @@ socket.onmessage = function(event) {
     case "openDoc":
         setActiveRow();
         clearDoc();
-        filename = data.filename;
+        setFileName(data.filename);
         if(data.content.length > 127)
           editor.setValue(data.content.slice(9), -1);
         else
@@ -507,14 +522,15 @@ function save(pflag)
     if(pflag || filename == undefined || filename == "") {
       	var x = prompt("Save as ", filename);
         if(x != null && x != "")
-	        filename = x;
+	        setFileName(x);
     }
     else
         editor.focus();
     
     setActiveRow();
 
-    var content = editor.getValue(); 
+    var content = editor.getValue();
+    if(content.length == 0) return; 
     updateStatusBar(x);
     changedStatus(false);
     var a = { 'app' : 'explorer', 'params': { 

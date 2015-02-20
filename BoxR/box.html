@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<!-- Advanced Explorer Box Panel (c) 2012-2015 -->
+<!-- Advanced Explorer Box Panel (c) 2015 -->
 <html>
 <head>
 <title>Advanced Explorer Box</title>
@@ -51,7 +51,6 @@ function fillBoxes(lst)
 }
 
 socket.onmessage = function(event) {
-//alert(event.data)
   var jobj =   JSON.parse(event.data);
   switch(jobj.type) {
     case 'box':
@@ -67,7 +66,7 @@ socket.onopen = function() {
     'app' : 'explorer', 
     'params': { 
         'path' : "BoxR", 
-        'command': 'fillBox', 
+        'command': 'box', 
         'target': 'lcontent' 
         } 
   };  
