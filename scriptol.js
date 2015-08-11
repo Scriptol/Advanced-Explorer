@@ -1,7 +1,10 @@
-// Scriptol.js
-// (c) 2014 Scriptol.com - License: Apache 2.0
-// Compatibility: ES Harmony.  IE 9.
-
+/* Scriptol.js
+ (c) 2014-2015 Scriptol.org - License: MIT
+  Runtime of the Scriptol-JavaScript compiler.
+  Parts of this library were published in articles on Scriptol.com.
+ 
+  Compatibility: IE 9 and all modern browsers.
+*/
 
 var vm = require('vm');
 var fs = require('fs');
@@ -18,10 +21,10 @@ exports.include = function(path) {
 
 exports.display = function(str) {
   if(this.isHTML)
-     document.write(str)
+     document.write(str);
   else  
-     console.log(str)
-}
+     console.log(str);
+};
 
 /* Math */
 
@@ -35,14 +38,13 @@ exports.fmod = function (a,b) {
 
 /* String */
 
-exports.capitalize = function(t) 
-{
+exports.capitalize = function(t) {
   return t.charAt(0).toUpperCase() + t.slice(1);
-}
+};
 
 exports.dup = function(t, n) {
   return Array(n + 1).join(t);
-}
+};
 
 exports.fill = function(f, n) {
   return Array(n + 1).join(f);
@@ -51,12 +53,12 @@ exports.fill = function(f, n) {
 exports.findLex = function(t, tsea, pos)
 {
    return t.toLowerCase().indexOf(tsea.toLowerCase(), pos)
-}
+};
 
 exports.insert = function(t, pos, t2)
 {
   return t.slice(0, pos) + t2 + t.slice(pos)
-}
+};
 
 exports.ltrim = function(t) 
 {
@@ -68,7 +70,7 @@ exports.rtrim = function(t)
 {
   if(typeof t === "undefined" || t == false) return "";
 	return t.replace(/\s+$/,"");
-}
+};
 
 exports.replace = function(s, sea, rep)
 {
@@ -79,12 +81,12 @@ exports.replace = function(s, sea, rep)
 exports.isNumber = function(t)
 {
   return Number(t) != false;
-}
+};
 
 exports.reserve = function(t, size)
 {
   return Array(size + 1).join(' ');
-}
+};
 
 exports.setCharAt = function(s, i, c) {
   if(i > s.length) return s + c;
@@ -211,16 +213,21 @@ exports.aCompare = function(a, b, code) {
     default:    
       break;
   }  
-
   return false;
 }
-
-
 
 // Dictionary
 
 exports.dSize = function(d) {
   return Object.keys(d).length; 
+}
+
+exports.dDump = function(d, flat) {
+  if((typeof flat === 'boolean') && (flat === true)) {
+      console.log(JSON.stringify(d));  
+    return;
+  }
+  console.log(JSON.stringify(d, null, '  '));
 }
 
 exports.aksort = function(d, o) {
@@ -285,42 +292,6 @@ exports.dFind = function(d, val) {
     if(d[k] == val) return;
   }
   return "";
-}
-
-function byNameSub(d, name, nlist) {
-  for(var k in d) {
-    if(k == name) nlist.push(d);
-    if(typeof d[k] === "object") byNameSub(d[k], name, nlist)
-  }
-  return {};
-}
-
-exports.getByName = function(d, name) {
-  var nlist = [];
-  byNameSub(d, name, nlist)
-  return nlist;  
-}
-
-function byIdSub(d, idval) {
-  var dret;
-  /*
-  for(var k in d) {
-    if(k == "id" && d[k] == idval) return d;
-  }
-  */
-  if(d["id"] == idval) return d;
-  
-  for(var k in d) {
-    if(typeof d[k] === "object") {
-        dret = byIdSub(d[k], idval)
-        if("id" in dret) return dret;
-      }
-  }
-  return {}
-}
-
-exports.getById = function(d, idval) {
-  return byIdSub(d, idval);
 }
 
 exports.dSlice = function(ob, st, en) {
@@ -416,60 +387,247 @@ exports.dUnique = function(d) {
   return  nd; 
 }
 
-exports.dLoad = function (d, fname) {
-  a = fs.readFileSync(name).toString().split("\n");
+function getExt(fname)
+{
+   var p=fname.lastIndexOf(".");
+   if(p===-1) return "";
+   return fname.slice(p+1);
+}
+
+// XML file
+
+function byNameSub(d, name, tlist) {
+  for(var k in d) {
+    if(k == name) tlist.push(d);
+    if(typeof d[k] === "object") byNameSub(d[k], name, tlist)
+  }
+  return;
+}
+
+exports.getByName = function(d, name) {
+  var tlist = [];
+  byNameSub(d, name, tlist)
+  return tlist  
+}
+
+function byTagSub(d, tagname, tlist) {
+  for(var k in d) {
+      if(typeof d[k] === "object") {
+          if(d[k]["tag"] == tagname) tlist[k] = d[k];
+          byTagSub(d[k], tagname, tlist)
+      }
+  }
+  return;
+}
+
+exports.getByTag = function(d, tagname) {
+  var tlist = {};
+  byTagSub(d, tagname, tlist)
+  return tlist  
+}
+/*
+function byIdSub(d, idval) {
+  for(var k in d) {
+    if(k == idval) return d[k];  
+    if(typeof d[k] === "object") {
+      var dret = byIdSub(d[k], idval)
+      if(dret !== false) return dret;
+    }
+  }
+  return false
+}
+
+exports.getById = function(d, idval) {
+  return byIdSub(d, idval);
+}
+*/
+
+exports.getById = function(d, idval) {
+  for(var k in d) {
+    if(k == idval) return d[k];  
+    if(typeof d[k] === "object") {
+      var dret = this.getById(d[k], idval)
+      if(dret !== false) return dret;
+    }
+  }
+  return false
+}
+
+
+exports.setById = function(d, idval, subdict) {
+  for(var k in d) {
+    if(k == idval) {
+        d[k] = subdict;
+        return true;
+    }
+    if(typeof d[k] === "object") {
+      if (this.setById(d[k], idval, subdict)) return true;
+    }
+  }
+  return false
+}
+
+
+// Requires the sax module.
+var sax=false;
+function parseXML(data)
+{
+  var strict = true;   // true = xml, false = html
+  var data = data.toString("utf8");
+   
+  if(sax === false) { 
+    try {
+      sax = require("sax");
+    } catch(e) {}      
+    if(typeof sax !== 'object') {
+      console.log("Sax.js module required.");
+      return {};
+    }
+  }
+  
+  var parser = sax.parser(true, { trim:true });
+  parser.onerror = function (e) {
+    console.log("XML error: ", e.toString());
+    return {};
+  };
+
+  var ctag = null;
+  var xmlroot = null;
+  var xmlGenerator=0;    
+  
+  parser.ontext = function (t) {
+      if (ctag && t.length > 0) { 
+          ctag["data"] = t;
+      }   
+  }    
+  
+  parser.onopentag = function (node) {
+    var name = node.name;
+    var parent = ctag;
+    ctag = {};
+    var idflag = false;  
+    ctag["tag"] = name;  
+    for(var k in node.attributes) {
+      var val = node.attributes[k];   
+      if(k == "id" || k == "ID") {
+          idFlag = true;
+          tagKey = val;
+          continue;
+      }
+      ctag[k] = val;
+    }
+    if(!idFlag) {
+        xmlGenerator++;
+        tagKey = "_0" + new String(xmlGenerator);
+    }
+      
+    if (xmlroot === null) {
+      xmlroot = {};
+      xmlroot[tagKey] = ctag;
+    }
+    else
+    {
+      ctag.parent = parent;    
+      parent[tagKey] = ctag;
+    }
+};
+
+  parser.onclosetag = function(name) 
+  {
+    if (ctag.parent) 
+    {
+        var parent = ctag.parent;
+        delete ctag.parent;
+        ctag = parent;
+    }
+  }
+
+  parser.write(data).end();
+  return xmlroot;
+}
+
+// ftype 1 = XML, 0 = text
+exports.dLoad = function (d, fname, ftype) {
+  var a = fs.readFileSync(fname).toString();
   for(var x in d) delete x;
+  if(typeof ftype !== 'number') ftype = 0;
+
+  // load an xml file     
+  if(ftype == 1 || getExt(fname) in {"xml":0, "rss":1, "svg":2})
+  {
+    var xmlroot = parseXML(a)
+    var k = Object.keys(xmlroot)[0];
+    d[k]=xmlroot[k];
+    d["_00"] = d["id"];
+    return;
+  }
+  a = a.split("\n");
+    
+  // load a dict
   for(var i = 0; i < a.length; i++) {
     var pair = a[i].split(":");
     d[ pair[0] ] = pair[1];
   }
+  return;
 }
 
 exports.dStore = function (d, fname) {
-  var data = "";
-  for(var k in d) {
-    data += k + ":" + d[k] + "\n"   
+  fs.writeFileSync(fname, JSON.stringify(d,null, ' '));
+}
+
+var XMLStorage = "";
+
+// Virtual dom to XML output
+function domSub(d, flag) 
+{
+  for(var x in d)
+  {
+      if (d[x] instanceof Object || typeof d[x] == "object") {
+          var tagKey = d[x]["tag"]
+          if(x.slice(0,2) != "_0")
+             d[x]["id"] = x;
+          if(flag) XMLStorage += ">\n";
+          XMLStorage += "<" + tagKey;
+          if( domSub(d[x], true) )
+            XMLStorage += ">";
+          XMLStorage += "</" + tagKey + ">\n";
+          XMLStorage += "</" + tagKey + ">\n";
+          flag = false;
+          continue;
+      }
+      if(x=="tag") continue;
+      if(x.slice(0,2) === "_0") continue;
+      if (x == "data") { 
+        XMLStorage += ">" + d[x];
+        flag = false;
+        continue;  
+      }
+      XMLStorage += " " + x + "=\""+ d[x] + "\"";
+      flag=true;
   }
-  fs.writeFileSync(fname, data);
+  return flag;    
+}
+
+
+exports.toXML=function(d) {
+  if(d["tag"] == "xml") 
+      XMLStorage = '<?xml version="1.0"?>\n';
+  else 
+      XMLStorage = "";    
+  var d2 = {}
+  var id = d["_00"];
+  d2["_000"] = Object.create(d);
+  d2["_000"]["id"] = id;
+  if(  domSub(d2, false) ) 
+      XMLStorage += ">\n";        
+  
+  return XMLStorage;
+       
 }
 
 exports.dScan=function(d, fun)
 {
   for(var k in d) fun(d[k]);
-}
-
-var XMLStorage = "";
-function xmlSub(d, name) 
-{
-  var flag = true;
-  for(var x in d)
-  {
-    if (d[x] instanceof Object || typeof d[x] == "object") {
-      if(flag) XMLStorage += ">\n";
-      XMLStorage += "<" + x;
-      flag = xmlSub(d[x], x);
-      if(flag)  XMLStorage += ">\n";
-      XMLStorage += "</" + x + ">\n";
-      flag = false;      
-      continue;
-    }  
-    if (x == "data") { 
-      XMLStorage += ">" + d[x] +"\n";
-      flag = false;
-    }  
-    else { 
-      XMLStorage += " " + x + "=\""+ d[x] + "\"";
-      flag = true;
-    }    
-  }
-  return flag;  
-}
-
-exports.toXML=function(d) 
-{
-  XMLStorage = '<?xml version="1.0"?>';
-  if(xmlSub(d)) XMLStorage += ">\n";
-  return XMLStorage;
 }
 
 // Dynamic variable
@@ -670,6 +828,35 @@ exports.Reactol = (function()
   }
   return Reactol;
 })();
+
+// goal-oriented async
+exports.goal = function(condi, dur, actio) { 
+    var iter = setInterval(function() {
+      if(condi()) {
+        clearInterval(iter); 
+        clearTimeout(limiter);
+        return;
+      }
+      actio();
+    }, 0);
+    if(dur == "&") dur = 2147483647;
+    var limiter=setTimeout(function() { clearInterval(iter); }, dur);
+}
+
+// sync
+exports.goalSync=function(condi, dur, actio) { 
+    var stopFlag = false;
+    if(dur == "&") dur = 2147483647;
+    var limiter=setTimeout(function() { stopFlag=true; }, dur);
+    while(stopFlag == false) {
+      if(condi()) {
+        clearTimeout(limiter);
+        stopFlag=true;
+        return;
+      }
+      actio();
+    }
+}
 
 // System
 

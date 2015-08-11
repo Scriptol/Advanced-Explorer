@@ -80,15 +80,19 @@ function socketImage(jobj) {
 		default:
 			ext = 'jpeg';
 	}
+  
   var inner = document.createElement('div');
   store.innerHTML ='';
   store.appendChild(inner);
   inner.className='divimage';
 
+  //var canvas = document.createElement("iframe");
+  //canvas.setAttribute("style", "border:none;");
+  //canvas.setAttribute("scrolling", "no");  
   var canvas = document.createElement("canvas");
   canvas.setAttribute("id", "canvasid");
-  var image = new Image();
   
+  var image = new Image();
 
   image.onload = function ()
   { 
@@ -102,38 +106,26 @@ function socketImage(jobj) {
     var ow = w;
     var oh = h;
 
-    var ratio = h / w;
-    var cratio = ch / cw;
+    var imgratio = h / w;
+    var scnratio = ch / cw;
 
-    if(ratio > cratio)  // to be aligned on height
+    if(imgratio > scnratio)  // to be aligned on height
     {
        if(h > ch) {
         scaleh = ch / h;
         scalew = scaleh;
         h = ch;
         w *= scalew;
-      }
-      if(w > cw) {
-        scalew = cw / w;
-        scaleh *= scalew;
-        w = cw;
-        h = oh * scaleh;
-      }
+      }   
     }
-    else
-    {
-      if(h > ch) {
-        scaleh = ch / h;
-        scalew = scaleh;
-        h = ch;
-        w = ow *  scalew;
-      }
-      if(w > cw) {
-        scalew = cw / w;
-        scaleh *= scalew;
+    else  // to be aligned on width
+    {   
+      if(w > cw) {     
+        scalew = cw / ow;
+        scaleh = scalew;
         w = cw;
         h = oh * scaleh;
-      }
+      }   
     }
 
 
@@ -148,8 +140,6 @@ function socketImage(jobj) {
       var offsetw = (cw - w) / 2;
       inner.style.marginLeft = offsetw + "px";
     }
-    //alert(cw + "x" + ch + " " + offsetw + " " + offseth + "  " + w + "x" + h);
-
 
     canvas.width = w;
     canvas.height = h;
@@ -158,10 +148,11 @@ function socketImage(jobj) {
     inner.style.height = h + 'px';
 
     inner.appendChild(canvas);
+    
     var context = canvas.getContext("2d");
     context.scale(scalew, scaleh);
     context.drawImage(image, 0, 0);
-
+    
     var message = imagepath + ", " + ow + " x " + oh + " px";
     if(w < ow || h < oh)
       message += ", resized to " + w.toFixed() + " x "+ h.toFixed();
@@ -171,7 +162,7 @@ function socketImage(jobj) {
 
 	image.src = 'data:image/'+ext+';base64, ' + jobj.content;
 	// using the file path does not work locally with Chrome
-    //image.src = "file:///" + imagepath;
+  //image.src = "file:///" + imagepath;
 }
 
 var leftFiles;

@@ -176,7 +176,7 @@ var nativeServer = net.createServer(function(ncom) {
       console.log("TCP error: " + err.stack);
     });    
     ncom.on('data', function(data) { 
-        console.log("Data received: " + data);
+        console.log("Script to browser: " + data);
         socket.send(data);
     });
     ncom.on('end',  function() {  

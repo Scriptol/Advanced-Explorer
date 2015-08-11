@@ -1,0 +1,38 @@
+{
+  "type": "AEPrj",
+  "active": "p:/scripts/fabricjs/android.js",
+  "list": [
+    [
+      "",
+      17
+    ],
+    [
+      "p:/scripts/fabricjs/android.js",
+      17
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\repl.sol",
+      39
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\search.html",
+      81
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\search.sol",
+      206
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\searep.js",
+      449
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\searep.sol",
+      395
+    ],
+    [
+      "p:\\AExplorer\\BoxL\\Search\\strtools.sol",
+      0
+    ]
+  ]
+}
