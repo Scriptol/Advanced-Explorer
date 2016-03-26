@@ -7,7 +7,7 @@ Part of the tools are licensed under the LGPL 3.0 license.
 You are free to use and modify the program and its components
 for you personal use and the use of the entreprise.
 
-If you want to make public your modification you must send
+If you  public your modification you must send
 them to the official Advanced Explorer repository at Scriptol.com
 or any other site listed here.
 
@@ -15,4 +15,4 @@ You are not permitted to make a public "fork" of the program,
 in other word distribute a modified version on the Web, 
 without a special permission from the author, Denis Sureau.
 
-December 6, 2012. 
+December 6, 2012. want to make

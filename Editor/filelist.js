@@ -36,9 +36,9 @@ socket.onmessage=function(e) {
 
 
 function sendFromInterface(a) {
-    setTimeout(function() {
-        socket.send(JSON.stringify( { "type":"interface", "data": a }) );
-    }, 50);
+  socket.send(
+    JSON.stringify( { "type":"interface", "data": a })
+  );
 }
 
 function fileButton(target, dragflag)
@@ -105,7 +105,7 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     var sep = '/';
     if(filepath.slice(-1) == '/')   sep = '';
     var fpath = filepath + sep + fname;
-    var balise ="<div class='file' onDblClick='view(this, \"" + fpath+ "\",\"" + panelid + "\")' onClick='sel(this)' oncontextmenu='return rsel(this)'>";
+    var balise ="<div class='file' data-url='"+ fpath + "' onDblClick='view(this, \"" + fpath+ "\",\"" + panelid + "\")' onClick='sel(this)' oncontextmenu='return rsel(this)'>";
     balise += '<img src="';
     ext=ext.toLowerCase();
     switch(ext)
@@ -174,7 +174,7 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
   and the list as an array of name and the common path.
 
 */
-
+/*
 function imageList(content)
 {
     var target = content.target;
@@ -218,6 +218,7 @@ function imageList(content)
 	page += "</div>";
 	d.innerHTML = page;
 }
+*/
 
 /*
   Displays a list of files and dirs.
@@ -307,8 +308,7 @@ function fileList(content, sortMode)
 	page += "</div>";
 	d.innerHTML = page;
 
-	addKeyListEvents(target);
-  if(ChooserDrag[target])  setDrag(listid);
+	//addKeyListEvents(target);
 
 	if(elementToSelect != null)
 	{
@@ -342,11 +342,9 @@ function setDrag(id)
         deselectAll(this.parentNode);
         setSelected(this);
       }  
-      //evnt.dataTransfer.setData('text', this.outerHTML);
       return false;
     }, false);    
   }  
-  //alert(lid.innerHTML);
   return;
 }
 
@@ -508,81 +506,22 @@ function isSelected(element) {
   return element.className=="entrybold"; 
 }
 
-function selectRange(item1, item2)
-{7
-  var parent = item1.parentNode;
-  var inRange = false;
-  var skipFollowers = false;
-  var counter = 0;
-  //alert(parent + " " + item1 + " " + item2);
 
- 	var child = parent.firstChild;  
-	while(child)
-	{
-    if(child.className == 'dir' || child.className == 'file' || child.className=='entrybold') 
-    {
-      if(skipFollowers == false)
-      {
-        if(item1==child)
-        {
-          setSelected(child);
-          inRange=true;
-          counter++;
-          if(counter==2) skipFollowers = true; 
-		      child = child.nextSibling;        
-          continue;
-        }
-        if(item2==child)
-        {
-          setSelected(child);
-          inRange=true;
-          counter++;
-          if(counter==2) skipFollowers = true;
-		      child = child.nextSibling;        
-          continue;
-        }
-        if(inRange)
-        {
-          setSelected(child);
-		      child = child.nextSibling;        
-          continue;
-        }
-      }
-      if(child.className == 'entrybold')
-		  {
-        child.className="file";    
-		  }
-    }
-		child = child.nextSibling;
-	}  	  
-  chooserLastSelected = null;
-}
+var SyncSavePath = undefined; // to fill input or not
 
 function sel(element)
 {
-  if(isSHIFT)
-  {
-    if(chooserLastSelected != null)
-    {
-      selectRange(chooserLastSelected, element);
-      chooserLastSelected = null;
-      isSHIFT = false;    
-      return;
-    }
-  }
-
-  if(element.className == 'entrybold' && !isSHIFT)
+  if(element.className == 'entrybold')
   {
     element.className="file";
   }
   else
   {
-    if(!isCTRL) deselectAll(element.parentNode);
+    deselectAll(element.parentNode);
     element.className="entrybold"; 
+    SyncSavePath.value = element.getAttribute("data-url");
   }    
   chooserLastSelected = element;
-
-  isSHIFT = false;
 }
 
 /*

@@ -1,0 +1,283 @@
+
+#main {
+	position:relative;
+	display:block;	
+	width:auto;
+	height:100%;
+	margin:0;
+	min-width:320px;
+	text-align:left;
+	-background:blue;
+	padding:0 0 32px 0;	
+	margin-right:4px;
+	box-sizing: border-box; 
+}
+
+#scontent {
+	display:block;
+	float:left;
+	border:1px solid #999;
+	width:100%;
+	height:100%;	
+	min-height:400px;
+	margin:0px;
+	padding-bottom:0px;	
+	overflow:hidden;
+}
+
+
+
+.filechooser
+{
+	display:block;
+	text-align:left;
+	color:#036;
+ 	background:white;
+	width:100%;
+	height:100%;	
+	overflow-x: auto; 
+	overflow-y: scroll;	
+	font-size:14px;
+	font-family: Arial, Helvetica, sans-serif;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	margin:0;
+	box-sizing: border-box;		
+}
+
+.flist
+{
+	margin:0;
+	padding: 0 8px 0 8px; 
+	overflow:hidden;
+	box-sizing: border-box;	 
+}
+
+.flist:focus
+{
+	outline:none;
+}
+
+.file, .dir
+{
+	display:inline-block;
+	line-height:18px;
+	border:1px solid white;
+	margin:1px 1px 1px 1px;
+	padding:0px 6px 0px 0px;	
+	width:100%;
+	background-image:none;
+	border-radius:3px;	  
+}
+
+
+.dir img, .file img, .entrybold img
+{
+	float:left;
+	width:24px;
+	height:18px;
+	margin-right:8px;
+}
+
+.dir:hover, .file:hover
+{
+	border:1px dotted black;
+	background-color: #F0F0F0;
+	background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+	background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+	background-image: linear-gradient(top, #ffffff, #e6e6e6);
+	background-repeat: repeat-x;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0)	
+}
+
+.entrybold, .entrybold:hover
+{
+	line-height:18px;
+	display:inline-block;
+	margin:1px 1px 1px 1px;
+	padding:0px 6px 0px 0px;	
+	width:100%;
+ 	border:1px dotted black;
+	border-radius:3px;	 
+	background-color: #B0B0F0;
+	background-image: -moz-linear-gradient(top, #E0F0FF, #B0DEF2);
+	background-image: -webkit-linear-gradient(top, #E0F0FF, #B0DEF2);
+	background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
+	background-repeat: repeat-x;	
+}
+
+.fsroot {
+	float:left;
+	width:26px;
+	height:26px;
+	padding:2px 2px 0 8px;
+}
+.fsimg {
+	width:22px;
+	heigth:22px;
+}
+
+
+.lstats {
+  float:left;
+}
+
+.rstats {
+  float:right;
+}
+
+.timesize
+{
+	float:right;
+}
+
+
+#fspath {
+	position:relative;
+	top:0px;
+	display:inline-block;
+	width:95%;
+	min-width:480px;
+	margin:0;
+	padding:0 8px 0 8px;
+	box-sizing: border-box; 
+	-background:green;
+}
+
+#pathlabel {
+	display:inline-block;
+	font-size:24px;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	color:#999;
+	line-height:28px;
+	padding-top:4px;
+	overflow:hidden;
+	margin-top:0px;
+	box-sizing: border-box;
+	float:left; 
+}
+#pathcontrol {
+	display:inline-block;
+	margin:4px 0 0 8px;
+	padding:0;
+	float:left;
+}
+#scontentpath {
+	font-size:16px;		
+	line-height:20px;
+	padding-left:8px;
+	margin:0 8px 4px 0;
+	border-radius:4px;
+	-box-shadow: 1px 2px 2px 4px rgba(128,128,128,0.5);	
+}
+.bpath {
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	line-height:20px;
+	font-size:16px;	
+}
+.bsave {
+	background:green;
+}
+
+
+/* Buttons: Copyright 2011-2015 Nutraide.com/Scriptol.com */
+
+.button
+{
+	display:inline-block;
+	position:relative;
+	height:28px;
+	min-width:96px;
+	padding:1px 8px 1px 8px;
+	margin: 0 2px;
+	cursor: pointer;
+	text-decoration: none;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size:16px;
+	line-height: 22px;
+	text-shadow: 0 1px 1px rgba(0,0,0,.3);
+	box-shadow: 1px 2px 2px 0 rgba(128,128,128,0.5);
+	white-space:nowrap;
+	color: black;
+	border-radius:4px;
+}
+
+
+.bblue
+{
+	border: 1px solid #079;
+	background: #09c;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background: -webkit-gradient(linear, left top, left bottom, from(#0bf), to(#08a));
+	background: -moz-linear-gradient(top,  #00adee,  #0078a5);
+	background: inear-gradient(to top left,  #00adee,  #0078a5);
+}
+.bblue:hover
+{
+	background: #08B;
+	background: -webkit-gradient(linear, left top, left bottom, from(#0ad), to(#068));
+	background: -moz-linear-gradient(top,  #0095cc,  #006688);
+	background: linear-gradient(to top left,   #006688, #0095cc,);
+}
+
+.bred.button
+{
+	border: 1px solid #840;
+	background-color:#F03;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background:-webkit-gradient(linear, left top, left bottom, from(#F03), to(#A02));
+	background:-moz-linear-gradient(top,  #F04,  #A02);
+	background:linear-gradient(to top left,  #F04,  #A02);
+}
+.bred.button:hover
+{
+	background-color:#dd0011;
+	background:-webkit-gradient(linear, left top, left bottom, from(#E02), to(#600));
+	background:-moz-linear-gradient(top,  #E02,  #600);
+	background:linear-gradient(to top left,  #E02,  #600);
+}
+.bgreen.button
+{
+	border: 1px solid #084;
+	background-color:#0F3;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background:-webkit-gradient(linear, left top, left bottom, from(#0F3), to(#0A2));
+	background:-moz-linear-gradient(top,  #0F4,  #0A2);
+	background:linear-gradient(to top left,  #0F4,  #0A2);
+}
+.bgreen.button:hover
+{
+	background-color:#00dd11;
+	background:-webkit-gradient(linear, left top, left bottom, from(#0E2), to(#060));
+	background:-moz-linear-gradient(top,  #0E2,  #060);
+	-background:linear-gradient(to top left,  #0E2,  #060);
+}
+.bgray.button
+{
+	background-color:#CCCCCC;
+	color:#666;
+	border: 1px solid #999;
+	border-bottom:solid 1px #666;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background: #ccc;
+	background: -webkit-gradient(linear, left top, left bottom, from(#eee), to(#bbb));
+	background: -moz-linear-gradient(top,  #eeeeee,  #bbb);
+	background: linear-gradient(to top left,  #bbb, #eee  );
+	-text-shadow: 0 1px 1px rgba(255,255,255,.3);
+}
+.bgray.button:hover
+{
+	background-color:#999;
+	background: -webkit-gradient(linear, left top, left bottom, from(#ddd), to(#666));
+	background: -moz-linear-gradient(top,  #ddd,  #666);
+	background: linear-gradient(to top left,  #999,  #ddd);
+	color:#DDD;
+	-text-shadow: 0 1px 1px rgba(0,0,0,.3);
+}
+

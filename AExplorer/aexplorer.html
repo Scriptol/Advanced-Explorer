@@ -26,9 +26,9 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 2.6</p>
+   <p>Version 2.7</p>
    <p>
-    &copy; 2012-2015 Denis Sureau<br>
+    &copy; 2012-2016 Denis Sureau<br>
     www.scriptol.com<br>
    </p>
    </span>
@@ -127,16 +127,14 @@ function exitExplorer()
 {
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-  if(fc.editorHasContent) fc.save(false);
-  fc.setActiveRow();
-  fc.saveProject();
+    if(fc.editorHasContent) fc.save(false);
+    fc.setActiveRow();
 
-  config.Memory.list[0].input = currentpath['lcontent'];
-  config.Memory.list[1].input = currentpath['rcontent'];
-  config.Editor.list[2].input = fc.projectName;
-  var frameopt = document.getElementById("options");
-  var fo = (frameopt.contentWindow || frameopt.contentDocument);
-  fo.saveFromAE('/AExplorer/aexplorer.ini.js', config);    
+    config.Memory.list[0].input = currentpath['lcontent'];
+    config.Memory.list[1].input = currentpath['rcontent'];
+    var frameopt = document.getElementById("options");
+    var fo = (frameopt.contentWindow || frameopt.contentDocument);
+    fo.saveFromAE('/AExplorer/aexplorer.ini.js', config);    
 }
 
 window.onload=startExplorer;

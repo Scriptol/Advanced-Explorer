@@ -99,11 +99,10 @@ function done(content) { alert(content); }
 function serverSave(filename)
 {
  	var content= 'var config=' + JSON.stringify(config, null, 4);
-  var a = {  'app': 'explorer', 'params' : { 
-        'command': 'savesys', 'filename': filename, 'content': content  } };
-  socket.send(
-    JSON.stringify({ "type":"interface", "data" : a })
-  );    
+    var a = {  'app': 'explorer', 'params' : { 
+        'command': 'savesys', 'filename': filename, 'content': content  } 
+    };
+    socket.send( JSON.stringify({ "type":"interface", "data" : a }) );    
 }
 function saveIni(filename)
 {

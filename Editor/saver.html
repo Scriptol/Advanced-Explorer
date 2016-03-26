@@ -1,0 +1,102 @@
+<!--
+Advanced Explorer File Save Dialog (c) 2012-2015 Denis Sureau
+License GPL 3.0
+-->
+<html>
+<head>
+<title>AE Saver</title>
+<link type="text/css" href="saver.css" rel="stylesheet">
+<script src="filelist.js" type="text/javascript"></script>
+</head>
+<body>
+
+<div id="main">
+    <div id="scontent"></div>
+	  <div id="fspath" oncontextmenu="return false">
+        <div id="pathlabel"> SAVE TO </div> 
+        <div id="pathcontrol">
+      	  <input type="text" class="innpath" id="scontentpath" size="40" value="/">
+          <input type="button" class="bpath button bgray" value="Cancel" onclick="cancel()"/>
+          <input type="button" class="bpath bsave button bblue" value="Save" onclick="saveConfirmed()"/>
+        </div>
+	  </div>
+    </div>
+</div>
+
+<script>
+var currentpath = "";
+var socket = new WebSocket("ws://localhost:1030");
+
+function addKeyListEvents(target) { 
+  target=null; // nothing
+}
+
+function setSavePath() {
+  SyncSavePath = document.getElementById("scontentpath")
+}
+
+function cancel() {
+  parent.restartEditor(); 
+}
+
+function saveConfirmed() {
+  var filename = document.getElementById("scontentpath").value
+  parent.filename = filename
+  parent.save(false)
+  parent.restartEditor();
+}
+
+function dirdata(jobj) {
+  fileList(jobj, 0);
+  currentpath = jobj.path;
+}
+
+socket.onmessage = function(event) {
+  var jobj =   JSON.parse(event.data);
+  switch(jobj.type) {
+    case 'notification':
+        //saverNotification(jobj);
+        break;
+    case 'confirm':
+        //saverConfirm(jobj);
+        break;    
+    case 'dirdata':
+        //alert(JSON.stringify(jobj, null, ' '))
+        dirdata(jobj); 
+        break;
+    default:
+        //alert(jobj.type)    
+  }           
+};        
+
+function fileAccess()
+{
+  if(currentpath == '') { currentpath = "/";  }  
+	var query = { 
+    'app' : 'explorer', 
+    'params': { 
+        'path' : currentpath, 
+        'command': 'saveas', 
+        'target': 'scontent',
+        'drag' : false 
+        } 
+  };
+  sendFromInterface(query);
+}	
+
+function startSaver()
+{
+    fileAccess();
+}
+
+function exitSaver()
+{
+	var fredit = document.getElementById("editor");
+	var fc = fredit.contentDocument;
+  fc.setActiveRow();
+}  
+  
+</script>	
+
+</body>
+</html>

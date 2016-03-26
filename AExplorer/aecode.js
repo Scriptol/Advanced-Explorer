@@ -483,55 +483,30 @@ var topSync = function (target)
 
 function displayEditor(data, fromTop)
 {               
-  var dpane = document.getElementById('dirpane');
+    var dpane = document.getElementById('dirpane');
 	var epane = document.getElementById('editpane');
 	var edfra = document.getElementById('editor');
 	var opane = document.getElementById('optpane');
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
 	if(epane.style.display=="none")
-	{
-    if(fromTop)
-    {
-      if(fc.projectName == undefined || fc.projectName.length == 0) 
-      {
-        fc.projectName=config.Editor.list[2].input;
-        if(fc.projectName != undefined && fc.projectName.length > 0) 
-        {
-          var a = { 'app' : 'explorer', 'params': { 
-                 'command': 'openPrj', 
-                 'name': fc.projectName,
-                 'inEditor': false, 
-                 'target' : null
-		              } 
-          };
-          sendFromInterface(a);
-          return;
-        }
-      } 
-    }
-
-    dpane.style.display = "none";
-    opane.style.display = "none";
-    epane.style.display = "block";
-    edfra.style.display = "block";
-    fc.display(data);
+	{ 
+        dpane.style.display = "none";
+        opane.style.display = "none";
+        epane.style.display = "block";
+        edfra.style.display = "block";
+        fc.display(data);
 	}
 	else // closing
 	{
 		epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-    if(fc.editor.getValue() != '')
-       fc.editorIcon(true);
-    fc.setActiveRow();
-    fc.saveProject(); 
-    if(config.Editor.list[2].input != fc.projectName) { 
-       config.Editor.list[2].input = fc.projectName;
-       updateIni();
+        if(fc.editor.getValue() != '')
+            fc.editorIcon(true);
+        fc.setActiveRow();
     }
-		return;
-	}
+	return;
 }
 
 var topEdit = function() {
@@ -1159,7 +1134,6 @@ var keypressHandler = function(evt, code, target)
 
 function addKeyListEvents(target)
 {
-  //alert("added event to "+ target);
   var x;
   if(target=='lcontent')
     x=document.getElementById('lcontentlist');
