@@ -1,0 +1,54 @@
+/*  Advanced Explorer Configurator CSS file (c) 2012-2015 D. Sureau */
+
+body
+{
+  margin:0;
+  padding:16px;  
+  line-height:24px;
+}
+h1
+{
+  font-size:24px;
+  margin:16px;
+  color:black;
+}
+
+#options
+{
+  background:white;
+  border:1px solid gray;
+  border-radius:8px;
+  padding:16px;
+}
+
+.group
+{
+	font-weight:bold;
+	display:block;
+	width:100%;
+  margin-bottom:8px;
+}
+
+.label
+{
+	display:inline-block;
+	width:128px;
+}
+
+input[type=button]
+{
+	min-height:32px;
+  min-width:96px;
+	padding:1px 16px 1px 16px;
+	margin: 2px;
+	color:white;
+	font: 14px Calibri, Arial, sans-serif;
+	text-shadow: 0 1px 1px rgba(0,0,0,.3);
+	border: 1px solid #840;
+	background-color:#F03;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background:-webkit-gradient(linear, left top, left bottom, from(#F03), to(#A02));
+	background:-moz-linear-gradient(top,  #F04,  #A02);
+  border-radius:6px;
+}
