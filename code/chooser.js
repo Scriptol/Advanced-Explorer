@@ -1,7 +1,7 @@
 /* File Chooser
    File input replacement with path and default value
    for local use of JavaScript on the desktop.
-   (c) 2012-2014 By Denis Sureau.
+   (c) 2012-2017 By Denis Sureau.
    
    License LGPL 3.0.
    Free to use provided this copyright notice is not removed.
@@ -52,6 +52,7 @@ function fileButton(target, dragflag)
         'target': target 
         } 
   };
+  //alert(JSON.stringify(query))
   sendFromInterface(query);
 }
 
@@ -76,7 +77,7 @@ function replaceFilename(path, name)
 function buildDrive(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="/images/drive.png">';
+  balise += '<img src="images/drive.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
@@ -89,7 +90,7 @@ function buildDrive(pathname, id)
 function buildDir(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="/images/dir.png">';
+  balise += '<img src="images/dir.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
@@ -105,32 +106,34 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     var sep = '/';
     if(filepath.slice(-1) == '/')   sep = '';
     var fpath = filepath + sep + fname;
-    var balise ="<div class='file' onDblClick='view(this, \"" + fpath+ "\",\"" + panelid + "\")' onClick='sel(this)' oncontextmenu='return rsel(this)'>";
-    balise += '<img src="';
-    ext=ext.toLowerCase();
-    switch(ext)
+    var balise ="<div class='file' onDblClick='view(this, \"" + 
+      fpath + "\",\"" + 
+      panelid + "\")' onClick='sel(this)' oncontextmenu='return rsel(this)'>";
+    
+    var img;
+    switch(ext.toLowerCase())
     {
     case 'gif':
     case 'jpg':
     case 'png':
     case 'jpeg':
-          balise += '/images/img.png';
+          img = 'img.png';
           break;
     case 'htm':
     case 'html':
     case 'php':
     case 'asp':
-          balise += '/images/web.png';
+          img = 'web.png';
           break;  
     case 'zip':
-          balise += '/images/zip.png';
+          img = 'zip.png';
           break;
     case 'exe':
     case 'jar':
-          balise += '/images/app.png';
+          img = 'app.png';
           break; 
     case 'prj':
-          balise += '/images/prj.png';
+          img = 'prj.png';
           break; 
     case 'c':
     case 'cpp':
@@ -150,12 +153,13 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'svg':
     case 'ts':    
     case 'xml': 
-          balise += '/images/code.png';
+          img = 'code.png';
           break;
     default:
-          balise += '/images/doc.png'
+          img = 'doc.png'
     }
-    balise += '">'; 
+
+    balise += '<img src="images/' + img + '">'; 
     balise += fname;
     balise += '<span class="timesize">' + timesize + ' ' + filedate + '</span>'; 
     balise += '</div>';
@@ -342,11 +346,9 @@ function setDrag(id)
         deselectAll(this.parentNode);
         setSelected(this);
       }  
-      //evnt.dataTransfer.setData('text', this.outerHTML);
       return false;
     }, false);    
   }  
-  //alert(lid.innerHTML);
   return;
 }
 
@@ -992,9 +994,7 @@ document.onkeydown=function(evt)
 {
   if(evt.shiftKey) isSHIFT = true;
               else isSHIFT = false;
-  //alert(document.activeElement);
   var code = (evt.keyCode || evt.which);
-  //alert("chooser " + code);
   switch(code)
   {  
       case 13:

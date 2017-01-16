@@ -76,7 +76,7 @@ function replaceFilename(path, name)
 function buildDrive(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="/images/drive.png">';
+  balise += '<img src="images/drive.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
@@ -89,7 +89,7 @@ function buildDrive(pathname, id)
 function buildDir(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="/images/dir.png">';
+  balise += '<img src="images/dir.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
@@ -114,23 +114,23 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'jpg':
     case 'png':
     case 'jpeg':
-          balise += '/images/img.png';
+          balise += 'images/img.png';
           break;
     case 'htm':
     case 'html':
     case 'php':
     case 'asp':
-          balise += '/images/web.png';
+          balise += 'images/web.png';
           break;  
     case 'zip':
-          balise += '/images/zip.png';
+          balise += 'images/zip.png';
           break;
     case 'exe':
     case 'jar':
-          balise += '/images/app.png';
+          balise += 'images/app.png';
           break; 
     case 'prj':
-          balise += '/images/prj.png';
+          balise += 'images/prj.png';
           break; 
     case 'c':
     case 'cpp':
@@ -150,10 +150,10 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'svg':
     case 'ts':    
     case 'xml': 
-          balise += '/images/code.png';
+          balise += 'images/code.png';
           break;
     default:
-          balise += '/images/doc.png'
+          balise += 'images/doc.png'
     }
     balise += '">'; 
     balise += fname;
@@ -161,64 +161,6 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     balise += '</div>';
     return(balise);
 }
-
-
-
-/* File Display
-  Display a list of files and directories.
-  Filtered to images.
-  - Call buildLink on images.
-  - Call buildDir on directories.
-  
-  Input: the id of the tag to store the list, 
-  and the list as an array of name and the common path.
-
-*/
-/*
-function imageList(content)
-{
-    var target = content.target;
-	var d = document.getElementById(target);
-	var filepath = content['path'];
-	var dir = content['list'];
-	var page = "<div class='filechooser'>";
-	page += "<p class='path'>" + filepath + "</p>";
-	page += "<div class='files'>";
-	var dirlist = "";
-	var filelist ="";
-	for(var i = 0; i < dir.length; i++)
-	{
-		var item = dir[i];
-		var type = item[0];
-		var name = item[1];
-
-		if(type=='dir')
-		{
-			dirlist += buildDir(name, target) + "<br>";
-		}
-		else
-		{
-      var timesize = item[2];     
-			var p = name.lastIndexOf('.');
-			var ext = name.slice(p + 1);
-			switch(ext) {
-  			case 'gif':
-	   		case 'png':
-		  	case 'jpg':
-        case 'jpeg':
-              break;
-        default: continue;
-			}
-			filelist += buildLink(filepath, name, target, timesize, ext) + "<br>";      
-		}
-	}
-	page += dirlist;
-	page += filelist;
-	page += "</div>";
-	page += "</div>";
-	d.innerHTML = page;
-}
-*/
 
 /*
   Displays a list of files and dirs.

@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<!-- Advanced Explorer Box Panel (c) 2015 -->
+<!-- Advanced Explorer Box Panel (c) 2015-2017 Scriptol.com -->
 <html>
 <head>
 <title>Advanced Explorer Box</title>
@@ -14,11 +14,11 @@ var socket = new WebSocket("ws://localhost:1030");
 
 var container;
 var boxPath = "BoxL";
-var box;
+var target = "lcontent"
 
 function fillBox(name)
 {   
-  path = "/" + boxPath + "/" + name;
+  path = name;
   var href = document.createElement("div");
   container.appendChild(href);
   
@@ -29,7 +29,7 @@ function fillBox(name)
   var pagepath = contentpath + ".html";
   href.setAttribute("href", pagepath);
   href.setAttribute("title", pagepath);
-  href.setAttribute("onclick", "loadPage(this)");
+  href.setAttribute("onclick", "loadPage(this);");
 
   var iconpath =  contentpath + ".png";
   var icon = document.createElement("img");
@@ -44,21 +44,11 @@ function fillBox(name)
     
 }
 
-
 function loadPage(element)
 {
-  //socket.close();
-  var progpath = element.title;
-  var parent = window.parent.document.getElementById("lcontent");
-  parent.removeChild(window.parent.document.getElementById('BoxL'));
-  box = document.createElement("iframe");
-  box.width = "100%";
-  box.height = "100%";  
-  //parent.innerHTML = "";
-  parent.appendChild(box);
-  box.src = progpath;    
+  var progpath = boxPath + "/" + element.title;
+  top.boxApp(progpath, target)
 }
-
 
 socket.onmessage = function(event) {
   var jobj = JSON.parse(event.data);
@@ -70,13 +60,6 @@ socket.onmessage = function(event) {
     }
     return;
   }
-  /*
-  if(jobj.type == 'message') { 
-    //alert("BOXL " + jobj.content)
-    box.postMessage(jobj.content, 'http://localhost:1032');
-  } 
-  */ 
-  
 }        
 
   
@@ -87,14 +70,23 @@ socket.onopen = function() {
     'params': { 
         'path' : boxPath, 
         'command': 'box', 
-        'target': 'lcontent' 
+        'target': target 
         } 
   };  
-  socket.send(
-    JSON.stringify( { "type":"interface", "data": a })
-  );
-}  
-   
+  socket.send( JSON.stringify( { "type":"interface", "data": a }) );
+} 
+ 
+  
+window.onload = function() {
+  window.alert = top.alert;
+  window.confirm = top.confirm;
+  window.prompt = top.prompt;
+}
+
+window.onunload = function() {
+  // nothing
+}
+
 </script>
 </body>
 

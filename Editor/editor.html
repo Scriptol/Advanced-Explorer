@@ -1,6 +1,6 @@
 <!--
 Advanced Explorer Code Editor Interface 
-(c) 2012-2015 Denis Sureau
+(c) 2012-2017 Denis Sureau
 License GPL 3.0
 
 Make use of:
@@ -46,7 +46,7 @@ Make use of:
     </div>
     <div id="editor"></div>
     <div id="spanel">
-        <iframe id="saver" src="/Editor/saver.html" width="640" height="500"></iframe>
+        <iframe id="saver" src="../Editor/saver.html" width="640" height="500"></iframe>
     </div>        
 </div>
     
@@ -163,10 +163,10 @@ function editorIcon(actif)
 {
     var edicon = parent.document.getElementById('tedit');
     if(actif) {
-        edicon.src = "/AExplorer/images/edit-active.png";
+        edicon.src = "images/edit-active.png";
     }    
     else    {
-        edicon.src = "/AExplorer/images/edit.png";
+        edicon.src = "images/edit.png";
         editor.setValue('');	        
     }    
 }

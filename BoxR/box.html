@@ -1,24 +1,25 @@
 <!DOCTYPE HTML>
-<!-- Advanced Explorer Box Panel (c) 2015 -->
+<!-- Advanced Explorer Box Panel (c) 2015-2017 Scriptol.com -->
 <html>
 <head>
 <title>Advanced Explorer Box</title>
 <link type="text/css" href="box.css" rel="stylesheet">
-<script>
-    var socket=new WebSocket("ws://localhost:1030")
-</script>
 </head>
 <body>
 <div id="content">
 </div>
 <script>
 
+var socket = new WebSocket("ws://localhost:1030");
+
 var container;
+var boxPath = "BoxR";
+var target = "rcontent"
 
 function fillBox(name)
 {   
-  path = "/BoxR/" + name;
-  var href = document.createElement("a");
+  path = name;
+  var href = document.createElement("div");
   container.appendChild(href);
   
   var divtag = document.createElement("div");
@@ -28,6 +29,7 @@ function fillBox(name)
   var pagepath = contentpath + ".html";
   href.setAttribute("href", pagepath);
   href.setAttribute("title", pagepath);
+  href.setAttribute("onclick", "loadPage(this);");
 
   var iconpath =  contentpath + ".png";
   var icon = document.createElement("img");
@@ -42,20 +44,21 @@ function fillBox(name)
     
 }
 
-function fillBoxes(lst)
-{             
-  for(var i = 0; i < lst.length; i++)
-  {                   
-      fillBox(lst[i]);    
-  }
+function loadPage(element)
+{
+  var progpath = boxPath + "/" + element.title;
+  top.boxApp(progpath, target)
 }
 
 socket.onmessage = function(event) {
-  var jobj =   JSON.parse(event.data);
-  switch(jobj.type) {
-    case 'box':
-        fillBoxes(jobj.list);
-        break;
+  var jobj = JSON.parse(event.data);
+  if(jobj.type == 'box') {
+    var lst = jobj.list;
+    for(var i = 0; i < lst.length; i++)
+    {                   
+      fillBox(lst[i]);    
+    }
+    return;
   }
 }        
 
@@ -65,16 +68,25 @@ socket.onopen = function() {
 	var a = { 
     'app' : 'explorer', 
     'params': { 
-        'path' : "BoxR", 
+        'path' : boxPath, 
         'command': 'box', 
-        'target': 'lcontent' 
+        'target': target 
         } 
   };  
-  socket.send(
-    JSON.stringify( { "type":"interface", "data": a })
-  );
-}  
-   
+  socket.send( JSON.stringify( { "type":"interface", "data": a }) );
+} 
+ 
+  
+window.onload = function() {
+  window.alert = top.alert;
+  window.confirm = top.confirm;
+  window.prompt = top.prompt;
+}
+
+window.onunload = function() {
+  // nothing
+}
+
 </script>
 </body>
 
