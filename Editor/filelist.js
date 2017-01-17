@@ -89,7 +89,7 @@ function buildDrive(pathname, id)
 function buildDir(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="images/dir.png">';
+  balise += '<img src="../images/dir.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
@@ -114,23 +114,23 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'jpg':
     case 'png':
     case 'jpeg':
-          balise += 'images/img.png';
+          balise += '../images/img.png';
           break;
     case 'htm':
     case 'html':
     case 'php':
     case 'asp':
-          balise += 'images/web.png';
+          balise += '../images/web.png';
           break;  
     case 'zip':
-          balise += 'images/zip.png';
+          balise += '../images/zip.png';
           break;
     case 'exe':
     case 'jar':
-          balise += 'images/app.png';
+          balise += '../images/app.png';
           break; 
     case 'prj':
-          balise += 'images/prj.png';
+          balise += '../images/prj.png';
           break; 
     case 'c':
     case 'cpp':
@@ -150,10 +150,10 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
     case 'svg':
     case 'ts':    
     case 'xml': 
-          balise += 'images/code.png';
+          balise += '../images/code.png';
           break;
     default:
-          balise += 'images/doc.png'
+          balise += '../images/doc.png'
     }
     balise += '">'; 
     balise += fname;
@@ -249,8 +249,6 @@ function fileList(content, sortMode)
 	page += "</div>";
 	page += "</div>";
 	d.innerHTML = page;
-
-	//addKeyListEvents(target);
 
 	if(elementToSelect != null)
 	{
