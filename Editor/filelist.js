@@ -76,7 +76,7 @@ function replaceFilename(path, name)
 function buildDrive(pathname, id)
 {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
-  balise += '<img src="images/drive.png">';
+  balise += '<img src="../images/drive.png">';
 	balise += pathname;
 	balise += "</div>";
 	return(balise);
