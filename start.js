@@ -11,7 +11,7 @@ const http = require("http"),
     net = require('net'),
     fs = require("fs");
 
-const {app, BrowserWindow, protocol} = require('electron')
+const {app, BrowserWindow } = require('electron')
 
 const WebSocketServer = require("ws").Server;
 const websocket = new WebSocketServer( { port: 1030 } );
@@ -50,7 +50,6 @@ function getFile(exists, response, localpath)
 {
 	if(!exists) return sendError(404, '404 Not Found', response);
 	var ext = path.extname(localpath);
-	//console.log("Reading " + localpath);
 	fs.readFile(localpath, "binary",
     	function(err, file){ sendFile(err, file, response, ext);});
 }
@@ -73,8 +72,7 @@ function runScript(exists, file, param) // Run a local script at the Web interfa
 
   console.log("Running...");
   
-  var r = runner.exec(file, param,// { env: childEnv },
-    function(err, stdout, stderr) { 
+  var r = runner.exec(file, param, function(err, stdout, stderr) { 
       console.log(stderr);
     }
   );
@@ -134,7 +132,7 @@ function webComm(websocket)
 }
 
 
-var tiloidOS = explorer.loadIni("aexplorer.ini");
+explorer.loadIni("aexplorer.ini");
 var server = http.createServer(getFilename); // Create a server to display the interface
 server.listen(1032);
 console.log("Server available, listen to 1032...");
