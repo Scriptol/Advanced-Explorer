@@ -188,7 +188,6 @@ function createWindow () {
   console.log("Working directory : " + process.resourcesPath)
 
   // And load the HTML page
-
   win.loadURL(url.format({
     pathname: path.join(__dirname, 'aexplorer.html'),
     protocol: 'File',
@@ -198,11 +197,12 @@ function createWindow () {
   win.show()
   
   //win.webContents.openDevTools()
-  
+
   win.on('closed', () => {
     win = null
+    explorer.closeWindow()
   })
-  
+
 }
 
 // Avoid JS errors messages at exit
