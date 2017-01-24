@@ -38,7 +38,6 @@ Make use of:
 <div id="main">
     <div id="recents">
         <div id="recbar">
-            <!--<img class="rimage" src="images/prjadd.png" title="Add to list" onclick=">-->
             <img class="rimage" src="images/prjrem.png" title="Remove selected file(s)"  onclick="removeFromRecents()">
             <img class="rrimage" src="images/prjexit.png" title="Clear recents" onclick="clearRecents()">
         </div>
@@ -79,6 +78,7 @@ var languageExt = {
   "py": "python",
   "rb": "ruby",
   "sql": "sql",  
+  "ts": "javascript",
   "txt": "plain_text",                
   "xml": "xml"  
 };
@@ -151,8 +151,8 @@ function newDoc()
 {
     var temp = editor.getValue();
     if(temp.length > 0)   {
-        var sb = prompt("Save current content?", filename);
-        if(sb !== null && sb !== "") save(false);
+        var sb = confirm("Save current content?");
+        if(sb === true) save(false);
     }
     editorIcon(false);  
     filename = "";
@@ -269,13 +269,13 @@ function indexInRecents(fname)  {
 
 function recentsDisplay() {
     var d = document.getElementById("reclist");
-    //alert("rdisp filename " + filename)
     var content = "";
     for(var i = 0; i < recents.list.length; i++) {
         var path = recents.list[i][0];
+        var row  = recents.list[i][1];
         var fname = extractFile(path);
         var flag = (filename === path);
-        content += '<p title="' + path + '" onclick="openDoc(this.title)">';
+        content += '<p title="' + path + '" onclick="openDoc(this.title); editor.gotoLine('+row+',0)">';
         if(flag)  content += '<b>'+fname+'</b></p>';
         else      content += fname + '</p>';
     }
@@ -292,7 +292,6 @@ function addToRecents() {
     if(indexInRecents(filename) !== -1)  return;
     if(recents.list.length > 16) recents.list.pop();
     recents.list.unshift([filename, editor.getFirstVisibleRow()]);
-    //alert("list " + recents.list)
 }
 
 function removeFromRecents() {
@@ -318,13 +317,13 @@ function act(element)
     {
         case "new":	      
             clearDoc();	
-           break;
+            break;
         case "indent":		
-          editor.indent();	
-         break;	
+            editor.indent();	
+            break;	
         case "outdent":		
             editor.blockOutdent();	
-          break;					
+            break;					
         case "cut": 
             editorMyClipboard = editor.getCopyText();
             editor.remove(); 
@@ -373,21 +372,18 @@ function changedStatus(status)
     editorHasContent = status;  
 }
 
-
-
 socket.onmessage = function(event) {
     var data = JSON.parse(event.data);
     switch(data.type) 
     {
     case "openDoc":
-            //alert("opendoc")
         setActiveRow();
         clearDoc();
         setFileName(data.filename);
         if(data.content.length > 127)
-          editor.setValue(data.content.slice(9), -1);
+            editor.setValue(data.content.slice(9), -1);
         else
-		      editor.setValue(data.content, -1);
+		    editor.setValue(data.content, -1);
         var mode = "plain_text";
         if(data.ext in languageExt)   
             mode = "ace/mode/" + languageExt[data.ext];
@@ -401,9 +397,9 @@ socket.onmessage = function(event) {
         editor.focus();
         break
     case "editor":
-        if(data.action === "prompt") {
-		        var p = prompt(data.message);
-            socket.send(JSON.stringify( { "type":"answer", "data": p != null }));
+        if(data.action == "prompt") {
+		    var p = confirm(data.message);
+            socket.send(JSON.stringify( { "type":"answer", "data": p  }));
         }
         else {
             alert(data.message);
@@ -472,17 +468,9 @@ function save(pflag)
     socket.send(JSON.stringify( { "type":"interface", "data": a }));  
 }
 
-
-
-
 window.onload=function() {
-  //var ib = document.getElementById("ibrowse");
-  //ib.addEventListener("change", readFile, false);
-    //alert(parent + " " + parent.config + " " + JSON.stringify(parent.config, null, '  '))
     recents = parent.config.Recents;   
 }
-
-
 
 </script>
 

@@ -82,9 +82,7 @@ function updateEntry(innarr)
 			default:
 				break;
 		}
-    //alert(option + ' exit:' + JSON.stringify(innarr));
 	}
-	//alert('Exit update:' + JSON.stringify(config));
 }
 
 function update(config)
@@ -120,7 +118,7 @@ function parseGroup(innarr)
 {
 	var initial = '';
 	var name = '';
-  var size = 40;
+	var size = 40;
 	for(var option in innarr)
 	{
 		switch(option)
@@ -142,9 +140,9 @@ function parseGroup(innarr)
 			case 'initial':
 				initial = innarr[option];
 				break;
-      case 'size':
-        size = innarr['size']; 
-        break;         
+      		case 'size':
+        		size = innarr['size']; 
+        		break;         
 			case 'select':
 				addSelect(name, initial, innarr[option]);
 				break;
@@ -166,6 +164,7 @@ function iniSetup(cfg, inifile)
   config = cfg;
   for(group in config)
   {
+	 if(group == "Recents") continue;
 	 form += "<p class='group'>" + group + "</p>";
 	 parseGroup(config[group]);	
   }

@@ -467,8 +467,16 @@ function view(element, filepath, panelid, forcePage)
     default:
      	if(filepath.slice(0, 5) != 'http:')
 	     filepath = "file:///" + filepath;
+      var ext = filepath.substr(-4);
+      if(ext.charAt(0) == ".") 
+        ext = ext.substr(1)
+        else ext = "";
       var a = {  'app': 'explorer', 'params' : { 
-        'command': 'viewtext', 'path': filepath, 'target': panelid  } };
+        'command': 'viewtext', 
+        'path': filepath, 
+        'target': panelid, 
+        'ext': ext
+      }};
       sendFromInterface(a);
       break;    
   }  

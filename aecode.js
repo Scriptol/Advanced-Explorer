@@ -562,7 +562,10 @@ var topHelp = function (target) {
 	loc = loc.slice(0, -14) +  "manual.html";
   var a = {  'app': 'explorer', 'params' : {
         'command': 'viewtext',
-        'path': 'http://www.scriptol.fr/scripts/advanced-explorer-manuel.php' + loc, 'target': null  } };
+        'path': 'http://www.scriptol.fr/scripts/advanced-explorer-manuel.php' + loc, 
+        'target': null,
+        'ext':'html'
+  }};
   sendFromInterface(a);
 }
 
