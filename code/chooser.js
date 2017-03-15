@@ -52,7 +52,6 @@ function fileButton(target, dragflag)
         'target': target 
         } 
   };
-  //alert(JSON.stringify(query))
   sendFromInterface(query);
 }
 
@@ -679,24 +678,13 @@ function copyRename(element)
 {
   var oldname = getNameSelected(element);
   oldname = noHTMLchars(oldname);
-	var newname = prompt("New name:", oldname);
-	if(newname == null || newname == "") return;
-  
-  var sourcepath = pathJoin(currentpath['lcontent'], oldname);
-  var targetpath = pathJoin(currentpath['lcontent'], newname);
-  
-  sourcepath = noHTMLchars(sourcepath);
-  
-  if(sourcepath == targetpath)
-  {
-  	alert("Can't copy a file over itself!");	
-		return;
-  }
-  
 	var a = { 'app' : 'explorer', 'params': { 
-     'command': 'copyrename', 'oldname': oldname, 'newname':newname, 
-     'source' : 'lcontent', 'target': 'rcontent',
-     'isDirectory': isDirectory(element) }
+     'command': 'copyrename', 
+     'oldname': oldname, 
+     'source' : 'lcontent', 
+     'target' : 'rcontent',
+     'isDirectory': isDirectory(element) 
+    }
 	};
 	sendFromInterface(a);	
 }
@@ -795,7 +783,9 @@ function rsel(element)
   {
 	  var p = document.createElement('p');
 	  d.appendChild(p);
-	  p.onclick=function() { copyRename(element) };
+	  p.onclick=function() { 
+      copyRename(element) 
+    };
 	  p.setAttribute('class', 'ctxline');
 	  p.innerHTML = "Copy/Rename"; 
   }

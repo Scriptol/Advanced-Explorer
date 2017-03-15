@@ -170,18 +170,18 @@ websocket.on('connection', function (w) {
 
 // Electron part
 
-let win
+let win = explorer.win;
 
 console.log("Starting Electron...")
 
 function createWindow () {
-  win = new BrowserWindow({width:960, height: 600, "show":false,
+  win = new BrowserWindow({width:960, height: 640, "show":false,
     "webPreferences" : {
-       "nodeIntegration":false,
+       "nodeIntegration":true,
        "webSecurity": false
     }   
   });
-
+  //win.webContents.openDevTools()
 	win.setMenu(null)
 
   process.resourcesPath = __dirname
@@ -196,7 +196,7 @@ function createWindow () {
 
   win.show()
   
-  //win.webContents.openDevTools()
+  
 
   win.on('closed', () => {
     win = null

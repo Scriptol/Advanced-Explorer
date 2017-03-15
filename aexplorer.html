@@ -18,8 +18,24 @@
 <div class="ticon"><img src="images/invert.png" id='tinvert' width="33" height="32" title="Invert left and right panels"></div>
 <div class="ticon"><img src="images/forward.png" id='tdup' width="32" height="32" title="Display left on right too"></div>
 <div class="ticon"><img src="images/copy.png" id='tcopy' width="32" height="32" title="Copy selected files or dirs to right window"></div>
-<div class="ticon"><img src="images/copyren.png" id="tcopren" width="32" height="32" title="Copy/Rename"></div>
-<div class="ticon"><img src="images/archive.png" id='tzip' width="32" height="32" title="Make a zip archive"></div>
+<div class="ticon"><img src="images/copyren.png" id='tcopyren' alt="Copy/Rename" title="Copy with a new name"></div> 
+<!--
+<div class="ticon">
+  <div class="icoprompt">
+    <img class="image" src="images/archive.png" alt="Zip archive"  title="Make a zip archive" 
+      onclick="setVisible('zipform')">
+
+    <span class="comlist" id="zipform" >
+      <h3>Zip archive</h3>
+      <p>
+        <input class="icoelem" type="text" id="zip" value="">
+        <button class="icoelem" onclick="setHidden('zipform');topZip()">Build</button>
+        <button class="icoelem" onclick="setHidden('zipform')">Cancel</button>
+      </p>   
+  </span>
+  </div>
+</div>  
+-->
 <div class="ticon"><img src="images/sync.png" id='tsync' width="32" height="32" title="Synchronize target with source"></div>
 <div class="ticon"><img src="images/edit.png" id='tedit' width="32" height="32" title="View/Edit the selected file"></div>
 <div class="alignright" style="margin-right:8px;">
@@ -27,7 +43,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 3.2</p>
+   <p>Version 3.3</p>
    <p>
     &copy; 2012-2017 Denis Sureau<br>
     www.scriptol.com<br>
@@ -46,8 +62,9 @@
 	<div class="icon"><img src="images/up.png" width="32" height="32" id="lup" title="Go to parent"></div>
 	<div class="icon"><img src="images/home.png" width="32" height="32" id="lhome" title="Go to root"></div>	
 	<div class="icon"><img src="images/rename.png" width="32" height="32" id="lrename" title="Rename"></div>
-   <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected file/dir"></div>
-   <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Open the box"></div>
+  <div class="icon"><img src="images/create.png" width="32" height="32" id="lcreate" title="Create directory"></div>
+  <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected file/dir"></div>
+  <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Open the box"></div>
   </div>
   <div class="fullpath">
     <div class="fsroot"><img src="images/computer.png" class="fsimg" onClick="computer('lcontent')"></div>
@@ -65,7 +82,8 @@
     <div class="icon"><img src="images/reload.png" width="32" height="32" id="rreload" title="Reload"></div>
     <div class="icon"><img src="images/up.png" width="32" height="32" id="rup" title="Go to parent"></div>
     <div class="icon"><img src="images/home.png" width="32" height="32" id="rhome" title="Go to root"></div>	
-    <div class="icon"><img src="images/rename.png" width="32" height="32" id="rrename" title="Rename"></div>	  
+    <div class="icon"><img src="images/rename.png" width="32" height="32" id="rrename" title="Rename"></div>	 
+	  <div class="icon"><img src="images/create.png" width="32" height="32" id="rcreate" title="Create directory"></div>     
     <div class="icon"><img src="images/delete.png" width="32" height="32" id="rdelete" title="Delete selected file/dir">
     <div class="icon"><img src="images/box.png" width="32" height="32" id="rbox" title="Open the box"></div>
 </div>

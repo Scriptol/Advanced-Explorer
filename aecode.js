@@ -180,7 +180,7 @@ var rightDirs;
 var rightSize;
 
 socket.onmessage = function(event) {
-  var jobj =   JSON.parse(event.data);
+  var jobj = JSON.parse(event.data);
   switch(jobj.type) {
     case 'notification':
         socketNotification(jobj);
@@ -388,7 +388,7 @@ var topDup = function (target) {
 var topCopy = function ()
 {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-  if(checkInBookmarks('lcontent') || checkInBookmarks('lcontent')) return;
+  if(checkInBookmarks('lcontent') || checkInBookmarks('rcontent')) return;
 	var namelist = getSelectedNames('lcontent');
 	//alert(namelist);
 	if(namelist.length == 0)
@@ -414,17 +414,17 @@ var topCopy = function ()
 	sendFromInterface(a);
 }
 
-var topCopyRename = function(target)
+var topCopyRename = function()
 {
-  if(checkInBookmarks('lcontent') || checkInBookmarks('lcontent')) return;
-	var namelist = getSelected(target);
+  if(checkInBookmarks('lcontent') || checkInBookmarks('rcontent')) return;
+  var namelist = getSelected('lcontent');
 	if(namelist.length != 1)
 	{
 		alert("Select just one file to copy under a new name");
 		return;
-	}
+	} 
   copyRename(namelist[0]);
-}
+}  
 
 var topZip = function (target)
 {
@@ -437,7 +437,7 @@ var topZip = function (target)
 		return;
 	}
 
-	var zipname = window.prompt("Zip archive name: ", "");
+	var zipname = document.getElementById("zip").value;
 	if(zipname == null || zipname == '') return;
 	var p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
@@ -445,9 +445,14 @@ var topZip = function (target)
     var archiver = config.Archiver.input;
 
 	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'archive', 'archiver': archiver,
-                    'zipname': zipname, 'list': namelist,
-                    'source' : 'lcontent', 'target': 'rcontent' }
+			  'params': { 
+            'command': 'archive', 
+            //'archiver': archiver,
+            'zipname': zipname, 
+            'list': namelist,
+            'source' : 'lcontent',
+            'target': 'rcontent' 
+        }
 	};
 	sendFromInterface(a);
 }
@@ -500,26 +505,25 @@ function displayEditor(data, fromTop)
 	var fc = (framedit.contentWindow || framedit.contentDocument);
 	if(epane.style.display=="none")
 	{ 
-        dpane.style.display = "none";
-        opane.style.display = "none";
-        epane.style.display = "block";
-        edfra.style.display = "block";
-        fc.display(data);
+      dpane.style.display = "none";
+      opane.style.display = "none";
+      epane.style.display = "block";
+      edfra.style.display = "block";
+      fc.display(data);
 	}
 	else // closing
 	{
-		epane.style.display = "none";
-		edfra.style.display = "none";
-		dpane.style.display = "block";
-        if(fc.editor.getValue() != '')
-            fc.editorIcon(true);
-        fc.setActiveRow();
-    }
+      epane.style.display = "none";
+		  edfra.style.display = "none";
+		  dpane.style.display = "block";
+      if(fc.editor.getValue() != '') fc.editorIcon(true);
+      fc.setActiveRow();
+  }
 	return;
 }
 
 var topEdit = function() {
-	displayEditor({ 'content': null, 'filename': null } , true );
+	  displayEditor({ 'content': null, 'filename': null } , true );
 }
 
 function updateIni() 
@@ -558,11 +562,9 @@ var topSetup = function() {
 }
 
 var topHelp = function (target) {
-	var loc = window.location.pathname;
-	loc = loc.slice(0, -14) +  "manual.html";
   var a = {  'app': 'explorer', 'params' : {
         'command': 'viewtext',
-        'path': 'http://www.scriptol.fr/scripts/advanced-explorer-manuel.php' + loc, 
+        'path': 'http://www.scriptol.com/scripts/advanced-explorer-manual.php', 
         'target': null,
         'ext':'html'
   }};
@@ -614,9 +616,11 @@ var panelUp = function(target)
 }
 
 var panelCreate = function(target) { 
+  // Bookmark
+  /*
   if(AExplorerBMFlag[target]) {
     var idx = (target == 'lcontent') ? 0 : 1;
-    var newbm = prompt('New bookmark:', '');
+    var newbm = confirm('Add to bookmark?');
     if(newbm) {
       bookmarkAdd(idx, newbm);
       AExplorerBMFlag[target]=false;
@@ -624,14 +628,14 @@ var panelCreate = function(target) {
     }
     return;
   }
-
-	var newdir = prompt('New directory:', '');
-	if(newdir) {
-		var a = { 'app' : 'explorer',
-				  'params': { 'command': 'mkdir', 'path': newdir, 'target': target }
-		};
-		sendFromInterface(a);
+  */
+  // Directory   
+	var a = { 'app' : 'explorer', 'params': { 
+      'command': 'mkdir', 
+      'target': target 
+    }
 	};
+	sendFromInterface(a);
 }
 
 function alreadyInList(parent, name)
@@ -1141,6 +1145,15 @@ var keypressHandler = function(evt, code, target)
   return false;
 }
 
+// Forms in icons
+
+function setVisible(id) {
+    document.getElementById(id).setAttribute("class", "openForm");
+}
+    
+function setHidden(id) {
+    document.getElementById(id).setAttribute("class", "closeForm");
+}  
 
 // Listeners
 
@@ -1194,8 +1207,7 @@ function buildEvents()
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
-	addEvent('tcopren', topCopyRename, 'lcontent');
-	addEvent('tzip', topZip);
+  addEvent('tcopyren', topCopyRename);
   addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
@@ -1205,8 +1217,8 @@ function buildEvents()
 	addEvent('lreload', panelReload, 'lcontent');
 	addEvent('lhome', panelHome, 'lcontent');
 	addEvent('lup', panelUp, 'lcontent');
-	//addEvent('lcreate', panelCreate, 'lcontent');
 	addEvent('lrename', panelRename, 'lcontent');
+  addEvent('lcreate', panelCreate, 'lcontent');
 	addEvent('ldelete', panelDelete, 'lcontent');
   addEvent('lbox', panelBox, 'lcontent');
 
@@ -1215,8 +1227,8 @@ function buildEvents()
 	addEvent('rreload', panelReload, 'rcontent');
 	addEvent('rhome', panelHome, 'rcontent');
 	addEvent('rup', panelUp, 'rcontent');
-	//addEvent('rcreate', panelCreate, 'rcontent');
 	addEvent('rrename', panelRename, 'rcontent');
+  addEvent('rcreate', panelCreate, 'rcontent');
 	addEvent('rdelete', panelDelete, 'rcontent');
   addEvent('rbox', panelBox, 'rcontent');
 

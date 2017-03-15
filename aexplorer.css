@@ -289,8 +289,7 @@ a {
   box-sizing:border-box;
 }
 
-.icon, .ticon
-{
+.icon, .ticon {
 	border: 1px solid #ddd;
 	border-color: transparent;
 	display: inline-block;
@@ -298,8 +297,14 @@ a {
 	padding:0px;
 	margin:0px 0 0px 0;
 	text-align:center;
-  border-radius:3px;
+  	border-radius:3px;
 }
+
+.icon img, .ticon img {
+	 height:32px;
+	 width:32px;
+}	
+
 .ticon { height:34px; }
 .icon { height:34px; }
 .icon:hover, .ticon:hover
@@ -398,4 +403,70 @@ a {
   margin-left:32px;
   overflow:hidden;
   padding:8px;
+}
+
+/* Dynamic dialog under icon */
+
+.icoprompt {
+    display:block;
+    position:relative;
+    font-family: Arial,serif;
+}
+
+.image {
+	position: relative; 
+	height:32px; 
+	width:32px; 
+	border:none;
+    margin:0;
+}
+
+.icoprompt h3 {
+    margin:0;
+    padding:3px 3px 1px 0;
+    margin-bottom:4px;
+    background: #E8E8E8;
+    color:#666;
+    font-size:12px;
+    font-weight:bold;
+    text-align:center;
+    border-bottom:1px solid #ccc;
+}
+
+.icoprompt p {
+	display:inline-block;
+	padding:0 8px 0 8px;
+	text-align:center;
+}
+
+.comlist, .closeForm {
+    display:none;
+}
+
+.comlist, .openForm {
+ 	position:absolute;
+  	top:24px;    
+  	left:0;
+	padding:0; 	  
+  	z-index:1000;
+	width:308px;    
+	min-width:308px;    
+
+    color:black;
+    background:white;
+    font-size:13px;
+ 	border:1px solid #666;
+	border-radius:4px;	
+	text-align:left;   
+  	overflow:visible;
+}
+
+.openForm {
+	display:block !important
+}
+
+
+.icoelem {
+	display:inline-block;
+	line-height:18px;
 }
