@@ -8,7 +8,7 @@
 
    Requires:
    - Node.js.
-   - A WebSocket connection opened with the server.
+   - A IPC connection opened with the server.
    - The Explorer.js module.
 */
 
@@ -21,38 +21,34 @@ var ChooserDrag = null;
 
 var customview = [];
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = require('electron')
 
 // event
 
-socket.onmessage=function(e) {
-     var jobj = JSON.parse(e.data);
+ipcRenderer.on("message", (event, data) => {
+     var jobj = JSON.parse(data);
      switch(jobj.type) {
       case 'dirinfo':  break;
       default:
         alert(jobj.data);      
      }
-}
+});
 
 
 function sendFromInterface(a) {
-    setTimeout(function() {
-        socket.send(JSON.stringify( { "type":"interface", "data": a }) );
-    }, 50);
+    ipcRenderer.send("interface", JSON.stringify(a));
 }
+
 
 function fileButton(target, dragflag)
 {
-	var filepath = currentpath[target];  // to do : be persistent
+  var filepath = currentpath[target];
 	var query = { 
-    'app' : 'explorer', 
-    'params': { 
-        'path' : filepath, 
-        'command': 'getdir', 
-        'target': target 
-        } 
-  };
-  sendFromInterface(query);
+     'path' : filepath, 
+     'command': 'getdir', 
+     'target': target 
+  };  
+  sendFromInterface(query)
 }
 
 function pathJoin(path, filename)
@@ -358,14 +354,11 @@ function chDir(filepath, target)
 	if(filepath.slice(0, 8) == "file:///")
 		filepath = filepath.slice(8);
  
-	var a = {  'app': 'explorer', 
-             'params' : { 
-                   'file': 'code/chooser.js', 
-                   'command': 'chdir', 
-                   'path': filepath,
-                   'target': target 
-                  }
-          };
+	var a = {  'file': 'code/chooser.js', 
+             'command': 'chdir', 
+             'path': filepath,
+             'target': target 
+  };
   sendFromInterface(a);
 }
 
@@ -389,12 +382,11 @@ function view(element, filepath, panelid, forcePage)
   {
     var filename = getNameSelected(element);
     var archive = document.getElementById(panelid +'path').value; 
-    var a = {  'app': 'explorer', 'params' : { 
+    var a = {  
          'command': 'textinzip',
          'archive': archive,
          'entryname': filename
-         }
-      };
+    };
     sendFromInterface(a);    
     return;
   }   
@@ -425,24 +417,21 @@ function view(element, filepath, panelid, forcePage)
     case 'png':
     case 'jpg':
     case 'jpeg':  
-      var a = {  'app': 'explorer', 'params' : { 
-        'command': 'loadimage', 'path': filepath, 'target': panelid } };
-        sendFromInterface(a);
+      var a = { 'command': 'loadimage', 'path': filepath, 'target': panelid };
+      sendFromInterface(a);
       break;
     case 'zip':
-        var a = {  'app': 'explorer', 'params' : { 
-         'command': 'viewzip', 'path': filepath, 'target': panelid } };
-        sendFromInterface(a);
+      var a = { 'command': 'viewzip', 'path': filepath, 'target': panelid };
+      sendFromInterface(a);
       break;
     case 'exe':
     case 'jar':
-      var a = {  'app': 'explorer', 'params' : { 
-         'command': 'execute', 'filename': null, 'path': filepath,'target': panelid } };
+      var a = { 'command': 'execute', 'filename': null, 'path': filepath,'target': panelid };
       sendFromInterface(a);
       break;
     case 'prj':
-          openProject(element);
-          break; 
+      openProject(element);
+      break; 
     case 'c':
     case 'cpp':
     case 'cs':
@@ -470,12 +459,7 @@ function view(element, filepath, panelid, forcePage)
       if(ext.charAt(0) == ".") 
         ext = ext.substr(1)
         else ext = "";
-      var a = {  'app': 'explorer', 'params' : { 
-        'command': 'viewtext', 
-        'path': filepath, 
-        'target': panelid, 
-        'ext': ext
-      }};
+      var a = { 'command': 'viewtext', 'path': filepath, 'target': panelid, 'ext': ext};
       sendFromInterface(a);
       break;    
   }  
@@ -632,15 +616,7 @@ function edit(element)
 {
   var target = pointFile(element);
 	var filename =  getNameSelected(element);
-	var a = { 'app' : 'explorer',
-			  'params': { 
-          'command': 'getContent', 
-          'path': filename, 
-          'target': target, 
-          'inEditor' : false 
-        }
-	};
-	
+	var a = { 'command': 'getContent', 'path': filename, 'target': target, 'inEditor' : false };
 	sendFromInterface(a);
 }
 
@@ -648,11 +624,7 @@ function openProject(element)
 {
   var target = pointFile(element);
 	var filename =  getNameSelected(element);
-	var a = { 'app' : 'explorer',  'params': { 
-                'command': 'openPrj', 
-                'name': filename, 
-                'target': target 
-            } };
+	var a = { 'command': 'openPrj', 'name': filename, 'target': target };
 	sendFromInterface(a);
 }
 
@@ -678,13 +650,12 @@ function copyRename(element)
 {
   var oldname = getNameSelected(element);
   oldname = noHTMLchars(oldname);
-	var a = { 'app' : 'explorer', 'params': { 
+	var a = { 
      'command': 'copyrename', 
      'oldname': oldname, 
      'source' : 'lcontent', 
      'target' : 'rcontent',
      'isDirectory': isDirectory(element) 
-    }
 	};
 	sendFromInterface(a);	
 }
@@ -803,9 +774,7 @@ function run(element)
 {
   var target = pointFile(element);
   var fname = getNameSelected(element);
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'execute', 'target': target, 'filename': fname }
-	};  
+	var a = { 'command': 'execute', 'target': target, 'filename': fname };  
   sendFromInterface(a); 
 }
 
@@ -814,9 +783,7 @@ function dirinfo(element)
 {
   var target = pointFile(element);
   var fname = getNameSelected(element);
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'dirinfo', 'target': target, 'filelist': [fname] }
-	};  
+	var a = { 'command': 'dirinfo', 'target': target, 'filelist': [fname] };  
 	sendFromInterface(a);
 }
 
@@ -944,10 +911,10 @@ function isDirectory(item)
 */
 
 function getSelectedNames(source)
-{
+{  
   var namelist = new Array();
   var slist = getSelected(source);
-  //alert(slist);
+
 	for(i = 0; i < slist.length; i++)
 	{
     var elem = slist[i].innerHTML;

@@ -3,7 +3,7 @@
 var fs = require('fs');
 var scriptol = require('/scriptolj/scriptol.js');
 
-// PNG Compress (c) 2015 scriptol.com
+// PNG Compress (c) 2015+ scriptol.com
 // License MIT
 
 // Interface to pngquant
@@ -31,7 +31,7 @@ function display(content)
    console.log(content);
    
     client.write(JSON.stringify( {
-        "type":"message", "app": "PNGCompress", "content" : content
+        "action":"message", "app": "PNGCompress", "content" : content
     }));
     
    return;

@@ -11,7 +11,7 @@ body {
 <script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
 <script>
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
 
 // display message from the server
 
@@ -26,38 +26,29 @@ function message(content)
 function dispInfo()
 {
 	var sourcePath = xdata.source.path;
-	var targetPath = xdata.target.path;
-	message("Source path "+ sourcePath + "<br>Target path " + targetPath + "<br>");
+	message("Source path "+ sourcePath + "<br>");
 }
 
-// launch the hello.js script
 
-socket.onopen = function (event) {
-    var a = { 
-    'app' : 'explorer', 
-    'params': { 
-        'command': 'run',
-        'program': 'node',
-        'script' : "BoxL/Hello/hello.js",
-        'options': "Hello server!"
-        } 
-    };
-    socket.send(JSON.stringify( { "type":"interface", "data": a }));
-    message("Sent to server: Hello server! (to be displayed by the console)");
-};
-
-socket.onmessage = function(event) {
-    var jobj = JSON.parse(event.data);
-    if(jobj.type == "message" && jobj.app == "Hello")
-    {      
-        message("<br>From the server: " + jobj.content);
-    }
-}
+ipcRenderer.on("interface", (event, data) => {
+  var jobj = JSON.parse(data);
+  if(jobj.action == 'message'  && jobj.app == "Hello" && jobj.target == 'lcontent') {
+    message("<br>From the server: " + jobj.content);
+  }
+});
 
 
 window.onload=function()
 {
     dispInfo();
+    var a = { 
+        'command': 'run',
+        'program': 'node',
+        'script' : "BoxL/Hello/hello.js",
+        'options': "Hello server!"
+    };
+    ipcRenderer.send("interface", JSON.stringify(a));  
+    message("Sent to server: Hello server! (to be displayed by the console)");    
 };
 
 </script>

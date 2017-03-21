@@ -36,44 +36,23 @@ function socketNotification(jobj)
 
 function socketConfirm(jo) {
 	var answer = confirm(jo.question);
-  var data = jo.data;
-  switch(data.command) {
+  switch(jo.command) {
      case "copyover":
         if(answer===true) {
-            socket.send(JSON.stringify( { "type":"answer", "data": jo.data  }));
+          var a = { 'command': 'copyover', 'source': jo.path, 'target': jo.tpath };
+	        sendFromInterface(a);
         }
         break;
      case "createdir":
       	if(answer===true) {
-	      var a = { 'app' : 'explorer',
-				    'params': { 'command': 'mkdir', 'path': data.path, 'target': data.target }
-	      };
-	      sendFromInterface(a);
+	        var a = { 'command': 'mkdir', 'target': jo.tpath };
+	        sendFromInterface(a);
 	      };
         break;
     default:
          break;   
   }
 }
-
-function socketDirdata(jobj) {
-  var target = jobj.target;
-  fileList(jobj, AExplorerSort[target]);
-  currentpath[target] = jobj.path;
-  
-  var letter = target.charAt(0);
-  var id = letter + 'star';
-  var elem = document.getElementById(id);
-  elem.style.visibility="visible";
-  var delid = letter + "delete";
-  var img = document.getElementById(delid);
-  img.src = "images/delete.png";
-  img.title="Delete selected file/dir";
-  //var crid = letter + "create";
-  //document.getElementById(crid).title="Create directory";
-  AExplorerBMFlag[target]=false;
-}
-
 
 function socketImage(jobj) {
   var store = document.getElementById('rcontent');
@@ -179,8 +158,55 @@ var rightFiles;
 var rightDirs;
 var rightSize;
 
-socket.onmessage = function(event) {
-  var jobj = JSON.parse(event.data);
+
+function processDirdata(jobj) {
+  var target = jobj.target;
+  fileList(jobj, AExplorerSort[target]);
+  currentpath[target] = jobj.path;
+  
+  var letter = target.charAt(0);
+  var id = letter + 'star';
+  var elem = document.getElementById(id);
+  elem.style.visibility="visible";
+  var delid = letter + "delete";
+  var img = document.getElementById(delid);
+  img.src = "images/delete.png";
+  img.title="Delete selected file/dir";
+  AExplorerBMFlag[target]=false;
+}
+
+
+ipcRenderer.on('stats', (event, data) => {
+  var jobj = JSON.parse(data);
+  if(jobj.target == 'lcontent') {
+     leftDirs = jobj.dirs;
+     leftFiles = jobj.files;
+     leftSize = jobj.size;
+   }
+   else {
+     rightDirs = jobj.dirs;
+     rightFiles = jobj.files;
+     rightSize = jobj.size;
+   }
+  
+   var lpd = leftDirs > 1 ? 's, ' : ', ';
+   var lpf = leftFiles > 1 ? 's, ' : ', ';
+   var rpd = rightDirs > 1 ? 's, ' : ', ';
+   var rpf = rightFiles > 1 ? 's, ' : ', ';
+        
+   var stats = "<span class='lstats'>"
+        + leftDirs + " dir" + lpd
+        + leftFiles + " file" + lpf
+        + leftSize + " bytes.</span><span class='rstats'>"
+        + rightDirs + " dir" + rpd
+        + rightFiles + " file" + rpf
+        + rightSize + " bytes.</span>"; 
+   document.getElementById('status').innerHTML = stats;
+}); 
+
+
+ipcRenderer.on('interface', (event, data) => {
+  var jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'notification':
         socketNotification(jobj);
@@ -189,14 +215,13 @@ socket.onmessage = function(event) {
         socketConfirm(jobj);
         break;    
     case 'dirdata':
-        socketDirdata(jobj); 
+        processDirdata(jobj);
         break;   
     case 'editor':
         displayEditor(jobj, false);
         break;
     case 'message':
-        if(jobj.app == "AExplorer")
-          alert(jobj.content); 
+        alert(jobj.content); 
         break;    
     case 'status':
         document.getElementById('status').innerHTML = jobj.content;
@@ -216,41 +241,19 @@ socket.onmessage = function(event) {
         var rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
+    /*    
     case 'box':
         openBox(jobj);
         break;   
+    */    
     case "boxapp":     
         boxApp(jobj);
         break;
-    case 'stats':
-        if(jobj.target == 'lcontent') {
-          leftDirs = jobj.dirs;
-          leftFiles = jobj.files;
-          leftSize = jobj.size;
-        }
-        else {
-          rightDirs = jobj.dirs;
-          rightFiles = jobj.files;
-          rightSize = jobj.size;
-        }
-        var lpd = leftDirs > 1 ? 's, ' : ', ';
-        var lpf = leftFiles > 1 ? 's, ' : ', ';
-        var rpd = rightDirs > 1 ? 's, ' : ', ';
-        var rpf = rightFiles > 1 ? 's, ' : ', ';
-        
-        var stats = "<span class='lstats'>"
-        + leftDirs + " dir" + lpd
-        + leftFiles + " file" + lpf
-        + leftSize + " bytes.</span><span class='rstats'>"
-        + rightDirs + " dir" + rpd
-        + rightFiles + " file" + rpf
-        + rightSize + " bytes.</span>"; 
-        document.getElementById('status').innerHTML = stats;
-        break;    
+  
     default:
         //alert("AECode Message '" + jobj.type + "' not handled here.");    
   }
-};
+});
 
 
 /*
@@ -285,9 +288,7 @@ function setSortMode(panel, value)
   AExplorerSort[panel] = value;
   var panelpath = panel + "path";
 	var xid = document.getElementById(panelpath);
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'godir', 'path': xid.value, 'target': panel }
-	};
+	var a = { 'command': 'godir', 'path': xid.value, 'target': panel };
 	sendFromInterface(a);  
 }
 
@@ -342,18 +343,28 @@ function buildXData(target)
 {
   var xdata = {};
   xdata['source']= {}
-  xdata.source['path'] = document.getElementById("lcontentpath").value;
-  xdata.source['list'] = getSelectedNames('lcontent');
-  xdata['target'] = {}
-  xdata.target['path'] = document.getElementById("rcontentpath").value;
-  xdata.target['list'] = getSelectedNames('lcontent');
-  var a = { 'app' : 'explorer', 'params': { 
+  xdata['target'] = {}  
+
+  if(target == "lcontent") {
+    xdata.source['path'] = document.getElementById("lcontentpath").value;
+    xdata.source['list'] = getSelectedNames('lcontent');
+    xdata.target['path'] = "";
+    xdata.target['list'] = "";    
+  }
+  else {
+    xdata.source['path'] = "";
+    xdata.source['list'] = "";
+    xdata.target['path'] = document.getElementById("rcontentpath").value;
+    xdata.target['list'] = getSelectedNames('rcontent');
+  }
+  var a = { 
 	      'command': 'store', 
 				'filename': "xdata.js",
 				'content' : "var xdata =" + JSON.stringify(xdata, " "),
+        'target'  : target,
 				'overwrite' : true 
-				}};
-  socket.send(JSON.stringify( { "type":"interface", "data": a }));
+	};
+  sendFromInterface(a);
 }
 
 /*
@@ -364,23 +375,17 @@ var topInvert = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
 	var x = document.getElementById('lcontentpath');
 	var y = document.getElementById('rcontentpath');
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'godir', 'path': x.value, 'target': 'rcontent' }
-	};
+	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
 	sendFromInterface(a);
 
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'godir', 'path': y.value, 'target': 'lcontent' }
-	};
+	var a = { 'command': 'godir', 'path': y.value, 'target': 'lcontent' };
 	sendFromInterface(a);
 }
 
 var topDup = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
 	var x = document.getElementById('lcontentpath');
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'godir', 'path': x.value, 'target': 'rcontent' }
-	};
+	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
 	sendFromInterface(a);
 }
 
@@ -408,9 +413,7 @@ var topCopy = function ()
 		return;
 	}
 
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent',  }
-	};
+	var a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
 	sendFromInterface(a);
 }
 
@@ -442,17 +445,14 @@ var topZip = function (target)
 	var p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
 
-    var archiver = config.Archiver.input;
+  var archiver = config.Archiver.input;
 
-	var a = { 'app' : 'explorer',
-			  'params': { 
-            'command': 'archive', 
-            //'archiver': archiver,
+	var a = { 'command': 'archive', 
+            'archiver': archiver,
             'zipname': zipname, 
             'list': namelist,
             'source' : 'lcontent',
             'target': 'rcontent' 
-        }
 	};
 	sendFromInterface(a);
 }
@@ -487,7 +487,7 @@ var topSync = function (target)
   d.id = 'syncframe';   
 
 	var fcontent = (d.contentWindow || d.contentDocument);
-  fcontent.socket = socket;
+  //fcontent.socket = socket;
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
   fcontent.allFlag = allFlag;
@@ -510,6 +510,7 @@ function displayEditor(data, fromTop)
       epane.style.display = "block";
       edfra.style.display = "block";
       fc.display(data);
+      fc.ipcRenderer = ipcRenderer;
 	}
 	else // closing
 	{
@@ -528,11 +529,11 @@ var topEdit = function() {
 
 function updateIni() 
 {
-  var a = {  'app': 'explorer', 'params' :  {
+  var a = { 
             'command': 'updateIni',
             'path': 'aexplorer.ini.js', 
             'target': null  
-          } };
+  };
   sendFromInterface(a); 
 }
 
@@ -562,19 +563,18 @@ var topSetup = function() {
 }
 
 var topHelp = function (target) {
-  var a = {  'app': 'explorer', 'params' : {
+  var a = { 
         'command': 'viewtext',
         'path': 'http://www.scriptol.com/scripts/advanced-explorer-manual.php', 
         'target': null,
         'ext':'html'
-  }};
+  };
   sendFromInterface(a);
 }
 
 var topQuit = function (target) {
   exitExplorer();
-  var a = { 'app' : 'explorer', 'params': { 'command': 'quit', }
-  };
+  var a = { 'command': 'quit'};
   sendFromInterface(a);
   this.close()
 }
@@ -583,9 +583,7 @@ var topQuit = function (target) {
 	Panel Events building
 */
 var panelReload = function (target) {
-	var a = { 'app': 'explorer',
-              'params' : { 'file': '', 'command': 'getdir', 'path': '.',  'target': target  }
-    };
+	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target  };
 	sendFromInterface(a);
 
   AExplorerBMFlag[target] = false;
@@ -597,9 +595,7 @@ var panelHome = function (target) {
   if(c.length > 2)
     if(c.charAt(1) == ':') np = c.slice(0,3);
 
-	var a = { 'app': 'explorer',
-              'params' : { 'file': '', 'command': 'chdir', 'path': np, 'target': target  }
-  };
+	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target };
 	sendFromInterface(a);
 }
 var panelUp = function(target)
@@ -609,9 +605,7 @@ var panelUp = function(target)
     panelHome(target);
     return;
   }
-	var a = { 'app': 'explorer',
-              'params' : { 'file': '', 'command': 'dirup', 'path': '',  'target': target  }
-    };
+	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target };
 	sendFromInterface(a);
 }
 
@@ -630,11 +624,7 @@ var panelCreate = function(target) {
   }
   */
   // Directory   
-	var a = { 'app' : 'explorer', 'params': { 
-      'command': 'mkdir', 
-      'target': target 
-    }
-	};
+	var a = { 'command': 'mkdir', 'target': target };
 	sendFromInterface(a);
 }
 
@@ -653,9 +643,7 @@ function alreadyInList(parent, name)
 
 function acceptRename(oldname, newname, target)
 {
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'rename', 'target': target, 'oldname': oldname, 'newname' : newname }
-	};
+	var a = { 'command': 'rename', 'target': target, 'oldname': oldname, 'newname' : newname };
 	sendFromInterface(a);
 }
 
@@ -737,9 +725,7 @@ function panelFileInfo(target)
 			return;
 		}
 	}
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'dirinfo', 'target': target, 'filelist': slist }
-	};
+	var a = { 'command': 'dirinfo', 'target': target, 'filelist': slist };
   sendFromInterface(a);
 }
 
@@ -780,28 +766,23 @@ var panelDelete = function(target)
 		return;
 	}
 
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'unlink', 'list': namelist, 'target': target }
-	};
+	var a = { 'command': 'unlink', 'list': namelist, 'target': target };
 	sendFromInterface(a);
 }
 
-function openBox(jobj)
-{                      
-  var target = jobj.target;
+function openBox(target)
+{   
   var letter = target.charAt(0).toUpperCase();
-  
-  var boxpath = "Box" + letter + "/box.html";
   var parent = window.document.getElementById(target);
- 
+
   var box = document.createElement("iframe");
   box.width = "100%";
   box.height = "100%";
   box.setAttribute("sandbox" ,'allow-forms allow-popups allow-same-origin allow-scripts')
   box.id="Box" + letter;  
-  if(document.getElementById(box.id) != null) { return; } 
+  if(document.getElementById(box.id) != null) return;
 
-  box.src = "./" + boxpath;
+  box.src =__dirname + "/Box" + letter + "/box.html";
   parent.removeChild(parent.firstChild)
   parent.appendChild(box);
 }
@@ -819,30 +800,18 @@ function boxApp(apath, target) {
   parent.appendChild(box)
 }
 
+
 var panelBox = function(target)
 {
   var id = target + "list";
   var check = document.getElementById(id);  // file list displayed?
-  if(check != null)
-    buildXData();
-    
-  var boxDir = "Box" + target.charAt(0).toUpperCase();    
-    
-	var a = { 
-    'app' : 'explorer', 
-    'params': { 
-        'path' : boxDir, 
-        'command': 'box', 
-        'target': target 
-        } 
-  };  
-  socket.send(JSON.stringify( { "type":"interface", "data": a }));     
+  if(check != null)  buildXData(target);
+
+  openBox(target)
 }
 
 var panelGo = function(target, x) {
-	var a = { 'app' : 'explorer',
-			  'params': { 'command': 'godir', 'path': x.value, 'target': target }
-	};
+	var a = { 'command': 'godir', 'path': x.value, 'target': target };
 	sendFromInterface(a);
 }
 
@@ -1044,19 +1013,18 @@ function keyUnzip()
   var namelist = getSelectedNames('lcontent');
   if(insidezip['lcontent']) {
     var zipname = document.getElementById('lcontentpath').value;
-    alert(zipname)
    	if(namelist.length == 0) {
 		  alert("Select files to extract in the left panel.");
     }
     
-    var a = {  'app': 'explorer', 'params' : {
+    var a = { 
      'command': 'extract',
      'archive': zipname,
      'filelist': namelist,
      'overwrite': overwrite,
      'keepath': keepath,
      'source': 'lcontent',
-     'target': 'rcontent' } 
+     'target': 'rcontent'  
     };
     sendFromInterface(a);
 		return;
@@ -1064,13 +1032,13 @@ function keyUnzip()
   else 
   {
     zipname = namelist[0];
-    var a = {  'app': 'explorer', 'params' : {
+    var a = {  
      'command': 'unzip',
      'archive': zipname,
      'overwrite': overwrite,
      'keepath': keepath,
      'source': 'lcontent',
-     'target':'rcontent' } 
+     'target':'rcontent' 
     };
     sendFromInterface(a);
   }

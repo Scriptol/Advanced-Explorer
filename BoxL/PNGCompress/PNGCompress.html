@@ -26,17 +26,15 @@ body {
 <script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
 <script>
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
 
-function message(content)
-{
+function message(content) {
   var target = document.getElementById('result');
   target.innerHTML += content;
 }
 
 
-function updateInfo()
-{
+function updateInfo() {
 	var sourcePath = xdata.source.path;
     var lst = xdata.source.list; 
     var searchinfo = document.getElementById("info");
@@ -51,8 +49,7 @@ function updateInfo()
 	        searchinfo.innerHTML = "Compressing <b><i>" + lst.length + " selected files</i></b> file.";
 	    }
 	} 
-	else
-	{
+	else {
 	    searchinfo.innerHTML = "Compressing all PNG files in <b>" + sourcePath + "</b>.";
 	}
 	
@@ -66,50 +63,40 @@ function getExt(name) {
     return name.substr(p + 1).toLowerCase();
 }
 
-function compress() 
-{
+function compress() {
     var opt = "";
 
 	var lst = xdata.source.list;
-	if(lst.length == 0)
-	{
+	if(lst.length == 0)	{
 	    opt += "all " + xdata.source.path;
 	}
-  else
-  {
+    else  {
         opt += "list " + xdata.source.path + " ";
-	    for(var i=0; i < lst.length; i++)
-	    {
+	    for(var i=0; i < lst.length; i++)  {
 	        var png = lst[i];
 	        if(getExt(png) != "png") {
-	            alert("Please, select only PNG files");
+	            top.alert("Please, select only PNG files");
 	            return;
 	        }
 	        opt += png + " ";
 	    }
   }
 
-  var a = { 
-    'app' : 'explorer', 
-    'params': { 
+  var a = {
         'command': 'run',
         'program': 'node',
         'script' : "BoxL/PNGCompress/png.js",
         'options': opt
-        } 
   };
-  socket.send(
-      JSON.stringify( { "type":"interface", "data": a })
-  );	
+  ipcRenderer.send("interface", JSON.stringify(a));  	
 }
 
-socket.onmessage = function(event) {
-    var jobj = JSON.parse(event.data);
-    if(jobj.type == "message" && jobj.app == "PNGCompress")
-    {      
+ipcRenderer.on("interface", (event, data) => {
+    var jobj = JSON.parse(data);
+    if(jobj.action == "message" && jobj.app == "PNGCompress")  {      
         message(jobj.content);
     }
-}
+})
 
 window.onload=updateInfo;
 </script>

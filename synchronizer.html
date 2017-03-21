@@ -33,31 +33,27 @@ h1 {
 
 <script>
 
-var socket;
 var nameList;
 var recursive = false;
 var copyall = true;
 var sourcepath;
 var targetpath;
 
-//windows.onload=function() { alert(socket) };
+const {ipcRenderer} = top.require('electron')
 
 function cbChange(element) { recursive = element.checked; }
 function upChange(element) { copyall = element.checked ? false: true; }
 
 function startSync() {
 	var a = { 
-    'app' : 'explorer',
-		'params': { 
           'command': 'sync',  
           'list': nameList,
           'recursive': recursive,
           'copyall': copyall,
           'source' : 'lcontent', 
           'target': 'rcontent' 
-    }
 	};
-   socket.send(JSON.stringify( { "type":"interface", "data": a }));
+  ipcRenderer.send("interface", JSON.stringify(a));
 }
 
 </script>

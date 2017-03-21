@@ -349,6 +349,7 @@ a {
 	border-radius:3px;
 	font-size:13px;
 	font-family:Arial, Helvetica, sans-serif;
+	font-weight:normal;
 	overflow:visible;
 }
 .ctxline:hover
@@ -363,6 +364,8 @@ a {
 	background-image: linear-gradient(top, #ffffff, #e6e6e6);
 	background-repeat: repeat-x;
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+	font-size:15px;
+	font-weight:bold;
 }  
 
 .tooltip

@@ -6,20 +6,17 @@
   Use it freely but keep this copyright notice. 
 */
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
 var form = "";
 
-function addLabel(value)
-{
+function addLabel(value) {
 	form+="<div class='label'>" + value + "</div>";
 }
 
-function addSelect(name, initial, arr)
-{
+function addSelect(name, initial, arr) {
 	form += "<select style='min-width:320px' name='"+ name + "' id='" + name+ "'>";
 
-	for(var i = 0; i < arr.length; i++)
-	{
+	for(var i = 0; i < arr.length; i++) {
 		var opt = arr[i];
 		form += "<option";
 		if(opt == initial)
@@ -31,13 +28,11 @@ function addSelect(name, initial, arr)
 	form += "</select>";
 }
 
-function addInput(name, initial, size)
-{
+function addInput(name, initial, size) {
 	form += "<input type='text' name='" + name + "' id='" + name + "' size='" + size + "' value='" + initial + "'>";
 }
 
-function addCheck(name, initial)
-{
+function addCheck(name, initial) {
 	form += "<input type='checkbox' name='" + name + "' id='" + name +
 		 "' value='"+ initial+"'";
 	if(initial == true) 
@@ -45,20 +40,16 @@ function addCheck(name, initial)
 	form += "/>";
 }
 
-function updateEntry(innarr)
-{
+function updateEntry(innarr) {
 	var initial = '';
 	var name = '';
 	var element = null;
   
-	for(var option in innarr)
-	{
-  	switch(option)
-		{
+	for(var option in innarr) 	{
+  	switch(option) 	{
 			case 'list':
 				var garr = innarr[option];
-				for(var i = 0; i < garr.length; i++)
-				{
+				for(var i = 0; i < garr.length; i++) {
 					updateEntry(garr[i]);
 				}
 				break;
@@ -85,48 +76,37 @@ function updateEntry(innarr)
 	}
 }
 
-function update(config)
-{
-	for(var group in config)
-	{
+function update(config) {
+	for(var group in config) {
 		updateEntry(config[group]);	
 	}
 }
 
-function done(content) { alert(content); }
-function serverSave(filename)
-{
+function serverSave(filename) {
  	var content= 'var config=' + JSON.stringify(config, null, 4);
-    var a = {  'app': 'explorer', 'params' : { 
-        'command': 'savesys', 'filename': filename, 'content': content  } 
-    };
-    socket.send( JSON.stringify({ "type":"interface", "data" : a }) );    
-}
-function saveIni(filename)
-{
-	update(config);
-  serverSave(filename);
+    var a = { 'command': 'savesys', 'filename': filename, 'content': content  };
+    ipcRenderer.send("interface", JSON.stringify(a));    
 }
 
-function saveFromAE(filename, cfg)
-{
+function saveIni(filename) {
+	update(config);
+  	serverSave(filename);
+}
+
+function saveFromAE(filename, cfg) {
   config = cfg;
   serverSave(filename);
 }
 
-function parseGroup(innarr)
-{
+function parseGroup(innarr) {
 	var initial = '';
 	var name = '';
 	var size = 40;
-	for(var option in innarr)
-	{
-		switch(option)
-		{
+	for(var option in innarr) {
+		switch(option)	{
 			case 'list':
 				var garr = innarr[option];
-				for(var i = 0; i < garr.length; i++)
-				{
+				for(var i = 0; i < garr.length; i++) {
 					parseGroup(garr[i]);
 					form +="<br>";
 				}
@@ -158,12 +138,10 @@ function parseGroup(innarr)
 	}
 }
 
-function iniSetup(cfg, inifile)
-{
+function iniSetup(cfg, inifile) {
   form ="";
   config = cfg;
-  for(group in config)
-  {
+  for(group in config)  {
 	 if(group == "Recents") continue;
 	 form += "<p class='group'>" + group + "</p>";
 	 parseGroup(config[group]);	

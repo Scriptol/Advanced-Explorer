@@ -11,12 +11,9 @@ const http = require("http"),
     net = require('net'),
     fs = require("fs");
 
-const {app, BrowserWindow } = require('electron')
+const {app, BrowserWindow, ipcMain } = require('electron')
 
-const WebSocketServer = require("ws").Server;
-const websocket = new WebSocketServer( { port: 1030 } );
 const explorer = require("explorer");
-
 
 // Main server
 
@@ -64,8 +61,7 @@ function getFilename(request, response)
 
 function runScript(exists, file, param) // Run a local script at the Web interface request
 {
-  if(!exists)
-  {
+  if(!exists) {
     console.log("File not found");
     return false;
   }
@@ -83,90 +79,35 @@ function runScript(exists, file, param) // Run a local script at the Web interfa
   
 }
 
-function webComm(websocket)
-{
-  websocket.on('message', function (e)
-  { 
-      var jo = JSON.parse(e);
-      var data = jo.data;     
-      console.log("Server get WS request from browser: " + jo.type)
-      if(jo.type== "answer") 
-      {
-        switch(data.command)
-         {
-            case "copyover":
-              explorer.shell(websocket, fs, data);
-              break;
-            case "copyzip":
-              explorer.shell(websocket, fs, data);
-              break;
-            default:
-              break;  
-         }     
-        return;
-      }
-
-      if(jo.type == "interface") 
-      {
-		    var app = data.app;
-		    var params = data.params;
-            switch(app)
-	         {   
-		    	   case 'explorer':
-			 	        console.log(" ");
-				        explorer.shell(websocket, fs, params);
-				        break;
-             default:
-				        var filename = params.path;
-				        fs.exists(filename, function(result) { 
-				          runScript(result, app, filename + " " + params)});
-                }   
-	         }
-     else
-        console.log("Unknow message type from browser...");
-  });
-  
-  websocket.on('close', function() { 
-    console.log("Server: WebSocket connection closed by the browser.")
-  });
-}
-
+var mainEvent;
+ipcMain.on('interface', (event, data) => {
+   //console.log("Received: " + data) 
+   mainEvent = event;
+   var jo = JSON.parse(data);
+   jo.event = event;
+   explorer.shell(jo);
+})
 
 explorer.loadIni("aexplorer.ini");
-var server = http.createServer(getFilename); // Create a server to display the interface
-server.listen(1032);
-console.log("Server available, listen to 1032...");
-
-var socket;
 
 // Create a TCP server to communicate with native script
+
 var nativeServer = net.createServer(function(ncom) { 
-
-    console.log('Native connection activated: ' + ncom.remoteAddress +':'+ ncom.remotePort);
+    //console.log('Native connection activated: ' + ncom.remoteAddress +':'+ ncom.remotePort);
     ncom.setEncoding("utf8");
-
     ncom.on("error", function(err) {
-      console.log("TCP error: " + err.stack);
+        console.log("TCP error: " + err.stack);
     });    
     ncom.on('data', function(data) { 
-        console.log("Script to browser: " + data);
-        socket.send(data);
+        //console.log("Script to browser: " + data);
+        mainEvent.sender.send("interface", data);   // send data
     });
     ncom.on('end',  function() {  
-      console.log('Native connection closed.');  
+      //console.log('Native connection closed.');  
     });
-
 });
 
 nativeServer.listen(1031, '127.0.0.1');
-
-// Create a websocket connection
-console.log("WebSocket started on port 1030.");
-websocket.on('connection', function (w) { 
-  socket = w;
-  webComm(w);} 
-);
-
 
 // Electron part
 
@@ -175,7 +116,7 @@ let win = explorer.win;
 console.log("Starting Electron...")
 
 function createWindow () {
-  win = new BrowserWindow({width:960, height: 640, "show":false,
+  win = new BrowserWindow({width:1024, height: 650, "show":false,
     "webPreferences" : {
        "nodeIntegration":true,
        "webSecurity": false
@@ -195,35 +136,24 @@ function createWindow () {
   }))
 
   win.show()
-  
-  
 
   win.on('closed', () => {
     win = null
     explorer.closeWindow()
   })
-
 }
 
-// Avoid JS errors messages at exit
 process.on('uncaughtException', function (error) { })
 
 app.on('ready', createWindow)
-
 app.on('quit', function () {
     // something to do before to quit
 });
-
 app.on('window-all-closed', () => {
   console.log("Windows closed, exit.")
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+  if (process.platform !== 'darwin') app.quit()
   process.exit(1)
 })
-
 app.on('activate', () => {
-  if (win === null) {
-    createWindow()
-  }
+  if (win === null)  createWindow()
 })

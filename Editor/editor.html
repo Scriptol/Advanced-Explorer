@@ -44,15 +44,18 @@ Make use of:
         <div id="reclist"></div>
     </div>
     <div id="editor"></div>
+    <!--
     <div id="spanel">
         <iframe id="saver" src="../Editor/saver.html" width="640" height="500"></iframe>
-    </div>        
+    </div> 
+    -->       
 </div>
     
 <script>
     
 var editorHasContent = false;
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
+const {dialog} = top.require('electron').remote
 var editor = ace.edit("editor");
 var root;
 var recents;
@@ -151,9 +154,10 @@ function newDoc()
 {
     var temp = editor.getValue();
     if(temp.length > 0)   {
-        var sb = confirm("Save current content?");
-        if(sb === true) save(false);
+        var sb = confirm("Ignore changes and continue?");
+        if(sb !== true) save(false);
     }
+
     editorIcon(false);  
     filename = "";
     updateStatusBar("");
@@ -188,14 +192,10 @@ function display(data)
     var fontSize = parseInt(configEd.list[1].input);
     editor.setFontSize(fontSize);
     editor.setShowPrintMargin(false);
-    if(data.content !== null)
-    {
+    if(data.content !== null)  {
         setActiveRow();
         clearDoc();
-        if(data.content.length > 127)
-            editor.setValue(data.content.slice(9), -1);
-        else
-            editor.setValue(data.content, -1);
+        editor.setValue(data.content, -1);
         var mode = "plain_text";
         if(data.ext in languageExt)    mode = "ace/mode/" + languageExt[data.ext];
         editor.getSession().setMode(mode);    
@@ -213,15 +213,12 @@ function display(data)
 
 function openDoc(filepath){
     var a = { 
-        'app' : 'explorer', 
-        'params': { 
             'path' : filepath, 
             'command': 'getContent',
             'target': null,
             'inEditor': true 
-        } 
     };
-    socket.send(  JSON.stringify( { "type":"interface", "data": a })  );
+    ipcRenderer.send("interface", JSON.stringify( a));
 }
 
 function getActiveRow(fname) 
@@ -372,18 +369,15 @@ function changedStatus(status)
     editorHasContent = status;  
 }
 
-socket.onmessage = function(event) {
-    var data = JSON.parse(event.data);
+ipcRenderer.on("editor", (event, data) => {
+    var data = JSON.parse(data);
     switch(data.type) 
     {
     case "openDoc":
         setActiveRow();
         clearDoc();
         setFileName(data.filename);
-        if(data.content.length > 127)
-            editor.setValue(data.content.slice(9), -1);
-        else
-		    editor.setValue(data.content, -1);
+	    editor.setValue(data.content, -1);
         var mode = "plain_text";
         if(data.ext in languageExt)   
             mode = "ace/mode/" + languageExt[data.ext];
@@ -397,9 +391,12 @@ socket.onmessage = function(event) {
         editor.focus();
         break
     case "editor":
-        if(data.action == "prompt") {
+        if(data.action == "confirm") {
 		    var p = confirm(data.message);
-            socket.send(JSON.stringify( { "type":"answer", "data": p  }));
+            var a = {
+                "type":"answer", "data": data        
+            }
+            ipcRenderer.send("interface", JSON.stringify(a));
         }
         else {
             alert(data.message);
@@ -415,9 +412,9 @@ socket.onmessage = function(event) {
         alert("Unknow message '" + data.type + "' in editor");
         break;    
     }
-}
+});
 
-
+/*
 var restartEditor=function() {
     var edi = document.getElementById("editor")
     var spanel = document.getElementById("spanel")
@@ -425,33 +422,26 @@ var restartEditor=function() {
     spanel.style.display="none"
     editor.focus();
 };
+*/
 
 var winsave = function() {
-    var edi = document.getElementById("editor")
-    var spanel = document.getElementById("spanel")
-    var saver = document.getElementById("saver")
-    var fc = (saver.contentWindow || saver.contentDocument);
-    edi.style.display="none";
-    spanel.style.display="block";
-    fc.startSaver() 
-    fc.setSavePath(); 
-    return true;
-};
+    var fpath = dialog.showSaveDialog(null, {
+        title:"Save current text in a file",
+        defaultPath: filename,
+        buttonLabel: "Save"
+    })
+    if(fpath != undefined && fpath.length > 0) return fpath;
+    return "";  // abort
+}
 
 function save(pflag)
 {
-    //alert(pFlag + " " + filename)
     if(pflag || filename === undefined || filename === "") {
-        var x = winsave(editor) 
-        if (x !== false)
-        {
-            setFileName(x);
-            updateStatusBar(true);
-            changedStatus(false);
-            return;
-        }
-        alert("Error")
-        return;
+        var x = winsave() 
+        if(x == "") return;
+        setFileName(x);
+        updateStatusBar(true);
+        changedStatus(false);
     }
     else editor.focus();
     setActiveRow();
@@ -459,13 +449,13 @@ function save(pflag)
     if(content.length === 0) return; 
     updateStatusBar(x);
     changedStatus(false);
-    var a = { 'app' : 'explorer', 'params': { 
-            'command': 'save', 
+    var a = { 
+        'command': 'save', 
         'filename': filename, 
         'content' : content,
         'overwrite' : true 
-    }};
-    socket.send(JSON.stringify( { "type":"interface", "data": a }));  
+    };
+    ipcRenderer.send("interface", JSON.stringify(a));
 }
 
 window.onload=function() {

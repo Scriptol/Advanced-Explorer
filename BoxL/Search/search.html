@@ -21,7 +21,7 @@ body {
 <script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
 <script>
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
 
 function clear() {
   document.getElementById('result').innerHTML = "";
@@ -34,7 +34,7 @@ function message(content)
   content = content.replace("<a", "&lta;");  
   content = content.replace("/[<]/gi", "&lt;");
   content = content.replace("/[>]/gi", "&gt;");
-  content +=  "<br>";
+  content += "<br>";
   target.innerHTML += content;
 }
 
@@ -48,28 +48,24 @@ function updateInfo()
           searchinfo.innerHTML = "Processing <b><i>" + lst[0] + "</i></b>.";
 	    }
 	    else {
-	        searchinfo.innerHTML = "Processing <b><i>" + lst.length + " selected files</i></b>.";
+	      searchinfo.innerHTML = "Processing <b><i>" + lst.length + " selected files</i></b>.";
 	    }
 	} 
 	else
 	{
 	    searchinfo.innerHTML = "Processing all files in <b>" + sourcePath + "</b.";
-	    if(document.getElementById("recurse").checked) earchinfo.innerHTML += " and subdirectories";
+	    if(document.getElementById("recurse").checked) 
+			searchinfo.innerHTML += " and subdirectories";
 	    searchinfo.innerHTML += ".";
 	}
 }
 
-socket.onopen = function(event) {
-      // nothing
-}
-
-socket.onmessage = function(event) {
-    var jobj = JSON.parse(event.data);
-    if(jobj.type == "message" && jobj.app == "search")
-    {      
-        message(jobj.content);
-    }
-}
+ipcRenderer.on("interface", (event, data) => {
+  var jobj = JSON.parse(data);
+  if(jobj.action == 'message'  && jobj.app == "search") {
+    message(jobj.content)
+  }
+});
 
 function searchOnly() 
 {
@@ -89,21 +85,18 @@ function searchOnly()
 	else {
 	    opt += " " + xdata.source.path + "/" + pattern;
 	}
-  var a = { 
-    'app' : 'explorer', 
-    'params': { 
+    var a = {
         'command': 'run',
         'program': 'node',
         'script' : "BoxL/Search/search.js",
         'options': opt
-        } 
     };
-    //alert(JSON.stringify( { "type":"interface", "data": a }))
-  socket.send(
-        JSON.stringify( { "type":"interface", "data": a })
-  );	
-  clear();	
+    ipcRenderer.send("interface", JSON.stringify(a));  		
+    clear();	
 }
+
+// delayed
+
 /*
 function searchAndReplace()
 {
@@ -125,22 +118,16 @@ function searchAndReplace()
 	    opt += " " + xdata.source.path + "/" + pattern;
 	}
   var a = { 
-    'app' : 'explorer', 
-    'params': { 
         'command': 'run',
         'program': 'node',
         'script' : "BoxL/Search/searep.js",
         'options': opt
-        } 
-    };
-    //alert(JSON.stringify( { "type":"interface", "data": a }))
-  socket.send(
-        JSON.stringify( { "type":"interface", "data": a })
-  );	
+  };
+    ipcRenderer.send("interface", JSON.stringify(a));  	
   clear();		
 }
 */
-windows.onload=updateInfo;
+window.onload=updateInfo;
 </script>
 </head>
 
@@ -164,10 +151,11 @@ windows.onload=updateInfo;
 </p>
 -->
 <p>
-	<input type="button" value="Cancel" onClick="window.history.back()">
+	<input type="button" value="Cancel" onClick="parent.panelBox('lcontent')"">
 </p>	
 </form>
-<fieldset id="result"><legend>Results</legend>
+<fieldset><legend>Results</legend>
+ <div id="result"></div>
 </fieldset>
 </body>
 </html>

@@ -10,7 +10,7 @@
 </div>
 <script>
 
-var socket = new WebSocket("ws://localhost:1030");
+const {ipcRenderer} = top.require('electron')
 
 var container;
 var boxPath = "BoxR";
@@ -50,9 +50,9 @@ function loadPage(element)
   top.boxApp(progpath, target)
 }
 
-socket.onmessage = function(event) {
-  var jobj = JSON.parse(event.data);
-  if(jobj.type == 'box') {
+ipcRenderer.on("box", (event, data) => {
+  var jobj = JSON.parse(data);
+  if(jobj.action == 'fillbox' && jobj.target == target) {
     var lst = jobj.list;
     for(var i = 0; i < lst.length; i++)
     {                   
@@ -60,31 +60,18 @@ socket.onmessage = function(event) {
     }
     return;
   }
-}        
-
-  
-socket.onopen = function() {
-  container = document.getElementById("content");
-	var a = { 
-    'app' : 'explorer', 
-    'params': { 
-        'path' : boxPath, 
-        'command': 'box', 
-        'target': target 
-        } 
-  };  
-  socket.send( JSON.stringify( { "type":"interface", "data": a }) );
-} 
- 
+});
   
 window.onload = function() {
   window.alert = top.alert;
   window.confirm = top.confirm;
-  window.prompt = top.prompt;
-}
-
-window.onunload = function() {
-  // nothing
+  container = document.getElementById("content");
+	var a = { 
+        'path' : boxPath, 
+        'command': 'fillbox', 
+        'target': target 
+  };  
+  ipcRenderer.send("interface", JSON.stringify(a));  
 }
 
 </script>

@@ -1,5 +1,5 @@
 {
-  "name"    : "Advanced Explorer",
-  "version" : "3.0",
+  "name"    : "AdvancedExplorer",
+  "version" : "4",
   "main"    : "start.js"
 }
