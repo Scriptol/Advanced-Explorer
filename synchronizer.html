@@ -6,8 +6,8 @@
 <title>Advanced Explorer Synchronizer</title>
 <style>
 body {
-  font-family:Calibri, sans-serif;
-  font-size:14px;
+  font-family:Arial, Calibri, sans-serif;
+  font-size:13px;
 }
 h1 { 
   text-align:center;
@@ -15,12 +15,30 @@ h1 {
   font-size:32px; 
   clear:both;
 }
-.process {
-  padding:8px;
-  border-radius:8px;
-  heigh:32px;
-  width:128px;
-  font-size:16px;
+.arrow {
+  text-align:center;
+}
+#optgroup {
+  margin-top:24px;
+}
+.option {
+  display:block;
+  font-size:14px;
+  line-height: 16px;
+  margin-top:2px;
+}
+.lab {
+  display:inline-block;  
+  padding:0;
+}
+input[type="checkbox"]{
+  display:block;
+  float:left;
+  margin:1px 8px 0 0;
+  padding:0;
+  width: 16px; 
+  height: 16px;
+  appearance: none;
 }
 #sourceid, #targetid { 
   font-weight:bold; 
@@ -28,7 +46,32 @@ h1 {
   padding:4px 4px 4px 8px;
   border:1px solid #aaa;
   border-radius:4px;
+  margin:0;
 }
+input[type=button]
+{
+	min-height:32px;
+  min-width:96px;
+	padding:1px 16px 1px 16px;
+	margin: 2px;
+	color:white;
+	font: 14px Arial, sans-serif;
+	text-shadow: 0 1px 1px rgba(0,0,0,.3);
+	border: 1px solid #248;
+	background: #09c;
+	box-shadow: inset 1px 1px 1px 0 rgba(255,255,255,0.6),
+		1px 2px 4px 0 rgba(128,128,128,0.8);
+	background: -webkit-gradient(linear, left top, left bottom, from(#0bf), to(#08a));
+	background: -moz-linear-gradient(top,  #00adee,  #0078a5);
+  border-radius:6px;
+}
+input[type=button]:hover
+{
+	background: #08B;
+	background: -webkit-gradient(linear, left top, left bottom, from(#0ad), to(#068));
+	background: -moz-linear-gradient(top,  #0095cc,  #006688);
+}
+
 </style>
 
 <script>
@@ -63,11 +106,12 @@ function startSync() {
 <h1>Synchronizer</h1>
 <p>About to synchronize the content of the right panel with the left panel. Files in the right panel will be overwriten by newer files.</p>
 <div id="sourceid"></div>
-<p style="padding-left:64px"><img src="images/down.png"></p>
+<p class="arrow"><img src="images/down.png"></p>
 <div id="targetid"></div>
-
-<p>Process recursively sub-directories <input id="idrec" type="checkbox" value="" onClick="cbChange(this)"></p>
-<p>Update only existing files <input id="idupd" type="checkbox" value="" onClick="upChange(this)"></p>
+<div id="optgroup">
+<p class="option"><span class="lab">Process recursively sub-directories</span> <input id="idrec" type="checkbox" value="" onClick="cbChange(this)"></p>
+<p class="option"><span class="lab">Update only existing files</span> <input id="idupd" type="checkbox" value="" onClick="upChange(this)"></p>
+</div>
 <p><i>If directories are included in a selection, check the recurse option.</i><p>
 <center>
 <p><input type="button" value="Synchronize" class="process" onclick="startSync()"></p>

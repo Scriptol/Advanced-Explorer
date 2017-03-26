@@ -588,6 +588,7 @@ var panelReload = function (target) {
 
   AExplorerBMFlag[target] = false;
 }
+
 var panelHome = function (target) {
   var panel = target + 'path';
   var c = document.getElementById(panel).value;
@@ -598,11 +599,12 @@ var panelHome = function (target) {
 	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target };
 	sendFromInterface(a);
 }
+
 var panelUp = function(target)
 {
   if(insidezip[target])
   {
-    panelHome(target);
+    panelReload(target);
     return;
   }
 	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target };
@@ -733,41 +735,40 @@ function panelFileInfo(target)
 
 var panelDelete = function(target)
 {
-    selectToDelete(target);
 	var namelist = getSelectedNames(target);
-	var message = "Delete ";
 
-	if(namelist.length == 0)
-	{
+	if(namelist.length == 0) 	{
 		alert("Nothing selected to delete");
 		return;
 	}
+  selectToDelete(target);
 
-    if(AExplorerBMFlag[target]) {
-        var idx = (target == 'lcontent') ? 0 : 1;
-        for(var i=0; i < namelist.length; i++) 
-        {
-            var name = namelist[i];
-            bookmarkDelete(idx, name);
-        }
-        AExplorerBMFlag[target]=false;
-        computer(target);
-        return;
-    }
+  if(AExplorerBMFlag[target]) {
+    var idx = (target == 'lcontent') ? 0 : 1;
+    for(var i=0; i < namelist.length; i++)  {
+       var name = namelist[i];
+        bookmarkDelete(idx, name);
+     }
+     AExplorerBMFlag[target]=false;
+     computer(target);
+     return;
+  }
 
+	var message = "Delete ";
 	if(namelist.length > 1)
 		message += namelist.length + " files?";
 	else
 		message += namelist[0] + '?';
+  setTimeout(function() {
+	  if(window.confirm(message) == false)
+	  {
+		  panelReload(target);
+		  return;
+	  }
 
-	if(window.confirm(message) == false)
-	{
-		panelReload(target);
-		return;
-	}
-
-	var a = { 'command': 'unlink', 'list': namelist, 'target': target };
-	sendFromInterface(a);
+	  var a = { 'command': 'unlink', 'list': namelist, 'target': target };
+	  sendFromInterface(a);
+  }, 100);
 }
 
 function openBox(target)
