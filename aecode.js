@@ -5,7 +5,6 @@ var leftpanel = document.getElementById("lpane");
 var rightpanel = document.getElementById("rpane");
 var currpanel = leftpanel;
 var AExplorerDrag = {'lcontent': true, 'rcontent':false };
-var AExplorerBMFlag = {'lcontent': false, 'rcontent':false };
 var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
 var AERoot = null;
 
@@ -172,7 +171,6 @@ function processDirdata(jobj) {
   var img = document.getElementById(delid);
   img.src = "images/delete.png";
   img.title="Delete selected file/dir";
-  AExplorerBMFlag[target]=false;
 }
 
 
@@ -272,15 +270,6 @@ function getCurrentDirectory(target)
   var path = document.getElementById(panel).value;
   var p = path.lastIndexOf('/');
   return path.slice(p + 1);
-}
-
-function checkInBookmarks(target)
-{
-  if(AExplorerBMFlag[target]) {
-    alert("Can not do that in bookmarks!");
-    return true;
-  }
-  return false;
 }
 
 function setSortMode(panel, value)
@@ -393,7 +382,6 @@ var topDup = function (target) {
 var topCopy = function ()
 {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-  if(checkInBookmarks('lcontent') || checkInBookmarks('rcontent')) return;
 	var namelist = getSelectedNames('lcontent');
 	//alert(namelist);
 	if(namelist.length == 0)
@@ -419,7 +407,6 @@ var topCopy = function ()
 
 var topCopyRename = function()
 {
-  if(checkInBookmarks('lcontent') || checkInBookmarks('rcontent')) return;
   var namelist = getSelected('lcontent');
 	if(namelist.length != 1)
 	{
@@ -585,8 +572,6 @@ var topQuit = function (target) {
 var panelReload = function (target) {
 	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target  };
 	sendFromInterface(a);
-
-  AExplorerBMFlag[target] = false;
 }
 
 var panelHome = function (target) {
@@ -612,20 +597,6 @@ var panelUp = function(target)
 }
 
 var panelCreate = function(target) { 
-  // Bookmark
-  /*
-  if(AExplorerBMFlag[target]) {
-    var idx = (target == 'lcontent') ? 0 : 1;
-    var newbm = confirm('Add to bookmark?');
-    if(newbm) {
-      bookmarkAdd(idx, newbm);
-      AExplorerBMFlag[target]=false;
-      computer(target);
-    }
-    return;
-  }
-  */
-  // Directory   
 	var a = { 'command': 'mkdir', 'target': target };
 	sendFromInterface(a);
 }
@@ -709,7 +680,6 @@ var elementRename = function(spanitem, panelName)
 
 var panelRename = function(panelName)
 {
-  if(checkInBookmarks(panelName)) return;
   spanitem = getPointedContent(panelName);
   elementRename(spanitem, panelName);
 }
@@ -742,17 +712,6 @@ var panelDelete = function(target)
 		return;
 	}
   selectToDelete(target);
-
-  if(AExplorerBMFlag[target]) {
-    var idx = (target == 'lcontent') ? 0 : 1;
-    for(var i=0; i < namelist.length; i++)  {
-       var name = namelist[i];
-        bookmarkDelete(idx, name);
-     }
-     AExplorerBMFlag[target]=false;
-     computer(target);
-     return;
-  }
 
 	var message = "Delete ";
 	if(namelist.length > 1)
@@ -816,147 +775,149 @@ var panelGo = function(target, x) {
 	sendFromInterface(a);
 }
 
+
 /*
-  Displays a list of bookmarks.
-  Called by the interface when a 'dirdata' event is received
-  from the server.
+  Recents directories
+*/  
+
+function bmSize(idx) {
+  return config.Bookmarks.list[idx].select.length;
+}
+
+function recentsFind(idx, name)  {
+    return config.Recdirs.list[idx].indexOf(name)
+} 
+
+function recentsAdd(idx, name) {
+    if(config.Recdirs == null) {
+      config.Recdirs = {};
+      config.Recdirs.list=[];
+      config.Recdirs.list[0]=[];
+      config.Recdirs.list[1]=[];
+    }
+    else {
+      if(recentsFind(idx, name) > -1) return;
+    }
+    var bms = bmSize(idx);
+    if(bms >= 25)  return;   // full of bookmarks
+    if(bms + config.Recdirs.list[idx].length >= 25) {
+      config.Recdirs.list[idx].shift();
+    }  
+    config.Recdirs.list[idx].push(name)  
+}
+
+function recentsDelete(idx, name) {
+    var r = config.Recdirs.list[idx]
+    var i = r.indexOf(name)
+    //alert(i + " " + name)
+    if(i > -1)
+      r.splice(i, 1)    
+}
+
+function recentsClear(idx) {
+    Recdirs.list[idx]=[];
+}
+  
+
+/*
+  Bookmarks.
 */
 
-
-function dispBookmarks(target, bm)
-{
-	insidezip[target]=false;
-	var d = document.getElementById(target);
-  //alert(JSON.stringify(bm, null, 4));
-	var extmask = false;
-	var filepath = "";
-
-	var fpathid = target + "path";
-	var fpath = document.getElementById(fpathid);
-	fpath.value = "Computer";
-
-	var listid = target + "list";
-	var page = "<div class='filechooser'>";
-	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
-	var drivelist ="";
-	var dirlist = "";
-
-	for(var i = 0; i < bm.length; i++)
-	{
-		var item = bm[i];
-    var name = item;
-		var dirtype = (name == "/" || (name.charAt(1) == ':' && name.length == 3));
-
-		if(dirtype)
-		{
-       drivelist += buildDrive(name, target) + "<br>";
-		}
-		else
-		{
-			 dirlist += buildDir(name, target) + "<br>";
-		}
-	}
-
-	page += drivelist;
-	page += dirlist;
-	page += "</div>";
-	page += "</div>";
-	d.innerHTML = page;
-	addKeyListEvents(target);
-  //if(ChooserDrag[target]) setDrag(listid);
-
-	if(elementToSelect != null)
-	{
-		if(elementToSelect == '*')
-			setFirstSelected(target);
-		else
-		{
-			chooserLastSelected = null;
-			elementToSelect = getElementByName(elementToSelect, target);
-			sel(elementToSelect);
-		}
-	}
-	elementToSelect = null;
-	elementToOffset = null;
-
-	var currdiv = document.getElementById(listid);
-	currdiv.focus();
-}
-
-function bookmarkDelete(idx, name)
-{
+function bookmarkDelete(idx, name) {
   var bm = config.Bookmarks.list[idx].select
   var tf = bm.indexOf(name)
-  bm.splice(tf, 1)
+  if(tf > -1)
+    bm.splice(tf, 1)
 }
 
-function bookmarkAdd(idx, name)
-{
-  var bm = config.Bookmarks.list[idx].select
-  var tf = bm.indexOf(name)
-  if(tf > -1) {
-    alert(name + " already in list")
-    return;
-  }
-  bm.push(name)
+function bmDel(element, code) {
+  var n = element.nextSibling;
+  var name = n.innerHTML;
+  bookmarkDelete(code, name)
 }
 
-function computer(target)
-{
-  var letter = target.charAt(0);
-  var id = letter + "delete";
-  var delimg = document.getElementById(id);
+function bmToDel(element) {
+  element.firstChild.style.color = "black"
+}
 
-  if(AExplorerBMFlag[target]) {
-    panelReload(target)
-    return;
-  }
+function bmToSkip(element) {
+  element.firstChild.style.color = "white"
+}
 
-  var idx = (target == 'lcontent') ? 0 : 1;
+function openBM(element, code) {
+  var letter = (code == 0 ? "l" : "r")
+  var id = letter + "bm";
+  var target = letter + "content";
+  var d = document.getElementById(id);
+  var dpath = element.getAttribute("alt")
+  d.style.display="none"  
+  chDir(dpath, target)
+}
+
+function closeBM(element) {
+  element.style.display="none"  
+}
+
+function dispBookmarks(letter, bm) {
+    var id = letter + "bm"
+	  var d = document.getElementById(id);
+    var code = (letter == "l" ? 0 : 1);
+    var blist = ""
+    var i;
+	  for(i = 0; i < bm.length; i++)
+	  {
+		  var item = bm[i];
+      blist +=  "<p alt='" + item + "' onclick='openBM(this, "+ 
+        code + ")'  onmouseover='bmToDel(this)' onmouseout='bmToSkip(this)'><span class='bmdel' onclick='bmDel(this,"+ 
+        code+ ")'>x</span><span class='bmname'>" + 
+        item + "</span></p>"
+	  }
+
+    // recents
+    if(i < 25 && config.hasOwnProperty("Recdirs")) {
+      blist += "<hr>"
+      var r = config.Recdirs.list[code]
+      for(var i = 0; i < r.length; i++) {
+          blist +=  "<p alt='" + r[i] + "' onclick='openBM(this, "+ 
+          code + ")'><span class='recname'>"  +r[i] + "</span></p>"
+      }
+    }
+    //alert(blist)
+	  d.innerHTML = blist;
+    d.style.display="block"  
+}
+
+
+function computer(letter) {
+  var idx = (letter == 'l') ? 0 : 1;
   var bm = config.Bookmarks.list[idx].select;
-	dispBookmarks(target, bm);
-
-  delimg.src = "images/bmdel.png";
-  delimg.title = "Delete bookmark";
-  AExplorerBMFlag[target] = true;
-  var id = letter + 'star';
-  var elem = document.getElementById(id);
-  elem.style.visibility="hidden";
-
-  var crid = letter + "create"
-  document.getElementById(crid).title="Create a bookmark"
-
+	dispBookmarks(letter, bm);
 }
 
-function bookmark(target)
+function bookmark(letter)
 {
-  if(AExplorerBMFlag[target])
-  {
-    alert("Already in bookmarks!");
+  var idx = (letter == 'l') ? 0 : 1;
+  var bm = config.Bookmarks.list[idx].select;
+  if(bm.length > 25) {
+    alert("Full!")
     return;
   }
-  var idx = (target == 'lcontent') ? 0 : 1;
-  var bm = config.Bookmarks.list[idx].select;
-  var tpath = target + 'path';
+  var tpath = letter + 'contentpath';
   tpath = document.getElementById(tpath).value;
 
   tpath = tpath.replace(/\\/gi, '/');
+  if(tpath.substr(-1) != "/") tpath += "/"
   var already = bm.some(function(x) { return (x == tpath)} );
-  if(!already)
+  if(!already) {
+    recentsDelete(idx, tpath)
     bm.push(tpath);
-
-  var id = target.charAt(0) + 'star';
+  }
+  var id = letter + 'star';
   var elem = document.getElementById(id);
   elem.src = "images/starlight.png";
   setTimeout(function() { elem.src="images/star.png"; }, 500);
-	//alert(JSON.stringify(bm, null, 4));
 }
 
-function exitBookmarks()
-{
-    AExplorerBMFlag['lcontent']=false;
-    AExplorerBMFlag['rcontent']=false;
-}
 
 // Keys
 

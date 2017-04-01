@@ -410,6 +410,9 @@ function view(element, filepath, panelid, forcePage)
   }
   
   filepath = noHTMLchars(filepath);
+
+  var idx = panelid.charAt(0) == "l" ? 0 : 1;
+  recentsAdd(idx, replaceFilename(filepath, ""))
   
   switch(ext.toLowerCase())
   {
@@ -494,6 +497,8 @@ var chooserLastSelected = null;
 
 function setSelected(element)
 {
+    var name = getNameSelected(element)
+    if(name.charAt(0) == '.') return;
     element.className="entrybold";	     
 }
 
@@ -571,7 +576,7 @@ function sel(element)
   else
   {
     if(!isCTRL) deselectAll(element.parentNode);
-    element.className="entrybold"; 
+    setSelected(element); 
   }    
   chooserLastSelected = element;
 
@@ -595,7 +600,7 @@ document.onmousemove = function(e)
 function pointFile(element)
 {
   deselectAll(element.parentNode);
-  element.className='entrybold';
+  setSelected(element);
 	var parent = element.parentNode.parentNode.parentNode; 
   return parent.id; 	
 }
@@ -697,6 +702,11 @@ function rsel(element)
   d.style.left = xMousePosition + "px";
   d.style.top = yMousePosition + "px";
   d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
+  d.onmouseleave = function(e) { 
+    this.style.display='none'; 
+    parent.removeChild(d)
+    return;
+  }
   d.onclick = function(e) { parent.removeChild(d);  }
   document.body.onclick = function(e) {
     try { parent.removeChild(d);}
@@ -800,6 +810,11 @@ function dsel(element)
   d.style.left = xMousePosition + "px";
   d.style.top = yMousePosition + "px";
   d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
+  d.onmouseleave = function(e) { 
+    this.style.display='none'; 
+    parent.removeChild(d)
+    return;
+  }
   d.onclick = function(e) { parent.removeChild(d);  }
   document.body.onclick = function(e) {
     try { parent.removeChild(d);}
@@ -938,12 +953,11 @@ function getSelectedNames(source)
 function selectToDelete(source)
 {
   var slist = getSelected(source);
-	for(i = 0; i < slist.length; i++)
-	{
+	for(i = 0; i < slist.length; i++)	{
 		var element = slist[i];
-        element.style.backgroundColor = 'white';
-        element.style.textDecoration = 'line-through';
-        element.style.color = 'red';
+    element.style.backgroundColor = 'white';
+    element.style.textDecoration = 'line-through';
+    element.style.color = 'red';
 	}
 }
 
