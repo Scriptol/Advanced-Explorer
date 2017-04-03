@@ -8,11 +8,11 @@
 
 #main {
 	position: absolute;
-	top: 44px;
+	top: 50px;
 	right: 0;
 	bottom: 0;
 	left: 0;
-	margin:8px 8px 8px 8px;	
+	margin:4px;	
 	padding:0;
 	border:1px solid #999;
 }
@@ -49,22 +49,30 @@
 	bottom:0;	
 	width:100%;
 	height:100%;
-	padding:8px;
+	padding:8px 2px 8px 2px;
 	margin:0px;
-	background:white;
+	background:black;
 	overflow:hidden;
 	border-top:1px solid #ccc;
 }
 
 #reclist p {
-    margin:2px 0 2px 0;
-    padding:0;
+    margin:2px 4px 2px 2px;
+    padding:0 4px 0 4px;
     overflow:hidden;
+	width:auto;
     font-size:14px;
 	font-family:Arial, Tahoma, sans-serif;
+	border:1px solid black;
+	border-radius:4px;
+	color:#ccc;
 }
 
-#editor, #spanel { 
+#reclist p:hover {
+	border:1px solid #bbb;
+}
+
+#editor { 
 	position: absolute;
 	display:inline-block;
 	top: 0px;
@@ -76,27 +84,15 @@
 	overflow:hidden;
 }
 
-#spanel {
-	display:none;
-}
-
-#saver {
-	display:block;
-	width:100%;
-	height:100%;
-	border: none;
-	overflow:visible;
-	padding:0;
-	margin:0;
-	
-}
-
 .toolbar {
+	position:absolute;
+	left:4px;
+	right:4px;
 	height: 36px; 
 	background: url(images/back.png);
 	border:1px solid #CCC;
 	border-radius:4px;
-	padding:4px 8px 0px 8px;
+	padding:4px 0px 0px 8px;
 }
 .imagebutton 
 {

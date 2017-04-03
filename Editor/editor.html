@@ -259,9 +259,9 @@ function extractFile(fullpath) {
 
 function indexInRecents(fname)  {
     for(var i = 0; i < recents.list.length; i++) {
-        if(recents.list[i][0]===fname) return i;
+        if(recents.list[i][0] == fname) return i;
     }
-    return -1;
+    return -1;    
 } 
 
 function recentsDisplay() {
@@ -287,7 +287,7 @@ function addToRecents() {
     }
     recents = parent.config.Recents;    
     if(indexInRecents(filename) !== -1)  return;
-    if(recents.list.length > 16) recents.list.pop();
+    if(recents.list.length > 20) recents.list.pop();
     recents.list.unshift([filename, editor.getFirstVisibleRow()]);
 }
 
@@ -390,7 +390,7 @@ ipcRenderer.on("editor", (event, data) => {
         recentsDisplay();
         editor.focus();
         break
-    case "editor":
+    case "confirm":
         if(data.action == "confirm") {
 		    var p = confirm(data.message);
             var a = {
@@ -398,11 +398,10 @@ ipcRenderer.on("editor", (event, data) => {
             }
             ipcRenderer.send("interface", JSON.stringify(a));
         }
-        else {
-            alert(data.message);
-        }  
         break;
     case "message":    
+        alert(data.message);
+        break;
     case "mouse":
         break;  
     case "status":  
@@ -413,16 +412,6 @@ ipcRenderer.on("editor", (event, data) => {
         break;    
     }
 });
-
-/*
-var restartEditor=function() {
-    var edi = document.getElementById("editor")
-    var spanel = document.getElementById("spanel")
-    edi.style.display="block"
-    spanel.style.display="none"
-    editor.focus();
-};
-*/
 
 var winsave = function() {
     var fpath = dialog.showSaveDialog(null, {
@@ -443,10 +432,14 @@ function save(pflag)
         updateStatusBar(true);
         changedStatus(false);
     }
-    else editor.focus();
+    else 
+        editor.focus();
     setActiveRow();
     var content = editor.getValue();
-    if(content.length === 0) return; 
+    if(content.length === 0) {
+        alert("Nothing to save.")
+        return; 
+    }    
     updateStatusBar(x);
     changedStatus(false);
     var a = { 

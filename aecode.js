@@ -1149,7 +1149,7 @@ function buildEvents()
 	addEvent('lup', panelUp, 'lcontent');
 	addEvent('lrename', panelRename, 'lcontent');
   addEvent('lcreate', panelCreate, 'lcontent');
-	addEvent('ldelete', panelDelete, 'lcontent');
+	addEvent('ldel', panelDelete, 'lcontent');
   addEvent('lbox', panelBox, 'lcontent');
 
 	addInputEvent('lcontentpath', panelGo, 'lcontent');
@@ -1159,7 +1159,7 @@ function buildEvents()
 	addEvent('rup', panelUp, 'rcontent');
 	addEvent('rrename', panelRename, 'rcontent');
   addEvent('rcreate', panelCreate, 'rcontent');
-	addEvent('rdelete', panelDelete, 'rcontent');
+	addEvent('rdel', panelDelete, 'rcontent');
   addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');

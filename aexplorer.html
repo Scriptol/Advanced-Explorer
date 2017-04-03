@@ -15,9 +15,9 @@
 <div id="outer">
 <div class="toolbar" id="topbar">
  &nbsp;
-<div class="ticon"><img src="images/invert.png" id='tinvert' width="33" height="32" title="Invert left and right panels"></div>
-<div class="ticon"><img src="images/forward.png" id='tdup' width="32" height="32" title="Display left on right too"></div>
-<div class="ticon"><img src="images/copy.png" id='tcopy' width="32" height="32" title="Copy selected files or dirs to right window"></div>
+<div class="ticon"><img src="images/invert.png" id='tinvert' title="Invert left and right panels"></div>
+<div class="ticon"><img src="images/forward.png" id='tdup' title="Display left on right too"></div>
+<div class="ticon"><img src="images/copy.png" id='tcopy' title="Copy selected files/dirs to right window"></div>
 <div class="ticon"><img src="images/copyren.png" id='tcopyren' alt="Copy/Rename" title="Copy with a new name"></div> 
 <div class="ticon">
   <div class="icoprompt">
@@ -34,14 +34,14 @@
   </span>
   </div>
 </div>  
-<div class="ticon"><img src="images/sync.png" id='tsync' width="32" height="32" title="Synchronize target with source"></div>
-<div class="ticon"><img src="images/edit.png" id='tedit' width="32" height="32" title="Open/Close the editor"></div>
+<div class="ticon"><img src="images/sync.png" id='tsync' title="Synchronize target with source"></div>
+<div class="ticon"><img src="images/edit.png" id='tedit' title="Open/Close the editor"></div>
 <div class="alignright" style="margin-right:8px;">
-<div class="ticon"><img src="images/options.png" id='topt' width="32" height="32" title="Setting up A.E."></div>
-<div class="ticon tooltip"><img src="images/help.png" id='thelp' width="32" height="32">
+<div class="ticon"><img src="images/options.png" id='topt' title="Setting up A.E."></div>
+<div class="ticon tooltip"><img src="images/help.png" id='thelp'>
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 4.1</p>
+   <p>Version 4.2</p>
    <p>
     &copy; 2012-2017 Denis Sureau<br>
     www.scriptol.com<br>
@@ -56,13 +56,13 @@
 <div id="lpane">
   <div class="toolbar toolpane" id="lcontrol">
 	  &nbsp;
-	<div class="icon"><img src="images/reload.png" width="32" height="32" id="lreload" title="Refresh"></div>
-	<div class="icon"><img src="images/up.png" width="32" height="32" id="lup" title="Up to parent dir"></div>
-	<div class="icon"><img src="images/home.png" width="32" height="32" id="lhome" title="Up to root dir"></div>	
-	<div class="icon"><img src="images/rename.png" width="32" height="32" id="lrename" title="Rename"></div>
-  <div class="icon"><img src="images/create.png" width="32" height="32" id="lcreate" title="Create a subdirectory"></div>
-  <div class="icon"><img src="images/delete.png" width="32" height="32" id="ldelete" title="Delete selected files/dirs"></div>
-  <div class="icon"><img src="images/box.png" width="32" height="32" id="lbox" title="Open a box of apps"></div>
+	<div class="icon"><img src="images/reload.png" id="lreload" title="Refresh"></div>
+	<div class="icon"><img src="images/up.png" id="lup" title="Up to parent dir"></div>
+	<div class="icon"><img src="images/home.png" id="lhome" title="Up to root dir"></div>	
+	<div class="icon"><img src="images/rename.png" id="lrename" title="Rename"></div>
+  <div class="icon"><img src="images/create.png" id="lcreate" title="Create a subdirectory"></div>
+  <div class="icon"><img src="images/delete.png" id="ldel" title="Delete selected files and dirs"></div>  
+  <div class="icon"><img src="images/box.png" id="lbox" title="Open a box of apps"></div>
   </div>
   <div class="fullpath">
    <div class="fsroot">
@@ -80,13 +80,13 @@
 <div id="rpane">
   <div class="toolbar toolpane" id="rcontrol">
 	  &nbsp;	
-    <div class="icon"><img src="images/reload.png" width="32" height="32" id="rreload" title="Refresh"></div>
-    <div class="icon"><img src="images/up.png" width="32" height="32" id="rup" title="Up to parent dir"></div>
-    <div class="icon"><img src="images/home.png" width="32" height="32" id="rhome" title="Up to root dir"></div>	
-    <div class="icon"><img src="images/rename.png" width="32" height="32" id="rrename" title="Rename"></div>	 
-	  <div class="icon"><img src="images/create.png" width="32" height="32" id="rcreate" title="Create a subdirectory"></div>     
-    <div class="icon"><img src="images/delete.png" width="32" height="32" id="rdelete" title="Delete selected files/dirs"></div>
-    <div class="icon"><img src="images/box.png" width="32" height="32" id="rbox" title="Open a box of apps"></div>
+    <div class="icon"><img src="images/reload.png" id="rreload" title="Refresh"></div>
+    <div class="icon"><img src="images/up.png" id="rup" title="Up to parent dir"></div>
+    <div class="icon"><img src="images/home.png" id="rhome" title="Up to root dir"></div>	
+    <div class="icon"><img src="images/rename.png" id="rrename" title="Rename"></div>	 
+	  <div class="icon"><img src="images/create.png" id="rcreate" title="Create a subdirectory"></div>     
+    <div class="icon"><img src="images/delete.png" id="rdel" title="Delete selected files and dirs"></div>
+    <div class="icon"><img src="images/box.png" id="rbox" title="Open a box of apps"></div>
   </div>
   <div class="fullpath"> 
     <div class="fsroot">
@@ -148,7 +148,11 @@ function exitExplorer()
 {
   var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-  if(fc.editorHasContent) fc.save(false);
+  if(fc.editorHasContent) {
+    var x = confirm("Save edited text before to quit?")
+    if(x)
+      fc.save(false);
+  }  
   fc.setActiveRow();
 
   config.Memory.list[0].input = currentpath['lcontent'];
