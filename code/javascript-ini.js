@@ -143,6 +143,8 @@ function iniSetup(cfg, inifile) {
   config = cfg;
   for(group in config)  {
 	 if(group == "Recents") continue;
+	 if(group == "Bookmarks") continue;
+	 if(group == "Recdirs") continue;
 	 form += "<p class='group'>" + group + "</p>";
 	 parseGroup(config[group]);	
   }
