@@ -157,22 +157,11 @@ var rightFiles;
 var rightDirs;
 var rightSize;
 
-
 function processDirdata(jobj) {
   var target = jobj.target;
   fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
-  
-  var letter = target.charAt(0);
-  var id = letter + 'star';
-  var elem = document.getElementById(id);
-  elem.style.visibility="visible";
-  var delid = letter + "delete";
-  var img = document.getElementById(delid);
-  img.src = "images/delete.png";
-  img.title="Delete selected file/dir";
 }
-
 
 ipcRenderer.on('stats', (event, data) => {
   var jobj = JSON.parse(data);
