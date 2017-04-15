@@ -506,8 +506,7 @@ function isSelected(element) {
   return element.className=="entrybold"; 
 }
 
-function selectRange(item1, item2)
-{7
+function selectRange(item1, item2) {
   var parent = item1.parentNode;
   var inRange = false;
   var skipFollowers = false;
