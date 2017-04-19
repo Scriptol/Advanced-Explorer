@@ -93,17 +93,14 @@ explorer.loadIni("aexplorer.ini");
 // Create a TCP server to communicate with native script
 
 var nativeServer = net.createServer(function(ncom) { 
-    //console.log('Native connection activated: ' + ncom.remoteAddress +':'+ ncom.remotePort);
     ncom.setEncoding("utf8");
     ncom.on("error", function(err) {
         console.log("TCP error: " + err.stack);
     });    
     ncom.on('data', function(data) { 
-        //console.log("Script to browser: " + data);
         mainEvent.sender.send("interface", data);   // send data
     });
     ncom.on('end',  function() {  
-      //console.log('Native connection closed.');  
     });
 });
 
@@ -125,7 +122,7 @@ function createWindow () {
   //win.webContents.openDevTools()
 	win.setMenu(null)
 
-  process.resourcesPath = __dirname
+  explorer.rootdir = __dirname
   console.log("Working directory : " + process.resourcesPath)
 
   // And load the HTML page
