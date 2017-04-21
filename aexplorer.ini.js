@@ -17,6 +17,15 @@ var config={
             }
         ]
     },
+    "Display": {
+        "list": [
+            {
+                "name": "dotfile",
+                "label": "Show files starting with a dot",
+                "checkbox": false
+            }
+        ]
+    },    
     "Memory": {
         "list": [
             {
