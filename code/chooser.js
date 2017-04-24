@@ -687,21 +687,6 @@ function copyRename(element)
   });
 }
 
-/*
-function copyRename(element)
-{
-  var oldname = getNameSelected(element);
-  oldname = noHTMLchars(oldname);
-	var a = { 
-     'command': 'copyrename', 
-     'oldname': oldname, 
-     'source' : 'lcontent', 
-     'target' : 'rcontent',
-     'isDirectory': isDirectory(element) 
-	};
-	sendFromInterface(a);	
-}
-*/
 
 function rsel(element)
 {

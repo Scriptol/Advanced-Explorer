@@ -15,7 +15,7 @@ function sameDir()
   return(l == r);
 }
 
-function socketNotification(jobj)
+function showNotification(jobj)
 {
 	var action = jobj.action;
 	var target = jobj.target;
@@ -196,7 +196,7 @@ ipcRenderer.on('interface', (event, data) => {
   var jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'notification':
-        socketNotification(jobj);
+        showNotification(jobj);
         break;
     case 'confirm':
         socketConfirm(jobj);
@@ -586,8 +586,12 @@ var panelUp = function(target)
 }
 
 var panelCreate = function(target) { 
-	var a = { 'command': 'mkdir', 'target': target };
-	sendFromInterface(a);
+	var newname = promptDialog("Name of the new folder:", '', function(answer) {
+    var newname = noHTMLchars(answer);
+    if(newname == null || newname == "") return;
+    var a = { 'command': 'mkdir', 'target': target, "newname": newname };
+	  sendFromInterface(a);
+  });
 }
 
 function alreadyInList(parent, name)
