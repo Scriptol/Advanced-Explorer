@@ -650,6 +650,44 @@ function open(element, forcePage)
   view(element, fname, target, forcePage);
 }
 
+function promptDialog(question, defval, cb) {
+  var pDialog = document.getElementById('pDialog')
+  document.getElementById("pLabel").innerHTML = question
+  document.getElementById("pAnswer").value = defval
+  var x = pDialog.showModal()
+  pDialog.addEventListener('close', function(e) {
+    cb(pDialog.returnValue)
+  });
+}
+
+function copyRename(element)
+{
+  var oldname = getNameSelected(element);
+  oldname = noHTMLchars(oldname);
+	var newname = promptDialog("New name:", oldname, function(answer) {
+    var newname = noHTMLchars(answer);
+	  if(newname == null || newname == "") return;
+  
+    var sourcepath = pathJoin(currentpath['lcontent'], oldname);
+    var targetpath = pathJoin(currentpath['rcontent'], newname);
+    if(sourcepath == targetpath) {
+  	  alert("Can't copy a file over itself!");	
+		  return;
+    }
+  
+	  var a = { 
+     'command': 'copyrename', 
+     'oldpath': sourcepath, 
+     'newpath': targetpath,      
+     'source' : 'lcontent', 
+     'target' : 'rcontent',
+     'isDirectory': isDirectory(element) 
+	  };
+	  sendFromInterface(a);	
+  });
+}
+
+/*
 function copyRename(element)
 {
   var oldname = getNameSelected(element);
@@ -663,6 +701,7 @@ function copyRename(element)
 	};
 	sendFromInterface(a);	
 }
+*/
 
 function rsel(element)
 {
