@@ -122,8 +122,8 @@ function createWindow () {
   //win.webContents.openDevTools()
 	win.setMenu(null)
 
-  explorer.rootdir = __dirname
-  console.log("Working directory : " + process.resourcesPath)
+  explorer.setRoot(__dirname);
+  console.log("Working directory : " + __dirname)
 
   // And load the HTML page
   win.loadURL(url.format({
