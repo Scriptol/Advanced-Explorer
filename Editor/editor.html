@@ -191,6 +191,7 @@ function display(data)
     editor.setTheme("ace/theme/" + configEd.list[0].input.toLowerCase());  
     var fontSize = parseInt(configEd.list[1].input);
     editor.setFontSize(fontSize);
+    editor.getSession().setUseWrapMode(true);
     editor.setShowPrintMargin(false);
     if(data.content !== null)  {
         setActiveRow();
@@ -211,7 +212,7 @@ function display(data)
 }
 
 
-function openDoc(filepath){
+function openDoc(filepath) {
     var a = { 
             'path' : filepath, 
             'command': 'getContent',
@@ -221,22 +222,17 @@ function openDoc(filepath){
     ipcRenderer.send("interface", JSON.stringify( a));
 }
 
-function getActiveRow(fname) 
-{
-    for(var i = 0; i < recents.list.length; i++)
-    {
+function getActiveRow(fname) {
+    for(var i = 0; i < recents.list.length; i++) {
         if(fname === recents.list[i][0])  return recents.list[i][1];
     }
     return 0;
 }
 
-function setActiveRow() 
-{     
+function setActiveRow() {     
     if(filename === undefined || filename === "") return;
-    for(var i = 0; i < recents.list.length; i++)
-    {
-        if(filename === recents.list[i][0]) 
-        {
+    for(var i = 0; i < recents.list.length; i++) {
+        if(filename === recents.list[i][0])  {
             recents.list[i][1] = editor.getFirstVisibleRow();
             return;
         }  
@@ -306,12 +302,10 @@ function clearRecents() {
 
 /* Shell */
 
-function act(element)
-{
+function act(element) {
     var command = element.id;
     var temp;
-    switch(command)
-    {
+    switch(command) {
         case "new":	      
             clearDoc();	
             break;
@@ -359,8 +353,7 @@ function act(element)
         editor.focus();
 }
 
-function changedStatus(status)
-{
+function changedStatus(status) {
     var chg = document.getElementById("changed");
     if(status)
         chg.src="images/changed.png";
@@ -371,16 +364,16 @@ function changedStatus(status)
 
 ipcRenderer.on("editor", (event, data) => {
     var data = JSON.parse(data);
-    switch(data.type) 
-    {
+    switch(data.type)  {
     case "openDoc":
         setActiveRow();
         clearDoc();
         setFileName(data.filename);
 	    editor.setValue(data.content, -1);
         var mode = "plain_text";
-        if(data.ext in languageExt)   
+        if(data.ext in languageExt) {   
             mode = "ace/mode/" + languageExt[data.ext];
+        }    
         editor.getSession().setMode(mode); 
         var row = getActiveRow(filename);   
         editor.scrollToLine(row);

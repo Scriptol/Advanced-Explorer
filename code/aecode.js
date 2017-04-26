@@ -44,7 +44,7 @@ function socketConfirm(jo) {
         break;
      case "createdir":
       	if(answer===true) {
-	        var a = { 'command': 'mkdir', 'target': jo.tpath };
+	        var a = { 'command': 'mkdir', 'target': jo.tpath, "dot": dotFlag() };
 	        sendFromInterface(a);
 	      };
         break;
@@ -559,7 +559,7 @@ var topQuit = function (target) {
 	Panel Events building
 */
 var panelReload = function (target) {
-	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target  };
+	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
 	sendFromInterface(a);
 }
 
@@ -570,7 +570,7 @@ var panelHome = function (target) {
   if(c.length > 2)
     if(c.charAt(1) == ':') np = c.slice(0,3);
 
-	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target };
+	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
@@ -581,7 +581,7 @@ var panelUp = function(target)
     panelReload(target);
     return;
   }
-	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target };
+	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
@@ -589,7 +589,7 @@ var panelCreate = function(target) {
 	var newname = promptDialog("Name of the new folder:", '', function(answer) {
     var newname = noHTMLchars(answer);
     if(newname == null || newname == "") return;
-    var a = { 'command': 'mkdir', 'target': target, "newname": newname };
+    var a = { 'command': 'mkdir', 'target': target, "newname": newname, "dot": dotFlag() };
 	  sendFromInterface(a);
   });
 }
@@ -628,35 +628,28 @@ var elementRename = function(spanitem, panelName)
 	x.setAttribute('value', oldname);
 	x.setAttribute('size', '40');
 
-    x.onkeypress = function(evt) {
-    evt.stopPropagation();
-  	var code = evt.keyCode || evt.which;
-		//alert(code);
-    if(code == 13)
-    {
+  x.onkeypress = function(evt) {
+  evt.stopPropagation();
+  var code = evt.keyCode || evt.which;
+  if(code == 13) {
 		var newname = x.value;
-		if(newname)
-		{
-            if(alreadyInList(spanitem.parentNode, newname))
-            {
+		if(newname) {
+        if(alreadyInList(spanitem.parentNode, newname))  {
             alert("Name already used");
-            }
-            else
-            {
+        }
+        else {
 				  acceptRename(oldname, newname, panelName);
 				  saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-            }
+        }
 		}
 		x.blur();
     }
     else
     if(evt.ctrlKey)
-    switch(code)
-    {
+    switch(code)  {
       case 17: 	x.blur();
             break;
     }
-
 	};
 
   x.onkeydown = function(evt) {
@@ -671,21 +664,17 @@ var elementRename = function(spanitem, panelName)
 	x.focus();
 }
 
-var panelRename = function(panelName)
-{
+var panelRename = function(panelName) {
   spanitem = getPointedContent(panelName);
   elementRename(spanitem, panelName);
 }
 
-function panelFileInfo(target)
-{
+function panelFileInfo(target) {
 	var slist = getSelectedNames(target);
-	if(slist.length < 1)
-	{
+	if(slist.length < 1) 	{
 		target = 'rcontent';
 		slist = getSelectedNames(target);
-		if(slist.length < 1)
-		{
+		if(slist.length < 1) {
 			alert('File info: ' + slist.length + " selected. ");
 			return;
 		}

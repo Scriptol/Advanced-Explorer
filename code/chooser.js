@@ -39,6 +39,9 @@ function sendFromInterface(a) {
     ipcRenderer.send("interface", JSON.stringify(a));
 }
 
+function dotFlag() {
+  return  config.Display.list[0].checkbox;
+}
 
 function fileButton(target, dragflag)
 {
@@ -46,7 +49,8 @@ function fileButton(target, dragflag)
 	var query = { 
      'path' : filepath, 
      'command': 'getdir', 
-     'target': target 
+     'target': target,
+     'dot': dotFlag()  
   };  
   sendFromInterface(query)
 }
@@ -265,15 +269,16 @@ function fileList(content, sortMode)
   
 	var listid = target + "list";
 	var dir = content.list;
-    switch(sortMode) {
+  switch(sortMode) {
     case SORT_BY_SIZE:
       dir.sort(sortBySize);
       break;
     case SORT_BY_DATE:
       dir.sort(sortByDate);
       break;  
-    default: break;
-    }
+    default: 
+      break;
+  }
 	var page = "<div class='filechooser'>";
 	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
 	var dirlist = "";
@@ -351,13 +356,15 @@ function setDrag(id)
 
 function chDir(filepath, target)
 {    
-	if(filepath.slice(0, 8) == "file:///")
+	if(filepath.slice(0, 8) == "file:///") {
 		filepath = filepath.slice(8);
+  }  
  
 	var a = {  'file': 'code/chooser.js', 
              'command': 'chdir', 
              'path': filepath,
-             'target': target 
+             'target': target,
+             "dot" : dotFlag() 
   };
   sendFromInterface(a);
 }
@@ -396,10 +403,8 @@ function view(element, filepath, panelid, forcePage)
   
   if(forcePage) ext ='';
   
-  for(var cv in customview)
-  {
-	 if(ext == cv)
-	 {
+  for(var cv in customview)  {
+	 if(ext == cv)  {
 		var a = customview[cv];
 		a.params.filename = filepath;
 		a.params.path = getNameSelected(element);
@@ -414,8 +419,7 @@ function view(element, filepath, panelid, forcePage)
   var idx = panelid.charAt(0) == "l" ? 0 : 1;
   recentsAdd(idx, replaceFilename(filepath, ""))
   
-  switch(ext.toLowerCase())
-  {
+  switch(ext.toLowerCase())  {
     case 'gif':
     case 'png':
     case 'jpg':
@@ -624,16 +628,14 @@ function edit(element)
 	sendFromInterface(a);
 }
 
-function openProject(element)
-{
+function openProject(element) {
   var target = pointFile(element);
 	var filename =  getNameSelected(element);
 	var a = { 'command': 'openPrj', 'name': filename, 'target': target };
 	sendFromInterface(a);
 }
 
-function open(element, forcePage)
-{
+function open(element, forcePage) {
   var isIExplorer = /*@cc_on!@*/false || !!document.documentMode;
   var target = pointFile(element);
   var fpathid = target + "path";
@@ -658,10 +660,15 @@ function promptDialog(question, defval, cb) {
   pDialog.addEventListener('close', function(e) {
     cb(pDialog.returnValue)
   });
+  document.onkeydown=function(e){
+    if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
+       e.preventDefault();
+       return false;
+    }
+  }
 }
 
-function copyRename(element)
-{
+function copyRename(element) {
   var oldname = getNameSelected(element);
   oldname = noHTMLchars(oldname);
 	var newname = promptDialog("New name:", oldname, function(answer) {
@@ -688,8 +695,7 @@ function copyRename(element)
 }
 
 
-function rsel(element)
-{
+function rsel(element) {
   var x = document.getElementById('ctxmenu1');
   if(x) x.parentNode.removeChild(x); 
   
@@ -700,8 +706,7 @@ function rsel(element)
   var ext = getNameSelected(element);
   var epos = ext.lastIndexOf('.');
 	ext = ext.slice(epos + 1);  
-  switch(ext.toLowerCase())
-  {
+  switch(ext.toLowerCase())  {
     case 'exe':
     case 'jar':
       isExecutable = true;
@@ -742,8 +747,7 @@ function rsel(element)
   p.setAttribute('class', 'ctxline');
   p.innerHTML = "Open"; 
   
-  if(isExecutable)
-  {
+  if(isExecutable)  {
     var pe = document.createElement('p');
     d.appendChild(pe);
     pe.onclick=function() { run(element, true); };
@@ -751,8 +755,7 @@ function rsel(element)
     pe.innerHTML = "Run";    
   }   
   
-  if(isImage)
-  {
+  if(isImage)  {
     var pi = document.createElement('p');
     d.appendChild(pi);
     pi.onclick=function() { open(element, true); };
@@ -760,8 +763,7 @@ function rsel(element)
     pi.innerHTML = "Full view";    
   }
 
-  if(isZip)
-  {
+  if(isZip)  {
     var pe = document.createElement('p');
     d.appendChild(pe);
     pe.onclick=function() { keyUnzip(); };
@@ -783,8 +785,7 @@ function rsel(element)
   p.setAttribute('class', 'ctxline');
   p.innerHTML = "Rename"; 
 
-  if(target == 'lcontent')
-  {
+  if(target == 'lcontent')  {
 	  var p = document.createElement('p');
 	  d.appendChild(p);
 	  p.onclick=function() { 
@@ -796,15 +797,13 @@ function rsel(element)
   return false;
 }
 
-function openDir(element)
-{
+function openDir(element) {
   var target = pointFile(element);
   var dirname = getNameSelected(element);
   chDir(dirname, target, false);
 }
 
-function run(element)
-{
+function run(element) {
   var target = pointFile(element);
   var fname = getNameSelected(element);
 	var a = { 'command': 'execute', 'target': target, 'filename': fname };  
@@ -812,16 +811,14 @@ function run(element)
 }
 
 
-function dirinfo(element)
-{
+function dirinfo(element) {
   var target = pointFile(element);
   var fname = getNameSelected(element);
 	var a = { 'command': 'dirinfo', 'target': target, 'filelist': [fname] };  
 	sendFromInterface(a);
 }
 
-function dsel(element)
-{
+function dsel(element) {
   var x = document.getElementById('ctxmenu2');
   if(x) x.parentNode.removeChild(x); 
   var parent = element.parentNode; 
@@ -863,8 +860,7 @@ function dsel(element)
   p3.innerHTML = "Rename";   
   
   var target = pointFile(element);  
-  if(target == 'lcontent')
-  {
+  if(target == 'lcontent')  {
     var p4 = document.createElement('p');
     d.appendChild(p4);
     p4.onclick=function() { copyRename(element) };
@@ -882,16 +878,13 @@ function dsel(element)
   Items are <div> tags
 */
 
-function getSelected(source)
-{      
+function getSelected(source) {      
   var source = document.getElementById(source);
 	var parent = source.firstChild;	// chooser
 	var slist = new Array();
 	var child = parent.firstChild.firstChild; // flist.filename
-	while(child)
-	{
-		if(child.className == 'entrybold')
-		{
+	while(child) 	{
+		if(child.className == 'entrybold') 	{
 			slist.push(child);
 		}
 		child = child.nextSibling;
@@ -899,8 +892,7 @@ function getSelected(source)
 	return slist;  
 }
 
-function setFirstSelected(target)
-{
+function setFirstSelected(target) {
   var panel = document.getElementById(target);
   var element = panel.firstChild.firstChild.firstChild;
   chooserLastSelected = null;
@@ -909,8 +901,7 @@ function setFirstSelected(target)
 
 /* Extract name of selected item as displayed */
 
-function getNameSelected(item)
-{
+function getNameSelected(item) {
     var data = item.innerHTML;
     var p = data.indexOf('>');
     var name = data.slice(p + 1);
@@ -922,12 +913,10 @@ function getNameSelected(item)
 
 /* Get element from name in list */
 
-function getElementByName(name, source)
-{
+function getElementByName(name, source) {
   var s = document.getElementById(source);
 	var child = s.firstChild.firstChild.firstChild; // flist.filename
-	while(child)
-	{
+	while(child) 	{
 		if(getNameSelected(child) == name)
 			return child;
   	child = child.nextSibling;
@@ -937,8 +926,7 @@ function getElementByName(name, source)
 
 /* check if directory from picture */
 
-function isDirectory(item)
-{
+function isDirectory(item) {
     var img = item.firstChild;
     return img.src.indexOf("dir.png") != -1;
 }
@@ -948,13 +936,11 @@ function isDirectory(item)
   Return the list of selected filename or dirnames
 */
 
-function getSelectedNames(source)
-{  
+function getSelectedNames(source) {  
   var namelist = new Array();
   var slist = getSelected(source);
 
-	for(i = 0; i < slist.length; i++)
-	{
+	for(i = 0; i < slist.length; i++) {
     var elem = slist[i].innerHTML;
     var p = elem.indexOf('>');
     elem = elem.slice(p+1);
@@ -973,8 +959,7 @@ function getSelectedNames(source)
   Cross files selected to be deleted
 */  
 
-function selectToDelete(source)
-{
+function selectToDelete(source) {
   var slist = getSelected(source);
 	for(i = 0; i < slist.length; i++)	{
 		var element = slist[i];
@@ -986,19 +971,16 @@ function selectToDelete(source)
 
 var isCTRL = false;
 var isSHIFT = false;
-document.onkeyup=function(evt)
-{
+document.onkeyup=function(evt) {
 	if(!evt.ctrlKey) isCTRL=false;
     if(!evt.shiftKey) isSHIFT = false;
 }
 
-document.onkeydown=function(evt)
-{
+document.onkeydown=function(evt) {
   if(evt.shiftKey) isSHIFT = true;
               else isSHIFT = false;
   var code = (evt.keyCode || evt.which);
-  switch(code)
-  {  
+  switch(code)  {  
       case 13:
         return true;
       case 37: // left
@@ -1010,16 +992,12 @@ document.onkeydown=function(evt)
         return true;    
   }
   
-  if(evt.ctrlKey)
-  {
+  if(evt.ctrlKey)   {
     isCTRL = true;
-    //alert("chooser " + code);    
-    switch(code)
-    {
+    switch(code)  {
       case 17: // ctrl key
         break;
 		  case 67:  // ctrl-c
-        //alert("ctrl-c");
         evt.preventDefault();
         evt.returnValue = false;
         passHandler(evt, code);
@@ -1028,7 +1006,6 @@ document.onkeydown=function(evt)
       case 73: // ctrl-i
         break;  
       case 85: // ctrl-u
-        //alert(code);
         evt.preventDefault();
         evt.returnValue = false;
         passHandler(evt, code);
