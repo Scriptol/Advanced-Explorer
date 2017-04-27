@@ -32,7 +32,7 @@ function dispInfo()
 
 ipcRenderer.on("interface", (event, data) => {
   var jobj = JSON.parse(data);
-  if(jobj.action == 'message'  && jobj.app == "Hello" && jobj.target == 'lcontent') {
+  if(jobj.action == 'message'  && jobj.app == "Hello") {
     message("<br>From the server: " + jobj.content);
   }
 });

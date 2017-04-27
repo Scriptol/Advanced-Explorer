@@ -45,14 +45,14 @@ function dotFlag() {
 
 function fileButton(target, dragflag)
 {
-  var filepath = currentpath[target];
+    var filepath = currentpath[target];
 	var query = { 
-     'path' : filepath, 
-     'command': 'getdir', 
-     'target': target,
-     'dot': dotFlag()  
-  };  
-  sendFromInterface(query)
+        'command': 'getdir', 
+        'path': filepath,         
+        'target': target,
+        'dot': dotFlag()  
+    };  
+    sendFromInterface(query)
 }
 
 function pathJoin(path, filename)
@@ -424,21 +424,21 @@ function view(element, filepath, panelid, forcePage)
     case 'png':
     case 'jpg':
     case 'jpeg':  
-      var a = { 'command': 'loadimage', 'path': filepath, 'target': panelid };
-      sendFromInterface(a);
-      break;
+        var a = { 'command': 'loadimage', 'path': filepath, 'target': panelid };
+        sendFromInterface(a);
+        break;
     case 'zip':
-      var a = { 'command': 'viewzip', 'path': filepath, 'target': panelid };
-      sendFromInterface(a);
-      break;
+        var a = { 'command': 'viewzip', 'path': filepath, 'target': panelid };
+        sendFromInterface(a);
+        break;
     case 'exe':
     case 'jar':
-      var a = { 'command': 'execute', 'filename': null, 'path': filepath,'target': panelid };
-      sendFromInterface(a);
-      break;
+        var a = { 'command': 'execute', 'filename': null, 'path': filepath,'target': panelid };
+        sendFromInterface(a);
+        break;
     case 'prj':
-      openProject(element);
-      break; 
+        openProject(element);
+        break; 
     case 'c':
     case 'cpp':
     case 'cs':
@@ -458,17 +458,18 @@ function view(element, filepath, panelid, forcePage)
     case 'ts':   
     case 'xml':    
      	edit(element);
-      break;      
+        break;      
     default:
      	if(filepath.slice(0, 5) != 'http:')
-	     filepath = "file:///" + filepath;
-      var ext = filepath.substr(-4);
-      if(ext.charAt(0) == ".") 
-        ext = ext.substr(1)
-        else ext = "";
-      var a = { 'command': 'viewtext', 'path': filepath, 'target': panelid, 'ext': ext};
-      sendFromInterface(a);
-      break;    
+        filepath = "file:///" + filepath;
+        var ext = filepath.substr(-4);
+        if(ext.charAt(0) == ".") 
+            ext = ext.substr(1)
+        else 
+            ext = "";
+        var a = { 'command': 'viewtext', 'path': filepath, 'target': panelid, 'ext': ext};
+        sendFromInterface(a);
+        break;    
   }  
         
 }
@@ -486,13 +487,10 @@ function nodeClear(node)
 function deselectAll(parent)
 {
 	var child = parent.firstChild; // child of flist
-  //alert(parent + " " + parent.innerHTML);
-	while(child)
-	{
-    if(child.className == 'entrybold')
-		{
-      child.className="file";  
-		}
+	while(child) {
+        if(child.className == 'entrybold') 	{
+            child.className="file";  
+	    }
 		child = child.nextSibling;
 	}  	  
 }
@@ -511,21 +509,15 @@ function isSelected(element) {
 }
 
 function selectRange(item1, item2) {
-  var parent = item1.parentNode;
-  var inRange = false;
-  var skipFollowers = false;
-  var counter = 0;
-  //alert(parent + " " + item1 + " " + item2);
-
+    var parent = item1.parentNode;
+    var inRange = false;
+    var skipFollowers = false;
+    var counter = 0;
  	var child = parent.firstChild;  
-	while(child)
-	{
-    if(child.className == 'dir' || child.className == 'file' || child.className=='entrybold') 
-    {
-      if(skipFollowers == false)
-      {
-        if(item1==child)
-        {
+	while(child) {
+    if(child.className == 'dir' || child.className == 'file' || child.className=='entrybold')  {
+      if(skipFollowers == false)  {
+        if(item1==child)  {
           setSelected(child);
           inRange=true;
           counter++;
@@ -533,8 +525,7 @@ function selectRange(item1, item2) {
 		      child = child.nextSibling;        
           continue;
         }
-        if(item2==child)
-        {
+        if(item2==child)  {
           setSelected(child);
           inRange=true;
           counter++;
@@ -542,29 +533,25 @@ function selectRange(item1, item2) {
 		      child = child.nextSibling;        
           continue;
         }
-        if(inRange)
-        {
+        if(inRange) {
           setSelected(child);
-		      child = child.nextSibling;        
+		  child = child.nextSibling;        
           continue;
         }
       }
-      if(child.className == 'entrybold')
-		  {
-        child.className="file";    
-		  }
+      if(child.className == 'entrybold')  {
+            child.className="file";    
+	    }
     }
-		child = child.nextSibling;
+	child = child.nextSibling;
 	}  	  
   chooserLastSelected = null;
 }
 
 function sel(element)
 {
-  if(isSHIFT)
-  {
-    if(chooserLastSelected != null)
-    {
+  if(isSHIFT)  {
+    if(chooserLastSelected != null)  {
       selectRange(chooserLastSelected, element);
       chooserLastSelected = null;
       isSHIFT = false;    
@@ -572,12 +559,10 @@ function sel(element)
     }
   }
 
-  if(element.className == 'entrybold' && !isSHIFT)
-  {
+  if(element.className == 'entrybold' && !isSHIFT)  {
     element.className="file";
   }
-  else
-  {
+  else  {
     if(!isCTRL) deselectAll(element.parentNode);
     setSelected(element); 
   }    
@@ -594,104 +579,98 @@ function sel(element)
 var xMousePosition = 0;
 var yMousePosition = 0;
 
-document.onmousemove = function(e)
-{
+document.onmousemove = function(e) {
   xMousePosition = e.clientX + window.pageXOffset;
   yMousePosition = e.clientY + window.pageYOffset;
 };
 
-function pointFile(element)
-{
+function pointFile(element) {
   deselectAll(element.parentNode);
   setSelected(element);
 	var parent = element.parentNode.parentNode.parentNode; 
   return parent.id; 	
 }
 
-function getPointedContent(panelName)
-{
+function getPointedContent(panelName) {
 	var slist = getSelected(panelName);
-	if(slist.length != 1)
-	{
+	if(slist.length != 1) {
 		alert(slist.length + " selected. Select just one file or directory to rename, please.");
 		return null;
 	}
 	return slist[0];
 }
 
-
-function edit(element)
-{
-  var target = pointFile(element);
+function edit(element) {
+    var target = pointFile(element);
 	var filename =  getNameSelected(element);
 	var a = { 'command': 'getContent', 'path': filename, 'target': target, 'inEditor' : false };
 	sendFromInterface(a);
 }
 
 function openProject(element) {
-  var target = pointFile(element);
+    var target = pointFile(element);
 	var filename =  getNameSelected(element);
 	var a = { 'command': 'openPrj', 'name': filename, 'target': target };
 	sendFromInterface(a);
 }
 
 function open(element, forcePage) {
-  var isIExplorer = /*@cc_on!@*/false || !!document.documentMode;
-  var target = pointFile(element);
-  var fpathid = target + "path";
-  var fpath = document.getElementById(fpathid);
-  filepath = fpath.value;
-  var fname =  getNameSelected(element);
-  //alert(filepath + " " + fname);
-  if(!isIExplorer)
-    filepath = filepath.replace(/\\/gi, '/');
-  var sep = '/';
-  if(filepath.slice(-1) == '/') sep = '';
-  if(filepath.slice(-1) == '\\') sep = '';
-  var fname = filepath + sep + fname;
-  view(element, fname, target, forcePage);
+    var isIExplorer = false || !!document.documentMode;
+    var target = pointFile(element);
+    var fpathid = target + "path";
+    var fpath = document.getElementById(fpathid);
+    filepath = fpath.value;
+    var fname =  getNameSelected(element);
+    if(!isIExplorer) {
+        filepath = filepath.replace(/\\/gi, '/');
+    }    
+    var sep = '/';
+    if(filepath.slice(-1) == '/') sep = '';
+    if(filepath.slice(-1) == '\\') sep = '';
+    var fname = filepath + sep + fname;
+    view(element, fname, target, forcePage);
 }
 
 function promptDialog(question, defval, cb) {
-  var pDialog = document.getElementById('pDialog')
-  document.getElementById("pLabel").innerHTML = question
-  document.getElementById("pAnswer").value = defval
-  var x = pDialog.showModal()
-  pDialog.addEventListener('close', function(e) {
-    cb(pDialog.returnValue)
-  });
-  document.onkeydown=function(e){
-    if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
-       e.preventDefault();
-       return false;
+    var pDialog = document.getElementById('pDialog')
+    document.getElementById("pLabel").innerHTML = question
+    document.getElementById("pAnswer").value = defval
+    var x = pDialog.showModal()
+    pDialog.addEventListener('close', function(e) {
+        cb(pDialog.returnValue)
+    });
+    document.onkeydown=function(e) {
+        if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
+            e.preventDefault();
+            return false;
+        }
     }
-  }
 }
 
 function copyRename(element) {
-  var oldname = getNameSelected(element);
-  oldname = noHTMLchars(oldname);
+    var oldname = getNameSelected(element);
+    oldname = noHTMLchars(oldname);
 	var newname = promptDialog("New name:", oldname, function(answer) {
-    var newname = noHTMLchars(answer);
-	  if(newname == null || newname == "") return;
+        var newname = noHTMLchars(answer);
+        if(newname == null || newname == "") return;
   
-    var sourcepath = pathJoin(currentpath['lcontent'], oldname);
-    var targetpath = pathJoin(currentpath['rcontent'], newname);
-    if(sourcepath == targetpath) {
-  	  alert("Can't copy a file over itself!");	
-		  return;
-    }
+        var sourcepath = pathJoin(currentpath['lcontent'], oldname);
+        var targetpath = pathJoin(currentpath['rcontent'], newname);
+        if(sourcepath == targetpath) {
+  	        alert("Can't copy a file over itself!");	
+		    return;
+        }
   
-	  var a = { 
-     'command': 'copyrename', 
-     'oldpath': sourcepath, 
-     'newpath': targetpath,      
-     'source' : 'lcontent', 
-     'target' : 'rcontent',
-     'isDirectory': isDirectory(element) 
-	  };
-	  sendFromInterface(a);	
-  });
+        var a = { 
+            'command': 'copyrename', 
+            'oldpath': sourcepath, 
+            'newpath': targetpath,      
+            'source' : 'lcontent', 
+            'target' : 'rcontent',
+            'isDirectory': isDirectory(element) 
+	    };
+	    sendFromInterface(a);	
+    });
 }
 
 

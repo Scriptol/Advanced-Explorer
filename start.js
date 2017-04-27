@@ -113,31 +113,31 @@ let win = explorer.win;
 console.log("Starting Electron...")
 
 function createWindow () {
-  win = new BrowserWindow({width:1060, height: 650, "show":false,
-    "webPreferences" : {
+    win = new BrowserWindow({width:1060, height: 650, "show":false,
+        "webPreferences" : {
        "nodeIntegration":true,
        "webSecurity": false
-    }   
-  });
-  //win.webContents.openDevTools()
+        }   
+    });
+    //win.webContents.openDevTools()
 	win.setMenu(null)
 
-  explorer.setRoot(__dirname);
-  console.log("Working directory : " + __dirname)
+    explorer.setRoot(__dirname);
+    console.log("Working directory : " + __dirname)
 
-  // And load the HTML page
-  win.loadURL(url.format({
-    pathname: path.join(__dirname, 'aexplorer.html'),
-    protocol: 'File',
-    slashes: true
-  }))
+    // And load the HTML page
+    win.loadURL(url.format({
+        pathname: path.join(__dirname, 'aexplorer.html'),
+        protocol: 'File',
+        slashes: true
+    }))
 
-  win.show()
+    win.show()
 
-  win.on('closed', () => {
-    win = null
-    explorer.closeWindow()
-  })
+    win.on('closed', () => {
+        win = null
+        explorer.closeWindow()
+    })
 }
 
 process.on('uncaughtException', function (error) { })

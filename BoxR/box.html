@@ -18,60 +18,58 @@ var target = "rcontent"
 
 function fillBox(name)
 {   
-  path = name;
-  var href = document.createElement("div");
-  container.appendChild(href);
+    const href = document.createElement("div");
+    container.appendChild(href);
   
-  var divtag = document.createElement("div");
-  href.appendChild(divtag);
+    const divtag = document.createElement("div");
+    href.appendChild(divtag);
 
-  var contentpath = path + "/" + name;
-  var pagepath = contentpath + ".html";
-  href.setAttribute("href", pagepath);
-  href.setAttribute("title", pagepath);
-  href.setAttribute("onclick", "loadPage(this);");
-
-  var iconpath =  contentpath + ".png";
-  var icon = document.createElement("img");
-  divtag.appendChild(icon);
-  icon.src = iconpath;
-  
-  var par = document.createElement("p")
-  divtag.appendChild(par);
-  
-  var label = document.createTextNode(name);
-  par.appendChild(label);
+    const contentpath = name + "/" + name;
+    const pagepath = contentpath + ".html";
+    const iconpath = contentpath + ".png";
     
+    href.setAttribute("href", pagepath);
+    href.setAttribute("title", pagepath);
+    href.setAttribute("onclick", "loadPage(this);");
+
+    var icon = document.createElement("img");
+    divtag.appendChild(icon);
+    icon.src = iconpath;
+  
+    const par = document.createElement("p");
+    divtag.appendChild(par);
+  
+    const label = document.createTextNode(name);
+    par.appendChild(label);
 }
 
-function loadPage(element)
-{
-  var progpath = boxPath + "/" + element.title;
-  top.boxApp(progpath, target)
+function loadPage(element) {
+    var progpath = boxPath + "/" + element.title;
+    top.boxApp(progpath, target)
 }
 
 ipcRenderer.on("box", (event, data) => {
-  var jobj = JSON.parse(data);
-  if(jobj.action == 'fillbox' && jobj.target == target) {
-    var lst = jobj.list;
-    for(var i = 0; i < lst.length; i++)
-    {                   
-      fillBox(lst[i]);    
+    var jobj = JSON.parse(data);
+    boxPath = jobj.path
+    if(jobj.action == 'fillbox' && jobj.target == target) {
+        var lst = jobj.list;
+        for(var i = 0; i < lst.length; i++)  {                   
+            fillBox(lst[i]);    
+        }
+        return;
     }
-    return;
-  }
 });
   
 window.onload = function() {
-  window.alert = top.alert;
-  window.confirm = top.confirm;
-  container = document.getElementById("content");
+    window.alert = top.alert;
+    window.confirm = top.confirm;
+    container = document.getElementById("content");
 	var a = { 
         'path' : boxPath, 
         'command': 'fillbox', 
         'target': target 
-  };  
-  ipcRenderer.send("interface", JSON.stringify(a));  
+    };  
+    ipcRenderer.send("interface", JSON.stringify(a));  
 }
 
 </script>
