@@ -463,7 +463,6 @@ var topSync = function (target)
   d.id = 'syncframe';   
 
 	var fcontent = (d.contentWindow || d.contentDocument);
-  //fcontent.socket = socket;
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
   fcontent.allFlag = allFlag;
@@ -486,7 +485,7 @@ function displayEditor(data, fromTop)
       epane.style.display = "block";
       edfra.style.display = "block";
       fc.display(data);
-      fc.ipcRenderer = ipcRenderer;
+      //fc.ipcRenderer = ipcRenderer;
 	}
 	else // closing
 	{
@@ -550,9 +549,6 @@ var topHelp = function (target) {
 
 var topQuit = function (target) {
   exitExplorer();
-  var a = { 'command': 'quit'};
-  sendFromInterface(a);
-  this.close()
 }
 
 /*
@@ -1066,6 +1062,83 @@ function setVisible(id) {
 function setHidden(id) {
     document.getElementById(id).setAttribute("class", "closeForm");
 }  
+
+// Dialog to save edits before replacing file or exit
+
+function getFileNode(filename) {
+    var fname = filename;    
+    if(filename !="") {
+        var pos = fname.lastIndexOf("/");
+        if(pos == -1) pos = fname.lastIndexOf("\\");
+        if(pos > 0) fname = fname.substr(pos + 1);
+    }
+    return fname;
+}  
+    
+function AESaveDialog(cb) { 
+  var framedit = document.getElementById("editor");
+	var fc = (framedit.contentWindow || framedit.contentDocument);
+	var temp = fc.editor.getValue();  
+	if(temp.length > 0)	{  
+        var sDialog = document.createElement("dialog")
+        sDialog.id="sDialog"
+        document.body.appendChild(sDialog)
+        
+        var sLabel = document.createElement("p")
+        sLabel.innerHTML = "Save changes in " + getFileNode(fc.filename) + "?"
+        sDialog.appendChild(sLabel)
+
+        var menu = document.createElement("menu")
+        sDialog.appendChild(menu)
+        
+        var b2 = document.createElement("button")
+        b2.onclick=function() { sDialog.close(2) }
+        b2.innerHTML="Save"
+        menu.appendChild(b2)
+        
+        var b1 = document.createElement("button")
+        b1.onclick=function() { sDialog.close(1) }
+        b1.innerHTML="Do not save"
+        menu.appendChild(b1)
+
+        var b0 = document.createElement("button")
+        b0.onclick=function() { sDialog.close(0) }
+        b0.innerHTML="Cancel"
+        menu.appendChild(b0)
+        sDialog.showModal();
+        
+        sDialog.addEventListener('close', function(e) {
+            var response = sDialog.returnValue;
+            if(response == 0) {
+                cb(false); 
+                return;
+            }
+            if(response == 1) {
+                fc.changedStatus(false); 
+                cb(true); // do not save and continue
+                return;    
+            }
+            dialog.showSaveDialog(null, {
+                title:"Save current text",
+                defaultPath: "file:///" + fc.filename,
+                buttonLabel: "Save file and continue"
+                }, 
+                function(fpath) {
+                    document.body.removeChild(sDialog)
+                    if(fpath == undefined) {
+                        cb(false)  // cancel
+                        return;
+                    }
+                    fc.changedStatus(false);                 
+                    fc.filename = fpath;
+                    fc.save(false);
+                    cb(true)
+                    return;                
+            });
+        });    
+    } 
+}
+
 
 // Listeners
 

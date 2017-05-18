@@ -41,7 +41,7 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp'>
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 4.3</p>
+   <p>Version 4.4</p>
    <p>
     &copy; 2012-2017 Denis Sureau<br>
     www.scriptol.com<br>
@@ -152,29 +152,34 @@ function startExplorer()
     buildEvents();
 }
 
-function exitExplorer()
-{
-  var framedit = document.getElementById("editor");
-	var fc = (framedit.contentWindow || framedit.contentDocument);
-  if(fc.editorHasContent) {
-    var x = confirm("Save edited text before to quit?")
-    if(x)
-      fc.save(false);
-  }  
-  fc.setActiveRow();
-
+function quitSub() {
   config.Memory.list[0].input = currentpath['lcontent'];
   config.Memory.list[1].input = currentpath['rcontent'];
   var frameopt = document.getElementById("options");
   var fo = (frameopt.contentWindow || frameopt.contentDocument);
   fo.saveFromAE('aexplorer.ini.js', config);    
+  sendFromInterface({ 'command': 'quit' });
+  setTimeout(function() { this.close();}, 100);
+}
+
+function exitExplorer()
+{
+  var framedit = document.getElementById("editor");
+	var fc = (framedit.contentWindow || framedit.contentDocument);
+  fc.setActiveRow();
+  if(!fc.editorHasContent) {
+    quitSub();
+    return
+  }
+  AESaveDialog(function(result) {
+    if(result) {
+      quitSub();
+    }
+  });
+  return   
 }
 
 window.onload=startExplorer;
-window.onbeforeunload = function() {
-    socket.onclose = function () {};
-    socket.close()
-};
 window.onunload = function() {
     // nothing
 }

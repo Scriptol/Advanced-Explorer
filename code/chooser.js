@@ -22,6 +22,7 @@ var ChooserDrag = null;
 var customview = [];
 
 const {ipcRenderer} = require('electron')
+const {dialog} = require('electron').remote   
 
 // event
 
@@ -45,7 +46,7 @@ function dotFlag() {
 
 function fileButton(target, dragflag)
 {
-    var filepath = currentpath[target];
+  var filepath = currentpath[target];
 	var query = { 
         'command': 'getdir', 
         'path': filepath,         
@@ -270,14 +271,14 @@ function fileList(content, sortMode)
 	var listid = target + "list";
 	var dir = content.list;
   switch(sortMode) {
-    case SORT_BY_SIZE:
-      dir.sort(sortBySize);
-      break;
-    case SORT_BY_DATE:
-      dir.sort(sortByDate);
-      break;  
-    default: 
-      break;
+  case SORT_BY_SIZE:
+    dir.sort(sortBySize);
+    break;
+  case SORT_BY_DATE:
+    dir.sort(sortByDate);
+    break;  
+  default: 
+    break;
   }
 	var page = "<div class='filechooser'>";
 	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
@@ -290,12 +291,10 @@ function fileList(content, sortMode)
 		var type = item[0];
 		var name = item[1];
 
-		if(type=='dir')
-		{
+		if(type=='dir') {
 			dirlist += buildDir(name, target) + "<br>";
 		}
-		else
-		{
+		else {
 			var timesize = item[2];
       var filedate = item[3];    
 			var p = name.lastIndexOf('.');
@@ -314,8 +313,7 @@ function fileList(content, sortMode)
 	addKeyListEvents(target);
   if(ChooserDrag[target])  setDrag(listid);
 
-	if(elementToSelect != null)
-	{
+	if(elementToSelect != null) {
 		if(elementToSelect == '*') setFirstSelected(target);
 		else
 		{
@@ -333,8 +331,7 @@ function fileList(content, sortMode)
 
 // set entries draggables
 
-function setDrag(id)
-{
+function setDrag(id) {
   var lid = document.getElementById(id);
   var follow = lid.firstChild;
   follow.setAttribute('draggable', true);
@@ -354,28 +351,27 @@ function setDrag(id)
 
 // change dir called by the interface
 
-function chDir(filepath, target)
-{    
+function chDir(filepath, target) {    
 	if(filepath.slice(0, 8) == "file:///") {
 		filepath = filepath.slice(8);
   }  
  
-	var a = {  'file': 'code/chooser.js', 
-             'command': 'chdir', 
-             'path': filepath,
-             'target': target,
-             "dot" : dotFlag() 
+	var a = {
+    'file': 'code/chooser.js', 
+    'command': 'chdir', 
+    'path': filepath,
+    'target': target,
+    'dot' : dotFlag() 
   };
   sendFromInterface(a);
 }
 
-function unlocalize(filepath)
-{
+function unlocalize(filepath) {
  	if(filepath.slice(0, 8) == "file:///") return(filepath.slice(8));
   return(filepath);    
 }      
 
-function noHTMLchars(s){
+function noHTMLchars(s) {
     s = s.replace(/&lt;/g, '<');
     s = s.replace(/&gt;/g, '>');
     s = s.replace(/&quot;/g, '"');
@@ -383,10 +379,8 @@ function noHTMLchars(s){
     return s.replace(/&amp;/g, '&');
 }
 
-function view(element, filepath, panelid, forcePage)
-{
-  if(insidezip[panelid]) // always displayed like a page
-  {
+function view(element, filepath, panelid, forcePage) {
+  if(insidezip[panelid]) { // always displayed like a page
     var filename = getNameSelected(element);
     var archive = document.getElementById(panelid +'path').value; 
     var a = {  
@@ -437,8 +431,6 @@ function view(element, filepath, panelid, forcePage)
         sendFromInterface(a);
         break;
     case 'prj':
-        openProject(element);
-        break; 
     case 'c':
     case 'cpp':
     case 'cs':
@@ -457,7 +449,7 @@ function view(element, filepath, panelid, forcePage)
     case 'svg': 
     case 'ts':   
     case 'xml':    
-     	edit(element);
+     	  edit(element);
         break;      
     default:
      	if(filepath.slice(0, 5) != 'http:')
@@ -509,10 +501,10 @@ function isSelected(element) {
 }
 
 function selectRange(item1, item2) {
-    var parent = item1.parentNode;
-    var inRange = false;
-    var skipFollowers = false;
-    var counter = 0;
+  var parent = item1.parentNode;
+  var inRange = false;
+  var skipFollowers = false;
+  var counter = 0;
  	var child = parent.firstChild;  
 	while(child) {
     if(child.className == 'dir' || child.className == 'file' || child.className=='entrybold')  {
@@ -601,7 +593,7 @@ function getPointedContent(panelName) {
 }
 
 function edit(element) {
-    var target = pointFile(element);
+  var target = pointFile(element);
 	var filename =  getNameSelected(element);
 	var a = { 'command': 'getContent', 'path': filename, 'target': target, 'inEditor' : false };
 	sendFromInterface(a);
@@ -722,7 +714,7 @@ function rsel(element) {
   
   var p = document.createElement('p');
   d.appendChild(p);
-  p.onclick=function() { open(element, false) };
+  p.onclick=function() { open(element, true) };
   p.setAttribute('class', 'ctxline');
   p.innerHTML = "Open"; 
   

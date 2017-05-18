@@ -496,3 +496,28 @@ a {
 #pDialog button {
     width:64px;
 } 
+
+#sDialog {
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #666;
+    border-bottom: 1px solid #666;
+    border-radius:6px;
+    padding:16px;
+} 
+
+#sDialog p {
+    margin-left:16px;
+    font-weight: bold;
+}
+
+#sDialog menu {
+    text-align:center;
+    padding:0;
+    margin:8px;
+} 
+
+#sDialog button {
+    width:96px;
+    margin:0 2px 0 2px;
+} 
