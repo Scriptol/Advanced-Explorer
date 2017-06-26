@@ -88,8 +88,6 @@ ipcMain.on('interface', (event, data) => {
    explorer.shell(jo);
 })
 
-explorer.loadIni("aexplorer.ini");
-
 // Create a TCP server to communicate with native script
 
 var nativeServer = net.createServer(function(ncom) { 
