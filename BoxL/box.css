@@ -1,24 +1,25 @@
-body
-{
-  background-color:black;
+body {
+  background-color:#333;
   font-family:Tahoma, sans-serif, Arial;
   font-size:13px;
-}
-
-div, a {
-  display:inline-block;
-  text-align:center;
   color:white;
-  text-decoration:none;
-  min-width:96px;
-  min-height:64px;
 }
 
 div {
   margin:4px;
+  display:inline-block;
+  text-align:center;
+  color:white;
+  min-width:96px;
+  min-height:64px;  
+}
+
+a {
+  text-decoration:none;    
 }
 
 div img {
+  border:none;
 }
 
 div p {

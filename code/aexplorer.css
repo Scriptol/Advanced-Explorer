@@ -1,5 +1,5 @@
 body, html {	
-	background-color: #E8E8E8;
+	background-color: #333;
 	font-family: Arial, Helvetica, sans-serif;	
 	margin:0;
 	padding:0;
@@ -9,8 +9,7 @@ body, html {
 }
 
 div {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
+    box-sizing: border-box;
 }	
 
 a {	
@@ -25,7 +24,7 @@ a {
 	height:100%;
 	width:100%;	
 	min-width:660px;
-	background:#EEE;
+	background:#222;
 	padding-bottom:34px;
 	overflow:visible;
 }
@@ -54,7 +53,7 @@ a {
 	height:32px;
 	padding:2px 8px 0 2px;	
 	margin-right:2px;
-	background:#EEE;
+	background:#222;
 }
 
 #lpane, #rpane {
@@ -64,7 +63,7 @@ a {
 	margin:0px;
 	min-width:320px;
 	text-align:left;
-	background:#EEE;
+	background:#222;
 	padding:0px 4px 74px 0;
 }
 
@@ -75,9 +74,9 @@ a {
 	width:100%;
 	height:100%;
 	min-height:128px;	
-	border:1px solid #999;
+	border:1px solid #666;
 	margin:4px;
-	background:white;
+	background:#000;
 	padding-bottom:0px;
 }
 
@@ -99,13 +98,13 @@ a {
 .toolbar {
 	margin:0px 0px 4px 0;
 	padding:0px;
-	background-color:#E0E0E0;	
-	border-top:1px solid white;
-	border-left:1px solid white;	
-	border-right:1px solid #999;	
-	border-bottom:1px solid #999;		
+	background-color:#333;	
+	border-top:1px solid #666;
+	border-left:1px solid #666;	
+	border-right:1px solid #111;	
+	border-bottom:1px solid #111;		
 	border-radius:4px;
-	box-shadow:inset 6px 6px 8px rgba(255,255,255,.6), inset -4px -4px 8px rgba(128,128,128,.2), 2px 2px 4px #ccc;
+	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
 }
 
 .toolpane {
@@ -126,8 +125,8 @@ a {
 
 .filechooser {
 	display:block;
-	color:#000;
- 	background:white;
+	color:#FFF;
+ 	background:#333;
 	width:100%;
 	height:100%;	
 	text-align:left;
@@ -150,7 +149,7 @@ a {
 .file, .dir {
 	line-height:18px;
 	display:inline-block;
-	border:1px solid white;
+	border:1px solid #333;
 	border-radius:3px;	
 	margin:1px 1px 1px 1px;
 	padding:0px 6px 0px 0px;	
@@ -166,11 +165,11 @@ a {
 }
 
 .dir:hover, .file:hover {
-	border:1px dotted black;
-	background-color: #F0F0F0;
-	background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
-	background-image: linear-gradient(top, #ffffff, #e6e6e6);
-	background-repeat: repeat-x;
+	border:1px dotted #ccc;
+	background-color: #333;
+	-background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+	-background-image: linear-gradient(top, #ffffff, #e6e6e6);
+	-background-repeat: repeat-x;
 
 }
 
@@ -180,11 +179,11 @@ a {
 	margin:1px 1px 1px 1px;
 	padding:0px 6px 0px 0px;	
 	width:100%;
-  	border:1px dotted black;
-	background-color: #B0B0F0;
-	background-image: -webkit-linear-gradient(top, #E0F0FF, #B0DEF2);
-	background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
-	background-repeat: repeat-x;
+  	border:1px dotted #FFF;
+	background-color: #333;
+	-background-image: -webkit-linear-gradient(top, #E0F0FF, #B0DEF2);
+	-background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
+	-background-repeat: repeat-x;
 	border-radius:3px;
 		
 }
@@ -206,22 +205,23 @@ a {
 	height:26px;
 	width:100%;
 	padding:0px;
-	border:1px solid #ccc;
-	background:#ECECEC;
-	box-shadow:inset -2px -2px 4px #EEE, inset 2px 2px 4px #aaa;  
+	border:1px solid #666;
+	background:#333;
+	box-shadow:inset -2px -2px 4px #666, inset 2px 2px 4px #000;  
 	display:block;
 	margin:0 8px 0 4px;
 }
 
 .innpath, #status {
-	margin:5px 4px 2px 8px;
+	margin:3px 4px 2px 8px;
 	width:96%;
 	line-height:18px;	
 	font-size:14px;
 	border:none;
 	padding:0;
-	background:#ECECEC;
+	background:#333;
 	display:block;
+	color:white;
 }
 
 .innpath {
@@ -283,8 +283,7 @@ a {
 .icon:hover, .ticon:hover
 {
 	color: #222;
-	background: #ddd -webkit-linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(66,66,66,.3) 100%); /* Chrome10+,Safari5.1+ */
-	background: #ddd linear-gradient(top, rgba(255,255,255,.3) 0%,rgba(66,66,66,.3) 100%); /* W3C */
+	background: #333 linear-gradient(top, rgba(64,64,64,.3) 0%,rgba(32,32,32,.3) 100%); /* W3C */
 	border: 1px solid #888;
 	border-top: 1px solid #aaa;
 	border-left: 1px solid #aaa;
@@ -299,10 +298,10 @@ a {
 	height:auto;
 	padding:8px 2px 8px 2px;
 	margin:0px;
-	background:white;
-    color:#666;
+	background:#333;
+    color:#CCC;
 	overflow:hidden;
-	border:1px solid black;
+	border:1px dotted #ccc;
 	border-radius:4px;
 }
 
@@ -314,21 +313,25 @@ a {
     font-size:13px;
 	line-height:16px;
 	font-family:Arial, Tahoma, sans-serif;
-	border:1px solid white;
+	border:1px dotted #333;
 	border-radius:4px;
 }
 
 .bmlist p:hover {
-	color:black;
+	color:white;
 	font-size:15px;
-	border:1px solid #aaa;	
+	border:1px dotted #999;	
 }
 
 .bmdel {
 	display:inline-block;
 	margin:0 8px 0 0;
 	font-weight: bold;
-	color:white;
+	color:#333;
+}
+
+.bmdel:hover {
+	color:#fff;
 }
 
 .bmname {
@@ -347,8 +350,9 @@ a {
   	min-height:40px;
   	padding: 8px;
   	margin:0;
-  	border: 1px solid #999;
-  	background: #F8F8F8;
+	border: 1px solid #CCC;
+	color:#FFF;
+  	background: #666;
   	box-shadow: 2px 2px 2px #AAA;
   	z-index:1000;
   	overflow: visible;
@@ -364,7 +368,7 @@ a {
 	display:block;
 	margin:0px;
 	padding:2px 2px 2px 8px;
-	border:1px solid #F8F8F8;
+	border:1px solid #666;
 	border-radius:3px;
 	font-size:13px;
 	font-family:Arial, Helvetica, sans-serif;
@@ -372,11 +376,12 @@ a {
 	overflow:visible;
 }
 .ctxline:hover {
-	border:1px solid #BBB;
-	background-color: #F0F0F0;
-	background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
-	background-image: linear-gradient(top, #ffffff, #e6e6e6);
-	background-repeat: repeat-x;
+	border:1px solid #CCC;
+	background-color: #333;
+	color:#FFF;
+	-background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+	-background-image: linear-gradient(top, #ffffff, #e6e6e6);
+	-background-repeat: repeat-x;
 	font-size:15px;
 	font-weight:bold;
 }  
@@ -389,8 +394,8 @@ a {
 .tooltip span {
   display:none;
   border-radius:6px;
-  color:black;
-  background:white;
+  color:white;
+  background:black;
 }
 
 .tooltip span img {
@@ -408,7 +413,7 @@ a {
   min-width:240px;
   max-width:320px;
   min-height:128px;
-  border:1px solid black;
+  border:1px solid #ccc;
   margin-top:12px;
   margin-left:32px;
   overflow:hidden;
@@ -461,10 +466,10 @@ a {
   	z-index:1000;
 	width:308px;    
 	min-width:308px;    
-    color:black;
-    background:white;
+    color:white;
+    background:black;
     font-size:13px;
- 	border:1px solid #666;
+ 	border:1px solid #CCC;
 	border-radius:4px;	
 	text-align:left;   
   	overflow:visible;

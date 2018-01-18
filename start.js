@@ -15,22 +15,21 @@ const {app, BrowserWindow, ipcMain } = require('electron')
 
 const explorer = require("explorer");
 
+const debug = false
+
 // Main server
 
-function sendError(errCode, errString, response)
-{
+function sendError(errCode, errString, response) {
     response.writeHead(errCode, {"Content-Type": "text/plain"});
     response.write(errString + "\n");
     response.end();
     return;
 }
 
-function sendFile(err, file, response, ext)
-{
+function sendFile(err, file, response, ext) {
 	if(err) return sendError(500, err, response);
     var ctype = 'text/html';
-	switch(ext)
-	{
+	switch(ext)	{
 		case '.js': ctype = 'text/javascript'; break;
 		case '.css':ctype = 'text/css'; break;
 		case '.jpg':ctype = 'image/jpeg'; break;
@@ -43,24 +42,22 @@ function sendFile(err, file, response, ext)
 	response.end();
 }
 
-function getFile(exists, response, localpath)
-{
+function getFile(exists, response, localpath) {
 	if(!exists) return sendError(404, '404 Not Found', response);
 	var ext = path.extname(localpath);
 	fs.readFile(localpath, "binary",
     	function(err, file){ sendFile(err, file, response, ext);});
 }
 
-function getFilename(request, response)
-{
+function getFilename(request, response) {
     var urlpath = url.parse(request.url).pathname; // following domain or IP and port
     var localpath = path.join(process.cwd(), urlpath); // if we are at root
     fs.exists(localpath, function(result) { getFile(result, response, localpath)});
 }
 
 
-function runScript(exists, file, param) // Run a local script at the Web interface request
-{
+// Run a local script at the Web interface request
+function runScript(exists, file, param) {
   if(!exists) {
     console.log("File not found");
     return false;
@@ -111,13 +108,15 @@ let win = explorer.win;
 console.log("Starting Electron...")
 
 function createWindow () {
-    win = new BrowserWindow({width:1060, height: 650, "show":false,
+    let w = 1060
+    if(debug) w = 1600
+    win = new BrowserWindow({width:w, height: 650, "show":false,
         "webPreferences" : {
        "nodeIntegration":true,
        "webSecurity": false
         }   
     });
-    //win.webContents.openDevTools()
+    if(debug) win.webContents.openDevTools()
 	win.setMenu(null)
 
     explorer.setRoot(__dirname);
@@ -138,7 +137,7 @@ function createWindow () {
     })
 }
 
-process.on('uncaughtException', function (error) { })
+if(!debug) process.on('uncaughtException', function (error) { })
 
 app.on('ready', createWindow)
 app.on('quit', function () {

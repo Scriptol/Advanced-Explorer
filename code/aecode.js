@@ -35,18 +35,18 @@ function showNotification(jobj)
 
 function socketConfirm(jo) {
 	var answer = confirm(jo.question);
-  switch(jo.command) {
-     case "copyover":
+    switch(jo.command) {
+    case "copyover":
         if(answer===true) {
-          var a = { 'command': 'copyover', 'source': jo.path, 'target': jo.tpath };
+        var a = { 'command': 'copyover', 'source': jo.path, 'target': jo.tpath };
 	        sendFromInterface(a);
         }
         break;
-     case "createdir":
+    case "createdir":
       	if(answer===true) {
 	        var a = { 'command': 'mkdir', 'target': jo.tpath, "dot": dotFlag() };
 	        sendFromInterface(a);
-	      };
+	    };
         break;
     default:
          break;   
@@ -261,8 +261,7 @@ function getCurrentDirectory(target)
   return path.slice(p + 1);
 }
 
-function setSortMode(panel, value)
-{
+function setSortMode(panel, value) {
   AExplorerSort[panel] = value;
   var panelpath = panel + "path";
 	var xid = document.getElementById(panelpath);
@@ -274,8 +273,7 @@ function setSortMode(panel, value)
   Context menus
 */
 
-function addListMenu(element, panel)
-{
+function addListMenu(element, panel) {
   var id = panel + "ctxm"; 
   var x = document.getElementById(id);
   if(x) x.parentNode.removeChild(x); 
@@ -317,8 +315,7 @@ function addListMenu(element, panel)
 
 /* Data exchange file */
 
-function buildXData(target)
-{
+function buildXData(target) {
   var xdata = {};
   xdata['source']= {}
   xdata['target'] = {}  
@@ -341,7 +338,7 @@ function buildXData(target)
 				'content' : "var xdata =" + JSON.stringify(xdata, " "),
         'target'  : target,
 				'overwrite' : true 
-	};
+  };
   sendFromInterface(a);
 }
 
@@ -368,24 +365,20 @@ var topDup = function (target) {
 }
 
 
-var topCopy = function ()
-{
+var topCopy = function () {
 	if(document.getElementById('dirpane').style.display=="none")	return;
 	var namelist = getSelectedNames('lcontent');
-	//alert(namelist);
-	if(namelist.length == 0)
-	{
+	if(namelist.length == 0) {
 		alert("No dir/file selected in left panel");
 		return;
 	}
-  if(insidezip['lcontent']) {
-    keyUnzip()
-    return;
-  }
+    if(insidezip['lcontent']) {
+        keyUnzip()
+        return;
+    }
 	var left = document.getElementById('lcontentpath').value;
 	var right = document.getElementById('rcontentpath').value;
-	if(left == right)
-	{
+	if(left == right) {
 		alert("Can't copy a file over itself!");
 		return;
 	}
@@ -394,24 +387,20 @@ var topCopy = function ()
 	sendFromInterface(a);
 }
 
-var topCopyRename = function()
-{
-  var namelist = getSelected('lcontent');
-	if(namelist.length != 1)
-	{
+var topCopyRename = function() {
+    var namelist = getSelected('lcontent');
+	if(namelist.length != 1) {
 		alert("Select just one file to copy under a new name");
 		return;
 	} 
-  copyRename(namelist[0]);
+    copyRename(namelist[0]);
 }  
 
-var topZip = function (target)
-{
+var topZip = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
 
 	var namelist = getSelectedNames('lcontent');
-	if(namelist.length == 0)
-	{
+	if(namelist.length == 0) {
 		alert("No dir/file selected in left panel");
 		return;
 	}
@@ -421,7 +410,7 @@ var topZip = function (target)
 	var p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
 
-  var archiver = config.Archiver.input;
+    var archiver = config.Archiver.input;
 
 	var a = { 'command': 'archive', 
             'archiver': archiver,
@@ -433,68 +422,63 @@ var topZip = function (target)
 	sendFromInterface(a);
 }
 
-var topSync = function (target)
-{
+var topSync = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
   
-  var x = document.getElementById('syncframe');
-  if(x) {
+    var x = document.getElementById('syncframe');
+    if(x) {
         x.id=null;
         panelReload('lcontent');
         return;
     }  
   
 
-  var allFlag = false;
+    var allFlag = false;
 	var nameList = getSelectedNames('lcontent');
-	if(nameList.length == 0)
-	{
+	if(nameList.length == 0) {
 		allFlag = true; 
 	}
   
-  var lc = document.getElementById('lcontent');
-  var d = document.createElement('iframe');
-  d.src="synchronizer.html";   
-  lc.removeChild(lc.firstChild);
-  lc.appendChild(d);
-  d.width = "100%";
-  d.height = "100%";
-  d.style.border = "0";
-  d.id = 'syncframe';   
+    var lc = document.getElementById('lcontent');
+    var d = document.createElement('iframe');
+    d.src="synchronizer.html";   
+    lc.removeChild(lc.firstChild);
+    lc.appendChild(d);
+    d.width = "100%";
+    d.height = "100%";
+    d.style.border = "0";
+    d.id = 'syncframe';   
 
 	var fcontent = (d.contentWindow || d.contentDocument);
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
-  fcontent.allFlag = allFlag;
-  fcontent.nameList = nameList;
+    fcontent.allFlag = allFlag;
+    fcontent.nameList = nameList;
 }
 
 
-function displayEditor(data, fromTop)
-{               
-  var dpane = document.getElementById('dirpane');
+function displayEditor(data, fromTop) {               
+    var dpane = document.getElementById('dirpane');
 	var epane = document.getElementById('editpane');
 	var edfra = document.getElementById('editor');
 	var opane = document.getElementById('optpane');
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
-	if(epane.style.display=="none")
-	{ 
-      dpane.style.display = "none";
-      opane.style.display = "none";
-      epane.style.display = "block";
-      edfra.style.display = "block";
-      fc.display(data);
-      //fc.ipcRenderer = ipcRenderer;
+	if(epane.style.display=="none")	{ 
+        dpane.style.display = "none";
+        opane.style.display = "none";
+        epane.style.display = "block";
+        edfra.style.display = "block";
+        fc.display(data);
 	}
 	else // closing
 	{
-      epane.style.display = "none";
-		  edfra.style.display = "none";
-		  dpane.style.display = "block";
-      if(fc.editor.getValue() != '') fc.editorIcon(true);
-      fc.setActiveRow();
-  }
+        epane.style.display = "none";
+		edfra.style.display = "none";
+		dpane.style.display = "block";
+        if(fc.editor.getValue() != '') fc.editorIcon(true);
+        fc.setActiveRow();
+    }
 	return;
 }
 
@@ -502,12 +486,11 @@ var topEdit = function() {
 	  displayEditor({ 'content': null, 'filename': null } , true );
 }
 
-function updateIni() 
-{
+function updateIni() {
   var a = { 
-            'command': 'updateIni',
-            'path': 'aexplorer.ini.js', 
-            'target': null  
+      'command': 'updateIni',
+      'path': 'aexplorer.ini.js', 
+      'target': null  
   };
   sendFromInterface(a); 
 }
@@ -590,27 +573,23 @@ var panelCreate = function(target) {
   });
 }
 
-function alreadyInList(parent, name)
-{
+// check if a new name may be given
+function alreadyInList(parent, name) {
 	var child = parent.firstChild; // child of flist
-	while(child)
-	{
-    if(getNameSelected(child) == name)
-      return true;
+	while(child) 	{
+    if(getNameSelected(child) == name)  return true;
 		child = child.nextSibling;
 	}
   return false;
 }
 
 
-function acceptRename(oldname, newname, target)
-{
+function acceptRename(oldname, newname, target) {
 	var a = { 'command': 'rename', 'target': target, 'oldname': oldname, 'newname' : newname };
 	sendFromInterface(a);
 }
 
-var elementRename = function(spanitem, panelName)
-{
+var elementRename = function(spanitem, panelName) {
 	var saved = spanitem.innerHTML;
 	var p1 = saved.indexOf('>');
 	var p2 = saved.indexOf('<', p1);
@@ -660,10 +639,10 @@ var elementRename = function(spanitem, panelName)
 	x.focus();
 }
 
-var panelRename = function(panelName) {
+/*var panelRename = function(panelName) {
   spanitem = getPointedContent(panelName);
   elementRename(spanitem, panelName);
-}
+}*/
 
 function panelFileInfo(target) {
 	var slist = getSelectedNames(target);
@@ -716,6 +695,7 @@ function openBox(target)
   var box = document.createElement("iframe");
   box.width = "100%";
   box.height = "100%";
+  box.setAttribute("style", "border:0;");
   box.setAttribute("sandbox" ,'allow-forms allow-popups allow-same-origin allow-scripts')
   box.id="Box" + letter;  
   if(document.getElementById(box.id) != null) return;
@@ -729,6 +709,7 @@ function boxApp(apath, target) {
   var parent = window.document.getElementById(target);
   var box = document.createElement("iframe");
   box.setAttribute("sandbox", "allow-forms allow-popups allow-pointer-lock allow-same-origin allow-scripts")
+  box.setAttribute("style", "border:0;");
   box.width="100%"
   box.height="100%"
   box.id=""
@@ -777,11 +758,11 @@ function recentsAdd(idx, name) {
       if(recentsFind(idx, name) > -1) return;
     }
     var bms = bmSize(idx);
-    if(bms >= 25)  return;   // full of bookmarks
-    if(bms + config.Recdirs.list[idx].length >= 25) {
-      config.Recdirs.list[idx].shift();
+    if(bms >= 24)  return;   // full of bookmarks
+    if(bms + config.Recdirs.list[idx].length >= 24) {
+      config.Recdirs.list[idx].pop();
     }  
-    config.Recdirs.list[idx].push(name)  
+    config.Recdirs.list[idx].unshift(name)  
 }
 
 function recentsDelete(idx, name) {
@@ -815,11 +796,11 @@ function bmDel(element, code) {
 }
 
 function bmToDel(element) {
-  element.firstChild.style.color = "black"
+  element.firstChild.style.color = "white"
 }
 
 function bmToSkip(element) {
-  element.firstChild.style.color = "white"
+  element.firstChild.style.color = "#333"
 }
 
 function openBM(element, code) {
@@ -1192,30 +1173,30 @@ function buildEvents()
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
-  addEvent('tcopyren', topCopyRename);
-  addEvent('tsync', topSync);
+    addEvent('tcopyren', topCopyRename);
+    addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
-  addEvent('topt', topSetup);
+    addEvent('topt', topSetup);
 	addEvent('thelp', topHelp);
 	addEvent('tquit', topQuit);
 
 	addEvent('lreload', panelReload, 'lcontent');
 	addEvent('lhome', panelHome, 'lcontent');
 	addEvent('lup', panelUp, 'lcontent');
-	addEvent('lrename', panelRename, 'lcontent');
-  addEvent('lcreate', panelCreate, 'lcontent');
+	//addEvent('lrename', panelRename, 'lcontent');
+    addEvent('lcreate', panelCreate, 'lcontent');
 	addEvent('ldel', panelDelete, 'lcontent');
-  addEvent('lbox', panelBox, 'lcontent');
+    addEvent('lbox', panelBox, 'lcontent');
 
 	addInputEvent('lcontentpath', panelGo, 'lcontent');
 
 	addEvent('rreload', panelReload, 'rcontent');
 	addEvent('rhome', panelHome, 'rcontent');
 	addEvent('rup', panelUp, 'rcontent');
-	addEvent('rrename', panelRename, 'rcontent');
-  addEvent('rcreate', panelCreate, 'rcontent');
+	//addEvent('rrename', panelRename, 'rcontent');
+    addEvent('rcreate', panelCreate, 'rcontent');
 	addEvent('rdel', panelDelete, 'rcontent');
-  addEvent('rbox', panelBox, 'rcontent');
+    addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 

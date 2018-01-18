@@ -3,6 +3,7 @@
 <head>
 <meta charset=utf-8>
 <title>Search</title>
+<link type="text/css" href="../box.css" rel="stylesheet">
 <style>
 body, input {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
@@ -106,12 +107,12 @@ window.onload=updateInfo;
 <h1>Compress PNG images</h1>
 <p id="info"></p>
 <p>Source and target directory (files will be overwritten): </p>
-<p style="padding-left:64px"><img src="/AExplorer/images/down.png"></p>
+<p style="padding-left:64px"><img src="../../images/down.png"></p>
 <div id="target"></div>
 <form method="" action="">
 <p>    
-	<input type="button" value="Compress" onclick="compress()"> &nbsp; 
-	<input type="button" value="Cancel" onclick="parent.panelBox('lcontent')">
+	<input type="button" value="Compress" onClick="compress()"> &nbsp; 
+	<input type="button" value="Cancel" onClick="parent.panelBox('lcontent')">
 </p>	
 
 <fieldset id="result"></fieldset>
