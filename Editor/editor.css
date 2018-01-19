@@ -1,6 +1,5 @@
 /* Advanced Explorer (c) 2012-2015 Scriptol.com */
-#body
-{
+#body {
 	margin:0;
 	padding:0;
 	overflow: hidden;
@@ -99,10 +98,8 @@
 	display:inline-block;
 	margin-right:2px;
 	border-radius:4px;
-   -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box; 
     box-sizing: border-box;	
-	border:1px solid #DDD;
+	border:1px solid transparent;
 	height:32px;
 	width: 32px;
 }
