@@ -7,7 +7,7 @@
 
 #main {
 	position: absolute;
-	top: 50px;
+	top: 42px;
 	right: 0;
 	bottom: 0;
 	left: 0;
@@ -24,7 +24,7 @@
 	width:200px;
 	height:100%;
 	overflow:hidden;
-	border-right:1px solid #ccc;
+	border-right:1px solid #999;
 	display:block;
 }
 
@@ -52,7 +52,7 @@
 	margin:0px;
 	background:black;
 	overflow:hidden;
-	border-top:1px solid #ccc;
+	border-top:1px solid #999;
 }
 
 #reclist p {
@@ -62,7 +62,7 @@
 	width:auto;
     font-size:14px;
 	font-family:Arial, Tahoma, sans-serif;
-	border:1px solid black;
+	border:1px solid transparent;
 	border-radius:4px;
 	color:#ccc;
 }
@@ -85,13 +85,19 @@
 
 .toolbar {
 	position:absolute;
+	top:0;
 	left:4px;
 	right:4px;
 	height: 36px; 
 	background: url(images/back.png);
-	border:1px solid #CCC;
 	border-radius:4px;
 	padding:4px 0px 0px 8px;
+	border-top:1px solid #666;
+	border-left:1px solid #666;	
+	border-right:1px solid #111;	
+	border-bottom:1px solid #111;		
+	border-radius:4px;
+	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
 }
 .imagebutton 
 {

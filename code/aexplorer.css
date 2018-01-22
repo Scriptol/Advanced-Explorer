@@ -49,6 +49,7 @@ a {
 	text-align:center;
 }
 
+
 #statubar {
 	height:32px;
 	padding:2px 8px 0 2px;	
@@ -133,7 +134,6 @@ a {
 	overflow-x: auto; 
 	overflow-y: scroll;	
 	font-size:13px;
-	-webkit-user-select: none;
 	margin:0px;	
 }
 
@@ -167,7 +167,6 @@ a {
 .dir:hover, .file:hover {
 	border:1px dotted #ccc;
 	background-color: #333;
-	-background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
 	-background-image: linear-gradient(top, #ffffff, #e6e6e6);
 	-background-repeat: repeat-x;
 
@@ -181,7 +180,6 @@ a {
 	width:100%;
   	border:1px dotted #FFF;
 	background-color: #333;
-	-background-image: -webkit-linear-gradient(top, #E0F0FF, #B0DEF2);
 	-background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
 	-background-repeat: repeat-x;
 	border-radius:3px;
@@ -207,7 +205,6 @@ a {
 	padding:0px;
 	border:1px solid #666;
 	background:#333;
-	box-shadow:inset -2px -2px 4px #666, inset 2px 2px 4px #000;  
 	display:block;
 	margin:0 8px 0 4px;
 }
