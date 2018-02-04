@@ -167,9 +167,6 @@ a {
 .dir:hover, .file:hover {
 	border:1px dotted #ccc;
 	background-color: #333;
-	-background-image: linear-gradient(top, #ffffff, #e6e6e6);
-	-background-repeat: repeat-x;
-
 }
 
 .entrybold, .entrybold:hover {
@@ -183,7 +180,7 @@ a {
 	-background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
 	-background-repeat: repeat-x;
 	border-radius:3px;
-		
+	color:orange;
 }
 
 .fsroot {

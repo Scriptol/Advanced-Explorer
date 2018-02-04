@@ -41,12 +41,11 @@ function sendFromInterface(a) {
 }
 
 function dotFlag() {
-  return  config.Display.list[0].checkbox;
+    return  config.Display.list[0].checkbox;
 }
 
-function fileButton(target, dragflag)
-{
-  var filepath = currentpath[target];
+function fileButton(target, dragflag) {
+    var filepath = currentpath[target];
 	var query = { 
         'command': 'getdir', 
         'path': filepath,         
@@ -56,16 +55,14 @@ function fileButton(target, dragflag)
     sendFromInterface(query)
 }
 
-function pathJoin(path, filename)
-{
-  var last = path.slice(-1);
-  if(last != '/' && last != '\\')
-    return path + "/" + filename;
-  return path + filename;
+function pathJoin(path, filename) {
+    var last = path.slice(-1);
+    if(last != '/' && last != '\\')
+        return path + "/" + filename;
+    return path + filename;
 }
 
-function replaceFilename(path, name)
-{
+function replaceFilename(path, name) {
   var lio = path.lastIndexOf("/");
   return path.slice(0, lio +1) + name;
 }
@@ -74,8 +71,7 @@ function replaceFilename(path, name)
   Building the entry for a storage unit
 */ 
 
-function buildDrive(pathname, id)
-{
+function buildDrive(pathname, id) {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
   balise += '<img src="images/drive.png">';
 	balise += pathname;
@@ -87,8 +83,7 @@ function buildDrive(pathname, id)
   Building the entry for a directory
 */  
 
-function buildDir(pathname, id)
-{
+function buildDir(pathname, id) {
 	var balise ="<div class='dir' onDblClick='chDir(\"" + pathname + "\",\"" + id + "\")' onClick='sel(this)' oncontextmenu='return dsel(this)'>";
   balise += '<img src="images/dir.png">';
 	balise += pathname;
@@ -100,8 +95,7 @@ function buildDir(pathname, id)
   Building the entry for a file
 */  
 
-function buildLink(filepath, fname, panelid, timesize, filedate, ext)
-{
+function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
     filepath = filepath.replace(/\\/gi, '/');
     var sep = '/';
     if(filepath.slice(-1) == '/')   sep = '';
@@ -179,8 +173,7 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext)
 
 */
 
-function imageList(content)
-{
+function imageList(content) {
     var target = content.target;
 	var d = document.getElementById(target);
 	var filepath = content['path'];
@@ -257,8 +250,7 @@ function sortByDate(a, b) {
   return 0;
 }
 
-function fileList(content, sortMode)
-{
+function fileList(content, sortMode) {
 	var target = content.target;
 	insidezip[target]=content.iszip;
 	var d = document.getElementById(target);
@@ -270,23 +262,22 @@ function fileList(content, sortMode)
   
 	var listid = target + "list";
 	var dir = content.list;
-  switch(sortMode) {
-  case SORT_BY_SIZE:
-    dir.sort(sortBySize);
-    break;
-  case SORT_BY_DATE:
-    dir.sort(sortByDate);
-    break;  
-  default: 
-    break;
-  }
+    switch(sortMode) {
+    case SORT_BY_SIZE:
+        dir.sort(sortBySize);
+        break;
+    case SORT_BY_DATE:
+        dir.sort(sortByDate);
+        break;  
+    default: 
+        break;
+    }
 	var page = "<div class='filechooser'>";
 	page += "<div class='flist' id='"+ listid +"' tabindex='0'>";
 	var dirlist = "";
 	var filelist ="";
 	
-	for(var i = 0; i < dir.length; i++)
-	{
+	for(var i = 0; i < dir.length; i++) {
 		var item = dir[i];
 		var type = item[0];
 		var name = item[1];
@@ -296,7 +287,7 @@ function fileList(content, sortMode)
 		}
 		else {
 			var timesize = item[2];
-      var filedate = item[3];    
+            var filedate = item[3];    
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
 			if(extmask && ext != extmask) continue; 
@@ -311,7 +302,7 @@ function fileList(content, sortMode)
 	d.innerHTML = page;
 
 	addKeyListEvents(target);
-  if(ChooserDrag[target])  setDrag(listid);
+    if(ChooserDrag[target])  setDrag(listid);
 
 	if(elementToSelect != null) {
 		if(elementToSelect == '*') setFirstSelected(target);
@@ -332,21 +323,21 @@ function fileList(content, sortMode)
 // set entries draggables
 
 function setDrag(id) {
-  var lid = document.getElementById(id);
-  var follow = lid.firstChild;
-  follow.setAttribute('draggable', true);
-  while(follow = follow.nextSibling) {
+    var lid = document.getElementById(id);
+    var follow = lid.firstChild;
     follow.setAttribute('draggable', true);
-    follow.addEventListener('dragstart', function(evnt) {
-      evnt.dataTransfer.effectAllowed = 'copy';
-      if(!isSelected(this)) {
-        deselectAll(this.parentNode);
-        setSelected(this);
-      }  
-      return false;
-    }, false);    
-  }  
-  return;
+    while(follow = follow.nextSibling) {
+        follow.setAttribute('draggable', true);
+        follow.addEventListener('dragstart', function(evnt) {
+            evnt.dataTransfer.effectAllowed = 'copy';
+            if(!isSelected(this)) {
+                deselectAll(this.parentNode);
+                setSelected(this);
+            }  
+            return false;
+        }, false);    
+    }   
+    return;
 }
 
 // change dir called by the interface
@@ -354,7 +345,7 @@ function setDrag(id) {
 function chDir(filepath, target) {    
 	if(filepath.slice(0, 8) == "file:///") {
 		filepath = filepath.slice(8);
-  }  
+    }  
  
 	var a = {
     'file': 'code/chooser.js', 
@@ -362,8 +353,8 @@ function chDir(filepath, target) {
     'path': filepath,
     'target': target,
     'dot' : dotFlag() 
-  };
-  sendFromInterface(a);
+    }
+    sendFromInterface(a);
 }
 
 function unlocalize(filepath) {
@@ -497,7 +488,7 @@ function setSelected(element)
 }
 
 function isSelected(element) {
-  return element.className=="entrybold"; 
+    return element.className=="entrybold"; 
 }
 
 function selectRange(item1, item2) {
