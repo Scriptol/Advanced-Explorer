@@ -389,10 +389,10 @@ var topCopy = function () {
 
 var topCopyRename = function() {
     var namelist = getSelected('lcontent');
-	if(namelist.length != 1) {
-		alert("Select just one file to copy under a new name");
-		return;
-	} 
+	  if(namelist.length != 1) {
+		  alert("Select just one file to copy under a new name");
+		  return;
+	  } 
     copyRename(namelist[0]);
 }  
 

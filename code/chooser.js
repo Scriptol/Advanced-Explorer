@@ -615,25 +615,30 @@ function open(element, forcePage) {
 }
 
 function promptDialog(question, defval, cb) {
-    var pDialog = document.getElementById('pDialog')
-    document.getElementById("pLabel").innerHTML = question
-    document.getElementById("pAnswer").value = defval
-    var x = pDialog.showModal()
-    pDialog.addEventListener('close', function(e) {
-        cb(pDialog.returnValue)
-    });
-    document.onkeydown=function(e) {
-        if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
-            e.preventDefault();
-            return false;
-        }
-    }
+  var pDialog = document.getElementById('pDialog')
+
+  var fe = function(e) {
+      cb(pDialog.returnValue)
+      pDialog.removeEventListener("close", fe)
+      return false
+  }
+
+  document.getElementById("pLabel").innerHTML = question
+  document.getElementById("pAnswer").value = defval
+  var x = pDialog.showModal()
+  pDialog.addEventListener('close', fe);
+  document.onkeydown=function(e) {
+      if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
+          e.preventDefault();
+          return false;
+      }
+  }
 }
 
 function copyRename(element) {
     var oldname = getNameSelected(element);
     oldname = noHTMLchars(oldname);
-	var newname = promptDialog("New name:", oldname, function(answer) {
+	  var newname = promptDialog("New name:", oldname, function(answer) {
         var newname = noHTMLchars(answer);
         if(newname == null || newname == "") return;
   
@@ -641,7 +646,7 @@ function copyRename(element) {
         var targetpath = pathJoin(currentpath['rcontent'], newname);
         if(sourcepath == targetpath) {
   	        alert("Can't copy a file over itself!");	
-		    return;
+		      return;
         }
   
         var a = { 
@@ -651,8 +656,8 @@ function copyRename(element) {
             'source' : 'lcontent', 
             'target' : 'rcontent',
             'isDirectory': isDirectory(element) 
-	    };
-	    sendFromInterface(a);	
+	      };
+	      sendFromInterface(a);	
     });
 }
 
