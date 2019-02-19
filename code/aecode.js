@@ -8,22 +8,18 @@ var AExplorerDrag = {'lcontent': true, 'rcontent':false };
 var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
 var AERoot = null;
 
-function sameDir()
-{
+function sameDir() {
   var l = document.getElementById('lcontentpath').value;
   var r = document.getElementById('rcontentpath').value;
   return(l == r);
 }
 
-function showNotification(jobj)
-{
+function showNotification(jobj) {
 	var action = jobj.action;
 	var target = jobj.target;
-	switch(action)
-	{
+	switch(action) 	{
    case 'update':
-      if(sameDir())
-      {
+      if(sameDir()) {
           panelReload('lcontent');
           target = 'rcontent';
       }
@@ -56,7 +52,6 @@ function socketConfirm(jo) {
 function socketImage(jobj) {
   var store = document.getElementById('rcontent');
 	var imagepath = jobj.path;
-
 	var ext = jobj.ext.slice(1);
 	var i = 2;
 	switch(ext.toLowerCase()) {
@@ -76,11 +71,14 @@ function socketImage(jobj) {
   //canvas.setAttribute("scrolling", "no");  
   var canvas = document.createElement("canvas");
   canvas.setAttribute("id", "canvasid");
+  canvas.onclick=function() { 
+    var a = { 'command': 'viewtext', 'path': imagepath, 'target': 0, 'ext': ext};
+    sendFromInterface(a);    
+  };
   
-  var image = new Image();
+  var image=new Image();
 
-  image.onload = function ()
-  { 
+  image.onload=function() { 
     var w = image.width;
     var h = image.height;
     var cw = store.scrollWidth;
@@ -137,11 +135,56 @@ function socketImage(jobj) {
     var context = canvas.getContext("2d");
     context.scale(scalew, scaleh);
     context.drawImage(image, 0, 0);
-    
+    var model = "";
+    var focale = "";
+    var zoom = "";
+    var exposition = "";
+    var iso = "";
+    var ouverture = "";
+    var pmode = "";
+
+ 
     var message = imagepath + ", " + ow + " x " + oh + " px";
-    if(w < ow || h < oh)
-      message += ", resized to " + w.toFixed() + " x "+ h.toFixed();
-    document.getElementById('status').innerHTML = message;
+
+    updateStatusBar(message);
+    var exiff = true;
+    EXIF.getData(image, function() {
+      iso = EXIF.getTag(this, "ISOSpeedRatings");
+      if(iso == undefined) {
+        if(w < ow || h < oh)
+        document.getElementById('status').innerHTML += ", resized to " + w.toFixed() + " x "+ h.toFixed();   
+        exiff = false;
+        return;     
+      }
+      model = EXIF.getTag(this, "Model");
+      focale = EXIF.getTag(this, "FNumber");
+      zoom = EXIF.getTag(this, "FocalLengthIn35mmFilm");
+      if(zoom == undefined || zoom == 0)
+        zoom = EXIF.getTag(this, "FocalLength");
+      if(zoom == undefined) zoom = ""; 
+        else zoom += "mm";       
+      exposition = new Number(EXIF.getTag(this, "ExposureTime"));
+      if(exposition < 1) {
+        exposition = new String("1/" + parseInt(1/exposition))
+      }
+      
+      pmode = EXIF.getTag(this, "ExposureProgram");
+      if(pmode == undefined) pmode = "";
+      else {
+        switch(pmode) {
+          case "Manual": break;
+          case "Normal program": pmode = "Auto"; break;
+          case "Aperture priority": pmode = "A"; break;
+          case "Shutter priority": pmode = "S"; break;
+          case "Not defined": pmode="";
+          default:
+            break;
+        }  
+      }
+    });    
+    if(!exiff) return;
+    var exif = ` &nbsp;&nbsp;  - &nbsp;&nbsp;   ${model} &nbsp;&nbspF/${focale} &nbsp;&nbsp${zoom} &nbsp;&nbsp${exposition}s &nbsp;&nbspISO ${iso} &nbsp;&nbsp${pmode} `;
+    document.getElementById('status').innerHTML += exif;
     return;
   };
 
@@ -161,6 +204,11 @@ function processDirdata(jobj) {
   var target = jobj.target;
   fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
+}
+
+function updateStatusBar(message) {
+  if(message==undefined) message="";
+  document.getElementById('status').innerHTML = message;
 }
 
 ipcRenderer.on('stats', (event, data) => {
@@ -188,7 +236,7 @@ ipcRenderer.on('stats', (event, data) => {
         + rightDirs + " dir" + rpd
         + rightFiles + " file" + rpf
         + rightSize + " bytes.</span>"; 
-   document.getElementById('status').innerHTML = stats;
+   updateStatusBar(stats);
 }); 
 
 
@@ -211,7 +259,7 @@ ipcRenderer.on('interface', (event, data) => {
         alert(jobj.content); 
         break;    
     case 'status':
-        document.getElementById('status').innerHTML = jobj.content;
+        updateStatusBar(jobj.content);
         break;    
     case 'image':
         socketImage(jobj);
@@ -228,11 +276,7 @@ ipcRenderer.on('interface', (event, data) => {
         var rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
-    /*    
-    case 'box':
-        openBox(jobj);
-        break;   
-    */    
+ 
     case "boxapp":     
         boxApp(jobj);
         break;
@@ -388,12 +432,12 @@ var topCopy = function () {
 }
 
 var topCopyRename = function() {
-    var namelist = getSelected('lcontent');
-	  if(namelist.length != 1) {
-		  alert("Select just one file to copy under a new name");
-		  return;
-	  } 
-    copyRename(namelist[0]);
+  var namelist = getSelected('lcontent');
+	if(namelist.length != 1) {
+	  alert("Select just one file to copy under a new name");
+	  return;
+	} 
+  copyRename(namelist[0]);
 }  
 
 var topZip = function (target) {
@@ -410,7 +454,7 @@ var topZip = function (target) {
 	var p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
 
-    var archiver = config.Archiver.input;
+  var archiver = config.Archiver.input;
 
 	var a = { 'command': 'archive', 
             'archiver': archiver,
@@ -425,60 +469,59 @@ var topZip = function (target) {
 var topSync = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
   
-    var x = document.getElementById('syncframe');
-    if(x) {
-        x.id=null;
-        panelReload('lcontent');
-        return;
-    }  
+  var x = document.getElementById('syncframe');
+  if(x) {
+    x.id=null;
+    panelReload('lcontent');
+    return;
+  }  
   
-
-    var allFlag = false;
+  var allFlag = false;
 	var nameList = getSelectedNames('lcontent');
 	if(nameList.length == 0) {
 		allFlag = true; 
 	}
   
-    var lc = document.getElementById('lcontent');
-    var d = document.createElement('iframe');
-    d.src="synchronizer.html";   
-    lc.removeChild(lc.firstChild);
-    lc.appendChild(d);
-    d.width = "100%";
-    d.height = "100%";
-    d.style.border = "0";
-    d.id = 'syncframe';   
+  var lc = document.getElementById('lcontent');
+  var d = document.createElement('iframe');
+  d.src="synchronizer.html";   
+  lc.removeChild(lc.firstChild);
+  lc.appendChild(d);
+  d.width = "100%";
+  d.height = "100%";
+  d.style.border = "0";
+  d.id = 'syncframe';   
 
 	var fcontent = (d.contentWindow || d.contentDocument);
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
-    fcontent.allFlag = allFlag;
-    fcontent.nameList = nameList;
+  fcontent.allFlag = allFlag;
+  fcontent.nameList = nameList;
 }
 
 
 function displayEditor(data, fromTop) {               
-    var dpane = document.getElementById('dirpane');
+  var dpane = document.getElementById('dirpane');
 	var epane = document.getElementById('editpane');
 	var edfra = document.getElementById('editor');
 	var opane = document.getElementById('optpane');
 	var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
 	if(epane.style.display=="none")	{ 
-        dpane.style.display = "none";
-        opane.style.display = "none";
-        epane.style.display = "block";
-        edfra.style.display = "block";
-        fc.display(data);
+    dpane.style.display = "none";
+    opane.style.display = "none";
+    epane.style.display = "block";
+    edfra.style.display = "block";
+    fc.display(data);
 	}
 	else // closing
 	{
-        epane.style.display = "none";
+    epane.style.display = "none";
 		edfra.style.display = "none";
 		dpane.style.display = "block";
-        if(fc.editor.getValue() != '') fc.editorIcon(true);
-        fc.setActiveRow();
-    }
+      if(fc.editor.getValue() != '') fc.editorIcon(true);
+      fc.setActiveRow();
+  }
 	return;
 }
 
@@ -500,8 +543,7 @@ var topSetup = function() {
 	var epane = document.getElementById('editpane');
 	var opane = document.getElementById('optpane');
 
-	if(opane.style.display=="none")
-	{
+	if(opane.style.display=="none") {
     epane.style.display = "none";
 		dpane.style.display = "none";
 		opane.style.display = "block";
@@ -523,7 +565,7 @@ var topSetup = function() {
 var topHelp = function (target) {
   var a = { 
         'command': 'viewtext',
-        'path': 'http://www.scriptol.com/scripts/advanced-explorer-manual.php', 
+        'path': 'https://www.scriptol.com/scripts/advanced-explorer-manual.php', 
         'target': null,
         'ext':'html'
   };
@@ -539,7 +581,7 @@ var topQuit = function (target) {
 */
 var panelReload = function (target) {
 	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
-	sendFromInterface(a);
+  sendFromInterface(a);
 }
 
 var panelHome = function (target) {
@@ -659,9 +701,7 @@ function panelFileInfo(target) {
 }
 
 
-
-var panelDelete = function(target)
-{
+var panelDelete = function(target) {
 	var namelist = getSelectedNames(target);
 
 	if(namelist.length == 0) 	{
@@ -687,8 +727,7 @@ var panelDelete = function(target)
   }, 100);
 }
 
-function openBox(target)
-{   
+function openBox(target) {   
   var letter = target.charAt(0).toUpperCase();
   var parent = window.document.getElementById(target);
 
@@ -720,8 +759,7 @@ function boxApp(apath, target) {
 }
 
 
-var panelBox = function(target)
-{
+var panelBox = function(target) {
   var id = target + "list";
   var check = document.getElementById(id);  // file list displayed?
   if(check != null)  buildXData(target);
@@ -823,8 +861,7 @@ function dispBookmarks(letter, bm) {
     var code = (letter == "l" ? 0 : 1);
     var blist = ""
     var i;
-	  for(i = 0; i < bm.length; i++)
-	  {
+	  for(i = 0; i < bm.length; i++) {
 		  var item = bm[i];
       blist +=  "<p alt='" + item + "' onclick='openBM(this, "+ 
         code + ")'  onmouseover='bmToDel(this)' onmouseout='bmToSkip(this)'><span class='bmdel' onclick='bmDel(this,"+ 
@@ -853,8 +890,7 @@ function computer(letter) {
 	dispBookmarks(letter, bm);
 }
 
-function bookmark(letter)
-{
+function bookmark(letter) {
   var idx = (letter == 'l') ? 0 : 1;
   var bm = config.Bookmarks.list[idx].select;
   if(bm.length > 25) {
@@ -880,14 +916,12 @@ function bookmark(letter)
 
 // Keys
 
-function keyScroll(code)
-{
+function keyScroll(code) {
   var element, temp, offset;
   if(chooserLastSelected == null) return;
   var par = chooserLastSelected.parentNode
 
-  if(code == 37)
-  {
+  if(code == 37) {
     var c = par.id.charAt(0);
     var target = c + 'content';
     panelUp(target);
@@ -895,8 +929,7 @@ function keyScroll(code)
     return;
   }
 
-  if(code == 38)
-  {
+  if(code == 38) {
     temp = chooserLastSelected.previousSibling;
     if(temp == null) return;
     element = temp.previousSibling;
@@ -905,8 +938,7 @@ function keyScroll(code)
     if(offset < 140 )
        par.parentNode.scrollTop -= 22;
   }
-  if(code == 40)
-  {
+  if(code == 40) {
     element = chooserLastSelected.nextSibling;
     if(element==null) return;
     element = chooserLastSelected.nextSibling.nextSibling;
@@ -917,16 +949,14 @@ function keyScroll(code)
     if(localpos + 22 > rect.bottom)
       par.parentNode.scrollTop += 22;
   }
-  if(element != null)
-  {
+  if(element != null) {
     if(!isSHIFT && !isCTRL) deselectAll(par);
     element.className = 'entrybold';
     chooserLastSelected = element;
   }
 }
 
-function keyUnzip()
-{
+function keyUnzip() {
   var list = config.Unarchive.list;
   var overwrite = list[0].checkbox;
   var keepath = list[1].checkbox;
@@ -1173,30 +1203,28 @@ function buildEvents()
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
-    addEvent('tcopyren', topCopyRename);
-    addEvent('tsync', topSync);
+  addEvent('tcopyren', topCopyRename);
+  addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
-    addEvent('topt', topSetup);
+  addEvent('topt', topSetup);
 	addEvent('thelp', topHelp);
 	addEvent('tquit', topQuit);
 
 	addEvent('lreload', panelReload, 'lcontent');
 	addEvent('lhome', panelHome, 'lcontent');
 	addEvent('lup', panelUp, 'lcontent');
-	//addEvent('lrename', panelRename, 'lcontent');
-    addEvent('lcreate', panelCreate, 'lcontent');
+  addEvent('lcreate', panelCreate, 'lcontent');
 	addEvent('ldel', panelDelete, 'lcontent');
-    addEvent('lbox', panelBox, 'lcontent');
+  addEvent('lbox', panelBox, 'lcontent');
 
 	addInputEvent('lcontentpath', panelGo, 'lcontent');
 
 	addEvent('rreload', panelReload, 'rcontent');
 	addEvent('rhome', panelHome, 'rcontent');
 	addEvent('rup', panelUp, 'rcontent');
-	//addEvent('rrename', panelRename, 'rcontent');
-    addEvent('rcreate', panelCreate, 'rcontent');
+  addEvent('rcreate', panelCreate, 'rcontent');
 	addEvent('rdel', panelDelete, 'rcontent');
-    addEvent('rbox', panelBox, 'rcontent');
+  addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 
@@ -1218,8 +1246,6 @@ function buildEvents()
   darear.addEventListener('drop', function(evnt) {
     if (evnt.stopPropagation) evnt.stopPropagation();
     var x = evnt.dataTransfer.getData('text');
-    //alert(x);
-    //dropFiles(darear, evnt.dataTransfer.getData('text'));
     topCopy();
     evnt.preventDefault(); // for Firefox
     return false;

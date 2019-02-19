@@ -1,6 +1,6 @@
 /*
   Advanced Explorer Node server
-	(c) 2012-2017 Denis Sureau
+	(c) 2012-2019 Denis Sureau
 	Free, open source under the GPL 3 License.
 */
 

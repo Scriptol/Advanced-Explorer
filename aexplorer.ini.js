@@ -22,23 +22,23 @@ var config={
             {
                 "name": "dotfile",
                 "label": "Show files starting with a dot",
-                "checkbox": false
+                "checkbox": true
             }
         ]
-    },    
+    },
     "Memory": {
         "list": [
             {
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "/"
+                "input": "\"
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": "/"
+                "input": "c:\\"
             }
         ]
     },
@@ -47,22 +47,19 @@ var config={
             {
                 "name": "lcontent",
                 "label": "Left panel",
-                "initial": "c:/",
+                "initial": "w:/",
                 "select": [
-                    "c:/",
-                    "d:/",
-                    "e:/"
+                    "c:\\",
+                    "d:/"
                 ]
             },
             {
                 "name": "rcontent",
                 "label": "Right panel",
-                "initial": "c:/",
+                "initial": "c:\\",
                 "select": [
-                    "c:/",
-                    "d:/",
-                    "e:/",
-                    "f:/"
+                    "c:\\",
+                    "d:/"
                 ]
             }
         ]
@@ -83,6 +80,16 @@ var config={
     },
     "Recents": {
         "list": [
+        ]
+    },
+    "Recdirs": {
+        "list": [
+            [
+                "c:/"
+            ],
+            [
+                "c:/"
+            ]
         ]
     }
 }

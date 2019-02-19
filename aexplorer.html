@@ -7,6 +7,7 @@
 <base href="./">
 <script type="text/javascript" src="code/chooser.js"></script>
 <script type="text/javascript" src="aexplorer.ini.js"></script>
+<script type="text/javascript" src="code/exif.js"></script>
 <script type="text/javascript" src="code/aecode.js"></script>
 </head>
 
@@ -41,9 +42,9 @@
 <div class="ticon tooltip"><img src="images/help.png" id='thelp'>
    <span><img src="images/apache.png">
    <h3>Advanced Explorer</h3>
-   <p>Version 5.0</p>
+   <p>Version 5.1</p>
    <p>
-    &copy; 2012-2018 Denis Sureau<br>
+    &copy; 2012-2019 Denis Sureau<br>
     www.scriptol.com<br>
    </p>
    </span>
@@ -132,8 +133,7 @@
 
 <script>
 
-function startExplorer()
-{
+function startExplorer() {
     ChooserDrag = AExplorerDrag;
     var lpath = config.Memory.list[0].input;
     var rpath = config.Memory.list[1].input;
@@ -160,8 +160,7 @@ function quitSub() {
   setTimeout(function() { this.close();}, 100);
 }
 
-function exitExplorer()
-{
+function exitExplorer() {
   var framedit = document.getElementById("editor");
 	var fc = (framedit.contentWindow || framedit.contentDocument);
   fc.setActiveRow();

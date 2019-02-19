@@ -18,6 +18,7 @@ var insidezip = [];
 var elementToSelect = null;
 var elementToOffset = null;
 var ChooserDrag = null;
+var clipBoardFn = "";
 
 var customview = [];
 
@@ -174,7 +175,7 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
 */
 
 function imageList(content) {
-    var target = content.target;
+  var target = content.target;
 	var d = document.getElementById(target);
 	var filepath = content['path'];
 	var dir = content['list'];
@@ -183,18 +184,15 @@ function imageList(content) {
 	page += "<div class='files'>";
 	var dirlist = "";
 	var filelist ="";
-	for(var i = 0; i < dir.length; i++)
-	{
+	for(var i = 0; i < dir.length; i++)	{
 		var item = dir[i];
 		var type = item[0];
 		var name = item[1];
 
-		if(type=='dir')
-		{
+		if(type=='dir')	{
 			dirlist += buildDir(name, target) + "<br>";
 		}
-		else
-		{
+		else {
       var timesize = item[2];     
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
@@ -226,6 +224,12 @@ var SORT_BY_NAME = 0;
 var SORT_BY_SIZE = 1;
 var SORT_BY_DATE = 2;
 
+function sortByName(a, b) {
+  if(a[0] == 'dir' && b[0] != 'dir') return -1;
+  if(b[0] == 'dir' && a[0] != 'dir') return 1;
+  return a[1].localeCompare(b[1]);
+}
+
 function sortBySize(a, b) {
   if(a[0] == 'dir') { 
     if(b[0] == 'dir') return 0;
@@ -250,7 +254,7 @@ function sortByDate(a, b) {
   return 0;
 }
 
-function fileList(content, sortMode) {
+function fileList(content, sortMode = 0) {
 	var target = content.target;
 	insidezip[target]=content.iszip;
 	var d = document.getElementById(target);
@@ -270,6 +274,7 @@ function fileList(content, sortMode) {
         dir.sort(sortByDate);
         break;  
     default: 
+        dir.sort(sortByName);
         break;
     }
 	var page = "<div class='filechooser'>";
@@ -385,7 +390,6 @@ function view(element, filepath, panelid, forcePage) {
   filepath = replaceFilename(filepath, getNameSelected(element));  
   var p = filepath.lastIndexOf('.');
 	var ext = filepath.slice(p + 1);
-  
   if(forcePage) ext ='';
   
   for(var cv in customview)  {
@@ -638,7 +642,9 @@ function promptDialog(question, defval, cb) {
 function copyRename(element) {
     var oldname = getNameSelected(element);
     oldname = noHTMLchars(oldname);
-	  var newname = promptDialog("New name:", oldname, function(answer) {
+    var dispName = oldname;
+    if(clipBoardFn != "")  dispName = clipBoardFn;
+	  var newname = promptDialog("New name:", dispName, function(answer) {
         var newname = noHTMLchars(answer);
         if(newname == null || newname == "") return;
   
@@ -659,6 +665,12 @@ function copyRename(element) {
 	      };
 	      sendFromInterface(a);	
     });
+}
+
+function elementClip(element) {
+    var oldname = getNameSelected(element);
+    clipBoardFn = noHTMLchars(oldname);
+    navigator.clipboard.writeText(oldname)
 }
 
 
@@ -712,7 +724,7 @@ function rsel(element) {
   d.appendChild(p);
   p.onclick=function() { open(element, true) };
   p.setAttribute('class', 'ctxline');
-  p.innerHTML = "Open"; 
+  p.innerHTML = "View"; 
   
   if(isExecutable)  {
     var pe = document.createElement('p');
@@ -722,14 +734,6 @@ function rsel(element) {
     pe.innerHTML = "Run";    
   }   
   
-  if(isImage)  {
-    var pi = document.createElement('p');
-    d.appendChild(pi);
-    pi.onclick=function() { open(element, true); };
-    pi.setAttribute('class', 'ctxline');
-    pi.innerHTML = "Full view";    
-  }
-
   if(isZip)  {
     var pe = document.createElement('p');
     d.appendChild(pe);
@@ -761,6 +765,13 @@ function rsel(element) {
 	  p.setAttribute('class', 'ctxline');
 	  p.innerHTML = "Copy/Rename"; 
   }
+
+  var px = document.createElement('p');
+  d.appendChild(px);
+  px.onclick=function() { elementClip(element, target); };
+  px.setAttribute('class', 'ctxline');
+  px.innerHTML = "Clipboard"; 
+
   return false;
 }
 
