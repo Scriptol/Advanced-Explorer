@@ -32,7 +32,7 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "\"
+                "input": "/"
             },
             {
                 "name": "rightpane",
