@@ -44,11 +44,6 @@ Make use of:
         <div id="reclist"></div>
     </div>
     <div id="editor"></div>
-    <!--
-    <div id="spanel">
-        <iframe id="saver" src="../Editor/saver.html" width="640" height="500"></iframe>
-    </div> 
-    -->       
 </div>
     
 <script>
@@ -86,41 +81,41 @@ var languageExt = {
   "xml": "xml"  
 };
 
-  editor.setTheme("ace/theme/dreamweaver");
-  editor.getSession().setMode("ace/mode/html"); 
-  var filename="";
-  editor.getSession().on('change', 
-    function() { 
+    editor.setTheme("ace/theme/dreamweaver");
+    editor.getSession().setMode("ace/mode/html"); 
+    var filename="";
+    editor.getSession().on('change', 
+        function() { 
             if(editorHasContent === false)
                 changedStatus(true);
         }
     );
 		
-editor.commands.addCommand( {
+    editor.commands.addCommand( {
         name: 'saving',
         bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
         exec: function(editor) { save(false); }
-    },
-    {
-        name: "find",
-        bindKey: {
-            win: "Ctrl-F", 
-            mac: "Command-F"
-        },
-        exec: function(editor, needle) {
-            if (typeof needle === "object") {
-                var arg = this.name + " " + editor.getCopyText();
-                editor.cmdLine.setValue(arg, 1);
-                editor.cmdLine.focus();
-                return;
-            }
-            editor.find(needle);
-         }
         },
         {
-             name: "gotoline",
-             bindKey: {win: "Ctrl-L", mac: "Command-L"},
-             exec: function(editor, line) {
+            name: "find",
+            bindKey: {
+                win: "Ctrl-F", 
+                mac: "Command-F"
+            },
+            exec: function(editor, needle) {
+                if (typeof needle === "object") {
+                    var arg = this.name + " " + editor.getCopyText();
+                    editor.cmdLine.setValue(arg, 1);
+                    editor.cmdLine.focus();
+                    return;
+                }
+                editor.find(needle);
+            }
+        },
+        {
+            name: "gotoline",
+            bindKey: {win: "Ctrl-L", mac: "Command-L"},
+            exec: function(editor, line) {
                 if (typeof line === "object") {
                     var arg = this.name + " " + editor.getCursorPosition().row;
                     editor.cmdLine.setValue(arg, 1);
@@ -133,21 +128,20 @@ editor.commands.addCommand( {
         }
 );	
 
-function updateStatusBar(message)
-{ 
+function updateStatusBar(message) { 
     parent.document.getElementById('status').innerHTML = message;
 }
 
 function setFileName(fname) {
-  filename = fname;
-  if(fname != "") {
-    var pos = fname.lastIndexOf("/");
-    if(pos === -1) pos = fname.lastIndexOf("\\");
-    if(pos > 0) fname = fname.substr(pos + 1);
-  }
-  var fno =  document.getElementById("filename")
-  fno.innerHTML = fname;
-  fno.setAttribute("title", filename);
+    filename = fname;
+    if(fname != "") {
+        var pos = fname.lastIndexOf("/");
+        if(pos === -1) pos = fname.lastIndexOf("\\");
+        if(pos > 0) fname = fname.substr(pos + 1);
+    }
+    var fno =  document.getElementById("filename")
+    fno.innerHTML = fname;
+    fno.setAttribute("title", filename);
 }
 
 function editorIcon(actif) {
@@ -351,7 +345,7 @@ function act(element) {
         case "clear":
             editorIcon(false);
             break;
-        case "saveas":	
+        case "saveas":
             save(true);
 	       break;
         case "find":
@@ -440,17 +434,23 @@ ipcRenderer.on("editor", (event, data) => {
 });
 
 var winsave = function() {
-    var fpath = dialog.showSaveDialog(null, {
+    var filepath = dialog.showSaveDialogSync(null, {
         title:"Save current text in a file",
         defaultPath: filename,
         buttonLabel: "Save"
     })
-    if(fpath != undefined && fpath.length > 0) return fpath;
+    if(filepath == undefined) {
+        alert(filename + " not saved");
+        return;
+    }
+    if(filepath.length > 0) {
+        return filepath;
+    }    
     return "";  // abort
 }
 
 function save(pflag)
-{
+{ 
     if(pflag || filename === undefined || filename === "") {
         var x = winsave() 
         if(x == "") return;
@@ -458,8 +458,9 @@ function save(pflag)
         updateStatusBar(true);
         changedStatus(false);
     }
-    else 
+    else {
         editor.focus();
+    }    
     setActiveRow();
     var content = editor.getValue();
     if(content.length === 0) {

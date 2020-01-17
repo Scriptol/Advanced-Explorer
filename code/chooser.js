@@ -1,7 +1,7 @@
 /* File Chooser
    File input replacement with path and default value
    for local use of JavaScript on the desktop.
-   (c) 2012-2017 By Denis Sureau.
+   (c) 2012-2020 By Denis Sureau.
    
    License LGPL 3.0.
    Free to use provided this copyright notice is not removed.

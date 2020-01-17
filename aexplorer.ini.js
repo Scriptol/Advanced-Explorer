@@ -32,7 +32,7 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "/"
+                "input": "c:\\"
             },
             {
                 "name": "rightpane",
@@ -79,8 +79,7 @@ var config={
         ]
     },
     "Recents": {
-        "list": [
-        ]
+        "list": []
     },
     "Recdirs": {
         "list": [

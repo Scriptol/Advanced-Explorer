@@ -1,5 +1,5 @@
 Advanced Explorer JavaScript Edition License
-Copyright 2012-2016 Denis Sureau
+Copyright 2012-2020 Denis Sureau
 
 Advanced Explorer is licensed under the Creative Common license.
 Part of the tools are licensed under the LGPL 3.0 license.
@@ -19,6 +19,5 @@ use of your enterprise.
 You are not permitted to make a public "fork" of the program,
 in other word distribute a modified version on the Web, 
 without a special permission from the author, Denis Sureau.
-
 
 December 6, 2012. 

@@ -1,5 +1,5 @@
 /* AECode, client side  code for Advanced Explorer
-   (c) 2012-2017 Denis Sureau - License GPL 3 */
+   (c) 2012-2020 Denis Sureau - License GPL 3 */
 
 var leftpanel = document.getElementById("lpane");
 var rightpanel = document.getElementById("rpane");
@@ -150,7 +150,7 @@ function socketImage(jobj) {
     var exiff = true;
     EXIF.getData(image, function() {
       iso = EXIF.getTag(this, "ISOSpeedRatings");
-      if(iso == undefined) {
+      if(iso === undefined) {
         if(w < ow || h < oh)
         document.getElementById('status').innerHTML += ", resized to " + w.toFixed() + " x "+ h.toFixed();   
         exiff = false;
@@ -159,9 +159,9 @@ function socketImage(jobj) {
       model = EXIF.getTag(this, "Model");
       focale = EXIF.getTag(this, "FNumber");
       zoom = EXIF.getTag(this, "FocalLengthIn35mmFilm");
-      if(zoom == undefined || zoom == 0)
+      if(zoom === undefined || zoom == 0)
         zoom = EXIF.getTag(this, "FocalLength");
-      if(zoom == undefined) zoom = ""; 
+      if(zoom === undefined) zoom = ""; 
         else zoom += "mm";       
       exposition = new Number(EXIF.getTag(this, "ExposureTime"));
       if(exposition < 1) {
@@ -169,7 +169,7 @@ function socketImage(jobj) {
       }
       
       pmode = EXIF.getTag(this, "ExposureProgram");
-      if(pmode == undefined) pmode = "";
+      if(pmode === undefined) pmode = "";
       else {
         switch(pmode) {
           case "Manual": break;
@@ -177,6 +177,7 @@ function socketImage(jobj) {
           case "Aperture priority": pmode = "A"; break;
           case "Shutter priority": pmode = "S"; break;
           case "Not defined": pmode="";
+            break;
           default:
             break;
         }  
@@ -207,7 +208,7 @@ function processDirdata(jobj) {
 }
 
 function updateStatusBar(message) {
-  if(message==undefined) message="";
+  if(message===undefined) message="";
   document.getElementById('status').innerHTML = message;
 }
 
