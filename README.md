@@ -10,4 +10,4 @@ Examples of features:
 - Copy a file/dir with a new name.
 - Box of addons working with selected file/dirs.
 
-More infos on: http://www.scriptol.com/scripts/advanced-explorer.php
+More infos on: https://www.scriptol.com/scripts/advanced-explorer.php
