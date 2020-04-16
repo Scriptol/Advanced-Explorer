@@ -15,7 +15,7 @@ const {app, BrowserWindow, ipcMain } = require('electron')
 
 const explorer = require("explorer");
 
-const debug = false
+const debug = true
 
 // Main server
 
@@ -112,12 +112,13 @@ function createWindow () {
     if(debug) w = 1600
     win = new BrowserWindow({width:w, height: 650, "show":false,
         "webPreferences" : {
-       "nodeIntegration":true,
-       "webSecurity": false
+            "nodeIntegration":true,
+            preload: path.join(__dirname, 'aexplorer.html'),
+            "webSecurity": true
         }   
     });
     if(debug) win.webContents.openDevTools()
-	win.setMenu(null)
+	  win.setMenu(null)
 
     explorer.setRoot(__dirname);
     console.log("Working directory : " + __dirname)
@@ -127,8 +128,8 @@ function createWindow () {
         pathname: path.join(__dirname, 'aexplorer.html'),
         protocol: 'File',
         slashes: true
-    }))
-
+    }))    
+  win.show()    
     win.show()
 
     win.on('closed', () => {

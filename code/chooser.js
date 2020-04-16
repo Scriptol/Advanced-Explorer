@@ -30,7 +30,8 @@ const {dialog} = require('electron').remote
 ipcRenderer.on("message", (event, data) => {
      var jobj = JSON.parse(data);
      switch(jobj.type) {
-      case 'dirinfo':  break;
+      case 'dirinfo':  
+        break;
       default:
         alert(jobj.data);      
      }
@@ -642,19 +643,17 @@ function promptDialog(question, defval, cb) {
 function copyRename(element) {
     var oldname = getNameSelected(element);
     oldname = noHTMLchars(oldname);
-    var dispName = oldname;
-    if(clipBoardFn != "")  dispName = clipBoardFn;
-	  var newname = promptDialog("New name:", dispName, function(answer) {
+    var dispname = oldname;
+    if(clipBoardFn != "")  dispname = clipBoardFn;
+	  var newname = promptDialog("New name:", dispname, function(answer) {
         var newname = noHTMLchars(answer);
         if(newname == null || newname == "") return;
-  
         var sourcepath = pathJoin(currentpath['lcontent'], oldname);
         var targetpath = pathJoin(currentpath['rcontent'], newname);
         if(sourcepath == targetpath) {
   	        alert("Can't copy a file over itself!");	
 		      return;
         }
-  
         var a = { 
             'command': 'copyrename', 
             'oldpath': sourcepath, 

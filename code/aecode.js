@@ -266,7 +266,12 @@ ipcRenderer.on('interface', (event, data) => {
         socketImage(jobj);
         break; 
     case 'dirinfo':
-        alert(jobj.content);
+        dialog.showMessageBoxSync({
+          title:"Directory information on content",
+          buttons: ["Ok"],
+          message: jobj.content
+        });
+        //alert(jobj.content);
         break;
     case 'updateIni':
         eval(jobj.content);
