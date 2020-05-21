@@ -1,8 +1,5 @@
 {
-  "name": "AdvancedExplorer",
-  "version": "5.2",
-  "main": "start.js",
-  "dependencies": {
-    "entities": "^2.0.0"
-  }
+  "name"    : "AdvancedExplorer",
+  "version" : "5.3",
+  "main"    : "start.js"
 }

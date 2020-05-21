@@ -15,7 +15,7 @@ const {app, BrowserWindow, ipcMain } = require('electron')
 
 const explorer = require("explorer");
 
-const debug = true
+const debug = false
 
 // Main server
 
@@ -54,7 +54,6 @@ function getFilename(request, response) {
     var localpath = path.join(process.cwd(), urlpath); // if we are at root
     fs.exists(localpath, function(result) { getFile(result, response, localpath)});
 }
-
 
 // Run a local script at the Web interface request
 function runScript(exists, file, param) {
