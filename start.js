@@ -11,11 +11,11 @@ const http = require("http"),
     net = require('net'),
     fs = require("fs");
 
-const {app, BrowserWindow, ipcMain } = require('electron')
+const {app, BrowserWindow, ipcMain } = require('electron');
 
 const explorer = require("explorer");
 
-const debug = false
+const debug = false;
 
 // Main server
 
@@ -54,6 +54,7 @@ function getFilename(request, response) {
     var localpath = path.join(process.cwd(), urlpath); // if we are at root
     fs.exists(localpath, function(result) { getFile(result, response, localpath)});
 }
+
 
 // Run a local script at the Web interface request
 function runScript(exists, file, param) {
@@ -112,8 +113,9 @@ function createWindow () {
     win = new BrowserWindow({width:w, height: 650, "show":false,
         "webPreferences" : {
             "nodeIntegration":true,
-            preload: path.join(__dirname, 'aexplorer.html'),
-            "webSecurity": true
+            //preload: path.join(__dirname, 'aexplorer.html'),
+            "webSecurity": true,
+            "enableRemoteModule": true
         }   
     });
     if(debug) win.webContents.openDevTools()
