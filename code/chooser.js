@@ -22,8 +22,10 @@ var clipBoardFn = "";
 
 var customview = [];
 
-const {ipcRenderer} = require('electron')
-const {dialog} = require('electron').remote   
+const { contextBridge, ipcRenderer } = require('electron');
+//const ipcRenderer = require('electron')
+const dialog = require('electron').remote;  
+
 
 // event
 

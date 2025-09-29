@@ -49,8 +49,11 @@ Make use of:
 <script>
     
 var editorHasContent = false;
-const {ipcRenderer} = top.require('electron')
-const {dialog} = top.require('electron').remote
+//const {ipcRenderer} = top.require('electron')
+//const {dialog} = top.require('electron').remote
+const { contextBridge, ipcRenderer } = top.require('electron');
+const dialog = top.require('electron').remote;  
+
 var editor = ace.edit("editor");
 var root;
 var recents;

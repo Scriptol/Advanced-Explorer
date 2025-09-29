@@ -1,6 +1,6 @@
 /*
   Advanced Explorer Node server
-	(c) 2012-2020 Denis Sureau
+	(c) 2012-2025 Denis Sureau
 	Free, open source under the GPL 3 License.
 */
 
@@ -112,10 +112,11 @@ function createWindow () {
     if(debug) w = 1600
     win = new BrowserWindow({width:w, height: 650, "show":false,
         "webPreferences" : {
-            "nodeIntegration":true,
+            nodeIntegration:true,
+            contextIsolation:false,
             //preload: path.join(__dirname, 'aexplorer.html'),
-            "webSecurity": true,
-            "enableRemoteModule": true
+            webSecurity: true,
+            enableRemoteModule: true
         }   
     });
     if(debug) win.webContents.openDevTools()
