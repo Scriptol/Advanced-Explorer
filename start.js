@@ -11,11 +11,15 @@ const http = require("http"),
     net = require('net'),
     fs = require("fs");
 
-const {app, BrowserWindow, ipcMain } = require('electron');
+//const {app, BrowserWindow, ipcMain } = require('electron');
 
+const { app, BrowserWindow, ipcMain } = require('electron/main')
 const explorer = require("explorer");
+const debug = true;
 
-const debug = false;
+require('@electron/remote/main').initialize()
+
+
 
 // Main server
 
@@ -131,18 +135,22 @@ function createWindow () {
         protocol: 'File',
         slashes: true
     }))    
-  win.show()    
-    win.show()
-
+    win.show()    
     win.on('closed', () => {
         win = null
         explorer.closeWindow()
     })
+
+require("@electron/remote/main").enable(win.webContents)    
 }
+
+
+
 
 if(!debug) process.on('uncaughtException', function (error) { })
 
 app.on('ready', createWindow)
+
 app.on('quit', function () {
     // something to do before to quit
 });

@@ -32,13 +32,13 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "c:\\"
+                "input": "d:\\volume_prog\\Advanced-Explorer-master\\Editor"
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": "c:\\"
+                "input": "d:\\volume_prog\\AExplorer\\Editor"
             }
         ]
     },

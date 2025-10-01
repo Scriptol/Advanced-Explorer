@@ -1,5 +1,8 @@
 {
-  "name"    : "AdvancedExplorer",
-  "version" : "5.3",
-  "main"    : "start.js"
+  "name": "AdvancedExplorer",
+  "version": "5.3",
+  "main": "start.js",
+  "dependencies": {
+    "@electron/remote": "^2.1.3"
+  }
 }

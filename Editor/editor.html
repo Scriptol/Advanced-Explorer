@@ -1,6 +1,6 @@
 <!--
 Advanced Explorer Code Editor Interface 
-(c) 2012-2017 Denis Sureau
+(c) 2012-2025 Denis Sureau
 License GPL 3.0
 
 Make use of:
@@ -49,10 +49,10 @@ Make use of:
 <script>
     
 var editorHasContent = false;
-//const {ipcRenderer} = top.require('electron')
-//const {dialog} = top.require('electron').remote
 const { contextBridge, ipcRenderer } = top.require('electron');
-const dialog = top.require('electron').remote;  
+const remote = top.require('@electron/remote');
+const { dialog } = remote;
+
 
 var editor = ace.edit("editor");
 var root;
@@ -137,7 +137,7 @@ function updateStatusBar(message) {
 
 function setFileName(fname) {
     filename = fname;
-    if(fname != "") {
+    if(fname !== "") {
         var pos = fname.lastIndexOf("/");
         if(pos === -1) pos = fname.lastIndexOf("\\");
         if(pos > 0) fname = fname.substr(pos + 1);
