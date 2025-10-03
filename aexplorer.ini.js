@@ -32,13 +32,13 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "d:\\"
+                "input": "p:\\"
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": "d:\\"
+                "input": "p:\\"
             }
         ]
     },
@@ -84,6 +84,7 @@ var config={
     "Recdirs": {
         "list": [
             [
+                "i:/Landscapes/Minolta 24-35/",
                 "c:/"
             ],
             [

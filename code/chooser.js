@@ -48,7 +48,7 @@ function dotFlag() {
 }
 
 function fileButton(target, dragflag) {
-    var filepath = currentpath[target];
+  var filepath = currentpath[target];
 	var query = { 
         'command': 'getdir', 
         'path': filepath,         
@@ -294,7 +294,7 @@ function fileList(content, sortMode = 0) {
 		}
 		else {
 			var timesize = item[2];
-            var filedate = item[3];    
+      var filedate = item[3];    
 			var p = name.lastIndexOf('.');
 			var ext = name.slice(p + 1);
 			if(extmask && ext != extmask) continue; 
@@ -313,8 +313,7 @@ function fileList(content, sortMode = 0) {
 
 	if(elementToSelect != null) {
 		if(elementToSelect == '*') setFirstSelected(target);
-		else
-		{
+		else {
 			chooserLastSelected = null;
 			elementToSelect = getElementByName(elementToSelect, target);
 			sel(elementToSelect);
@@ -330,21 +329,21 @@ function fileList(content, sortMode = 0) {
 // set entries draggables
 
 function setDrag(id) {
-    var lid = document.getElementById(id);
-    var follow = lid.firstChild;
+  var lid = document.getElementById(id);
+  var follow = lid.firstChild;
+  follow.setAttribute('draggable', true);
+  while(follow = follow.nextSibling) {
     follow.setAttribute('draggable', true);
-    while(follow = follow.nextSibling) {
-        follow.setAttribute('draggable', true);
-        follow.addEventListener('dragstart', function(evnt) {
-            evnt.dataTransfer.effectAllowed = 'copy';
-            if(!isSelected(this)) {
-                deselectAll(this.parentNode);
-                setSelected(this);
-            }  
-            return false;
-        }, false);    
-    }   
-    return;
+    follow.addEventListener('dragstart', function(evnt) {
+      evnt.dataTransfer.effectAllowed = 'copy';
+      if(!isSelected(this)) {
+        deselectAll(this.parentNode);
+        setSelected(this);
+      }  
+      return false;
+      }, false);    
+  }   
+  return;
 }
 
 // change dir called by the interface
