@@ -32,13 +32,13 @@ var config={
                 "name": "leftpane",
                 "label": "Left panel:",
                 "size": "60",
-                "input": "p:\\"
+                "input": "c:/"
             },
             {
                 "name": "rightpane",
                 "label": "Right panel:",
                 "size": "60",
-                "input": "p:\\"
+                "input": "d:/"
             }
         ]
     },
@@ -50,7 +50,8 @@ var config={
                 "initial": "w:/",
                 "select": [
                     "c:\\",
-                    "d:/"
+                    "d:/",
+                    "i:/"
                 ]
             },
             {
@@ -59,7 +60,8 @@ var config={
                 "initial": "c:\\",
                 "select": [
                     "c:\\",
-                    "d:/"
+                    "d:/",
+                    "i:/"
                 ]
             }
         ]

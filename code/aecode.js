@@ -261,7 +261,13 @@ ipcRenderer.on('interface', (event, data) => {
         break;    
     case 'status':
         updateStatusBar(jobj.content);
-        break;    
+        break;
+    case 'synchro'        :
+        const ifr = document.getElementById("syncframe");
+        const page = (ifr.contentWindow || ifr.contentDocument);
+        const storage = page.document.getElementById("syncresult");
+	      storage.innerHTML = jobj.content;
+        break;
     case 'image':
         socketImage(jobj);
         break; 

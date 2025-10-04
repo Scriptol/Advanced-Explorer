@@ -82,7 +82,7 @@ function runScript(exists, file, param) {
 
 var mainEvent;
 ipcMain.on('interface', (event, data) => {
-   //console.log("Received: " + data) 
+   console.log("Received: " + data) 
    mainEvent = event;
    var jo = JSON.parse(data);
    jo.event = event;
