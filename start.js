@@ -4,7 +4,7 @@
 	Free, open source under the GPL 3 License.
 */
 
-const debug = true;
+const debug = false;
 
 const http = require("http"),
       path = require("path"),
