@@ -1,7 +1,7 @@
 /*
   JavaScript-ini 
   Load and save ini file for JavaScript apps and build the user interface.
-  (c) Copyright 2012 Denis Sureau.  
+  (c) Copyright 2012-2025 Denis Sureau.  
   Provided under the MIT License.
   Use it freely but keep this copyright notice. 
 */

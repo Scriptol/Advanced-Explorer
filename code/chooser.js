@@ -23,7 +23,8 @@ var clipBoardFn = "";
 var customview = [];
 
 const { contextBridge, ipcRenderer } = require('electron');
-const dialog = require('electron').remote;  
+const dialog = require('electron').remote;
+const fs = require('fs');  
 
 
 // event
@@ -37,6 +38,8 @@ ipcRenderer.on("message", (event, data) => {
         alert(jobj.data);      
      }
 });
+
+
 
 
 function sendFromInterface(a) {
@@ -472,6 +475,7 @@ function nodeClear(node)
   }  
 }
 
+
 function deselectAll(parent)
 {
 	var child = parent.firstChild; // child of flist
@@ -850,6 +854,40 @@ function dsel(element) {
 
 
 /*
+  Get the list of files/dirs
+*/
+
+function getContent(source) {
+  var source = document.getElementById(source);
+	var parent = source.firstChild;	// chooser
+	var slist = new Array();
+	var child = parent.firstChild.firstChild; // flist.filename
+	while(child) 	{
+		slist.push(child);
+		child = child.nextSibling;
+	}  	
+	return slist;  
+}
+
+/*
+  getListSelected
+  Select files in the list
+*/  
+
+function getListSelected(list) {
+  var source = document.getElementById('lcontent');
+  var parent = source.firstChild;	
+	var child = parent.firstChild.firstChild; 
+	  
+  while(child) {
+    if(child.filename in list) child.className = 'entrybold';
+    child = child.nextSibling;
+  }  	  
+  return list;
+}
+
+
+/*
   getSelected(panelname)
   Return the list of selected items in a panel
   Items are <div> tags
@@ -868,6 +906,7 @@ function getSelected(source) {
 	}  	
 	return slist;  
 }
+
 
 function setFirstSelected(target) {
   var panel = document.getElementById(target);
@@ -931,6 +970,29 @@ function getSelectedNames(source) {
 	return namelist;    
 }
 
+
+/*
+  getAllNames(panelname)
+  Return the list of  filename or dirnames
+*/
+
+function getAllNames(source) {  
+  var namelist = new Array();
+  var slist = getContent(source);
+
+	for(i = 0; i < slist.length; i++) {
+    var elem = slist[i].innerHTML;
+    var p = elem.indexOf('>');
+    elem = elem.slice(p+1);
+    p = elem.indexOf('<');
+    if(p > 0)
+      elem = elem.slice(0, p);
+    if(elem=='') continue;      
+    namelist.push(elem);
+  }
+	return namelist;    
+}
+
 /*
   selectToDelete(panelname)
   Cross files selected to be deleted
@@ -944,6 +1006,92 @@ function selectToDelete(source) {
     element.style.textDecoration = 'line-through';
     element.style.color = 'red';
 	}
+}
+
+
+function extractFilename(s) {
+  var p1 = s.indexOf('>');
+  var p2 = s.indexOf('<', p1);
+  if(p2 == -1) p2 = s.length;
+  return s.slice(p1 + 1, p2);
+}
+
+function merge(base, nf) {
+  if(nf=='') return;
+  if(base[-1]== '/' || base[-1]== '\\') base = base.slice(0, -1)      
+  return base + "/" + nf;
+}
+
+/* 
+  Compare directories
+  File in left panel missing or updated in right panel are selected
+*/
+
+function compare() {
+  var source = document.getElementById('lcontent');
+  var total = 0;
+	var left = document.getElementById('lcontentpath').value;
+	var right = document.getElementById('rcontentpath').value;  
+
+  var parent = source.firstChild;
+	var child = parent.firstChild.firstChild; 
+	while(child) 	{
+    var newer = false;
+    var filename = child.innerHTML;
+    filename = extractFilename(filename);
+    if(filename == ".." || filename == "") {
+      	child = child.nextSibling;
+        continue;
+    };
+    leftpath = merge(left, filename);
+    rightpath = merge(right, filename);
+    if (!fs.existsSync(rightpath)) { 
+      newer = true;
+    }
+    else {
+console.log("ENTRY B STATSYNC "+ child.innerHTML) 
+      var fdesc = fs.statSync(rightpath);
+console.log("FDESC " + fdesc)      
+      if (fdesc && fdesc.isDirectory()) {
+      	child = child.nextSibling;
+        continue;
+    }; 
+       
+      var daytime = child.querySelector("span").textContent;
+      var day = daytime.slice(-16)
+      var d = day.slice(0,2)
+      var m = day.slice(3,5)
+      var y = day.slice(6,10)
+      day = y + "-" + m + "-" + d;
+console.log("LDATE BRUT " + daytime.slice(-16) )
+      var nd = day + "T" + daytime.slice(-5) + ":00";
+      var ld = new Date(nd);
+      ld = ld.getTime();
+      //console.log("LTIME "+ ld)
+
+      var rdate = fs.statSync(rightpath)
+      rdate = rdate.mtime;
+      var rd = new Date(rdate);
+      rd = rd.getTime();
+      //console.log("RTIME " + rd)
+
+
+      if(parseInt(ld) > parseInt(rd)) newer = true;
+   }
+
+    if(newer) {
+      child.className = 'entrybold';
+      total++;
+    }
+
+		child = child.nextSibling;
+	}    
+  
+  var s = ""; 
+  if(total > 1) s = "s";
+  const result = total +' file'+s+' updated or missing.';
+
+  console.log(result);
 }
 
 var isCTRL = false;

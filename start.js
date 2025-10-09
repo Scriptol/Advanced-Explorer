@@ -4,7 +4,7 @@
 	Free, open source under the GPL 3 License.
 */
 
-const debug = false;
+const debug = true;
 
 const http = require("http"),
       path = require("path"),
@@ -42,19 +42,22 @@ function sendFile(err, file, response, ext) {
 	response.end();
 }
 
-function getFile(exists, response, localpath) {
-	if(!exists) return sendError(404, '404 Not Found', response);
+function getFile(response, localpath) {
 	var ext = path.extname(localpath);
-	fs.readFile(localpath, "binary",
-    	function(err, file){ sendFile(err, file, response, ext);});
+	fs.readFile(localpath, "binary", function(err, file) { 
+    sendFile(err, file, response, ext);
+  });
 }
 
 function getFilename(request, response) {
   var urlpath = url.parse(request.url).pathname; // following domain or IP and port
   var localpath = path.join(process.cwd(), urlpath); // if we are at root
-  fs.exists(localpath, function(result) { 
-    getFile(result, response, localpath)
-  });
+
+  if( fs.existsSync(localpath) ) {
+    getFile(response, localpath)
+  } else {
+    sendError(404, '404 Not Found', response);
+  }
 }
 
 
@@ -80,10 +83,10 @@ function runScript(exists, file, param) {
 
 var mainEvent;
 ipcMain.on('interface', (event, data) => {
-   console.log("Received: " + data) 
    mainEvent = event;
    var jo = JSON.parse(data);
    jo.event = event;
+   if(debug) console.log("Received: " + jo.command)    
    explorer.shell(jo);
 })
 
@@ -91,7 +94,7 @@ ipcMain.on('interface', (event, data) => {
 
 var nativeServer = net.createServer(function(ncom) { 
   ncom.setEncoding("utf8");
-  ncom.on("error", function(err) {
+  ncom.on('error', function(err) {
     console.log("TCP error: " + err.stack);
   });    
   ncom.on('data', function(data) { 
@@ -107,6 +110,7 @@ nativeServer.listen(1031, '127.0.0.1');
 let win = explorer.win;
 
 console.log("Starting Electron...")
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
 function createWindow () {
   let w = 1060
@@ -150,7 +154,7 @@ app.on('quit', function () {
     // something to do before to quit
 });
 app.on('window-all-closed', () => {
-  if(debug) console.log("Windows closed, exit.")
+  console.log("Explorer window closed, exit.")
   if (process.platform !== 'darwin') app.quit()
   process.exit(1)
 })

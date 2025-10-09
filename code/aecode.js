@@ -66,9 +66,6 @@ function socketImage(jobj) {
   store.appendChild(inner);
   inner.className='divimage';
 
-  //var canvas = document.createElement("iframe");
-  //canvas.setAttribute("style", "border:none;");
-  //canvas.setAttribute("scrolling", "no");  
   var canvas = document.createElement("canvas");
   canvas.setAttribute("id", "canvasid");
   canvas.onclick=function() { 
@@ -477,6 +474,13 @@ var topZip = function (target) {
 	};
 	sendFromInterface(a);
 }
+
+
+var topComp = function (target) {
+	if(document.getElementById('dirpane').style.display=="none")	return;
+  compare();
+}
+
 
 var topSync = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
@@ -1216,6 +1220,7 @@ function buildEvents()
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
   addEvent('tcopyren', topCopyRename);
+  addEvent('tcomp', topComp);
   addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
