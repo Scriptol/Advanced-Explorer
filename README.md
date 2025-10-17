@@ -1,7 +1,7 @@
 # Advanced Explorer
 
-A file manager and text editor built in JavaScript and HTML 5, Ace editor and Node.js.
-Requires Electron.
+A file manager and text editor built in JavaScript and HTML 5, Ace editor and Node.js library.
+Requires Electron for the rendering engine.
 
 Examples of features:
 - All file management functions.

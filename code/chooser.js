@@ -23,9 +23,8 @@ var clipBoardFn = "";
 var customview = [];
 
 const { contextBridge, ipcRenderer } = require('electron');
-const dialog = require('electron').remote;
+const { dialog } = require('@electron/remote');
 const fs = require('fs');  
-
 
 // event
 
@@ -311,6 +310,7 @@ function fileList(content, sortMode = 0) {
 	page += "</div>";
 	d.innerHTML = page;
 
+  
 	addKeyListEvents(target);
     if(ChooserDrag[target])  setDrag(listid);
 
@@ -328,6 +328,7 @@ function fileList(content, sortMode = 0) {
 	var currdiv = document.getElementById(listid);
 	currdiv.focus();
 }
+
 
 // set entries draggables
 
@@ -1098,7 +1099,7 @@ var isCTRL = false;
 var isSHIFT = false;
 document.onkeyup=function(evt) {
 	if(!evt.ctrlKey) isCTRL=false;
-    if(!evt.shiftKey) isSHIFT = false;
+  if(!evt.shiftKey) isSHIFT = false;
 }
 
 document.onkeydown=function(evt) {
@@ -1112,7 +1113,6 @@ document.onkeydown=function(evt) {
       case 38: // up
       case 40: // down
         evt.preventDefault(); 
-        evt.returnValue = false;     
         passHandler(evt, code);
         return true;    
   }
@@ -1122,17 +1122,17 @@ document.onkeydown=function(evt) {
     switch(code)  {
       case 17: // ctrl key
         break;
+/*        
 		  case 67:  // ctrl-c
         evt.preventDefault();
-        evt.returnValue = false;
         passHandler(evt, code);
         isCTRL = false;
         break;
       case 73: // ctrl-i
         break;  
+*/        
       case 85: // ctrl-u
         evt.preventDefault();
-        evt.returnValue = false;
         passHandler(evt, code);
         isCTRL = false;
         break;

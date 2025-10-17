@@ -1,5 +1,7 @@
 /* AECode, client side  code for Advanced Explorer
-   (c) 2012-2020 Denis Sureau - License GPL 3 */
+   (c) 2012-2025 Denis Sureau - License GPL 3 */
+
+
 
 var leftpanel = document.getElementById("lpane");
 var rightpanel = document.getElementById("rpane");
@@ -274,7 +276,6 @@ ipcRenderer.on('interface', (event, data) => {
           buttons: ["Ok"],
           message: jobj.content
         });
-        //alert(jobj.content);
         break;
     case 'updateIni':
         eval(jobj.content);
@@ -300,14 +301,12 @@ ipcRenderer.on('interface', (event, data) => {
   Utilities
 */
 
-function getExtension(filename)
-{
+function getExtension(filename) {
   var p = filename.lastIndexOf('.');
   return filename.slice(p + 1);
 }
 
-function getCurrentDirectory(target)
-{
+function getCurrentDirectory(target) {
   var panel = target + 'path';
   var path = document.getElementById(panel).value;
   var p = path.lastIndexOf('/');
@@ -1029,54 +1028,55 @@ function passHandler(evt, code)
   }
 }
 
-var keydownHandler = function(evt, code, target)
-{
-  //alert("keyInPanel " + code + " " + target);
-  switch(code)
-  {
-    case 46:
-      panelDelete(target);
-      evt.stopPropagation();
-      break;
-    case 82:
-      evt.keyCode = 0;
-      evt.cancelBubble = true;
-      break;
-    default:
-      break;
-  }
-  isCTRL = false;
-  return false;
-}
+/*
+  Key down handling in list of files. Target is the left or right panel.
+*/
 
-var keypressHandler = function(evt, code, target)
-{
-  switch(code)
-  {
-    case 9:  // ctrl-i
+var keydownHandler = function(evt, code, target) {
+  //alert("keyPress " + code + " " + evt.ctrlKey);
+
+  switch(code)  {
+    case "ControlLeft":
+    case "ControlRight":
+        break;  
+    case "Delete": // key delete
+        panelDelete(target);
+        break;
+    case "KeyI":  // ctrl-i show dir info
+        if(!evt.ctrlKey) break;
         panelFileInfo(target);
         break;
-    case 13: // enter
+    case "KeyU":  // unzip        
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alert("From the left panel only")
+          break;
+        }   
+        keyUnzip()
+        break;
+    case "KeyC"    : // copy
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alert("From the left panel only")
+          break;
+        }  
+        topCopy();
+        break;    
+    case "Enter": // enter
         var element = getPointedContent(target);
-        var filename =  getNameSelected(element);
-        if(isDirectory(element))
-        {
+        var filename = getNameSelected(element);
+        if(isDirectory(element))  {
             elementToSelect = '*';
             chDir(filename, target);
         }
         else
             open(element, true);
         break;
-    case 18: // ctrl-r
-        evt.keyCode = 0;
-        evt.cancelBubble = true;
-        break;    
-    case 19: // ctrl-s
-        break;
     default:
+      alert(code + " unknow")
         break;
   }
-  isCTRL = false;
+  evt.stopPropagation();
   return false;
 }
 
@@ -1169,28 +1169,21 @@ function AESaveDialog(cb) {
 
 // Listeners
 
-function addKeyListEvents(target)
-{
+
+function addKeyListEvents(target) {
   var x;
   if(target=='lcontent')
     x=document.getElementById('lcontentlist');
   else
     x=document.getElementById('rcontentlist');
 
-  x.onkeypress = function(evt) {
-  	var code = evt.keyCode || evt.which;
-    keypressHandler(evt, code, target);
-  }
-
-  x.onkeydown = function(evt) {
-  	var code = evt.keyCode || evt.which;
-    keydownHandler(evt, code, target);
+    x.onkeydown = function(evt) {
+    keydownHandler(evt, evt.code, target);
   }
 }
 
 
-function addEvent(id, func, target)
-{
+function addEvent(id, func, target) {
   var x = document.getElementById(id);
   if (x.addEventListener)
     x.addEventListener('click', function() { func(target)}, false);
@@ -1199,8 +1192,7 @@ function addEvent(id, func, target)
 }
 
 
-function addInputEvent(id, func, target)
-{
+function addInputEvent(id, func, target) {
   var x = document.getElementById(id);
   if (x.addEventListener)
     x.addEventListener('change', function() { func(target, x)}, false);
@@ -1213,9 +1205,7 @@ function addInputEvent(id, func, target)
 	};
 }
 
-
-function buildEvents()
-{
+function buildEvents() {
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
