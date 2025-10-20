@@ -1041,10 +1041,12 @@ var keydownHandler = function(evt, code, target) {
         break;  
     case "Delete": // key delete
         panelDelete(target);
+        evt.stopPropagation();  
         break;
     case "KeyI":  // ctrl-i show dir info
         if(!evt.ctrlKey) break;
         panelFileInfo(target);
+        evt.stopPropagation();  
         break;
     case "KeyU":  // unzip        
         if(!evt.ctrlKey) break;
@@ -1053,6 +1055,7 @@ var keydownHandler = function(evt, code, target) {
           break;
         }   
         keyUnzip()
+        evt.stopPropagation();
         break;
     case "KeyC"    : // copy
         if(!evt.ctrlKey) break;
@@ -1061,6 +1064,7 @@ var keydownHandler = function(evt, code, target) {
           break;
         }  
         topCopy();
+        evt.stopPropagation();
         break;    
     case "Enter": // enter
         var element = getPointedContent(target);
@@ -1071,12 +1075,12 @@ var keydownHandler = function(evt, code, target) {
         }
         else
             open(element, true);
+        evt.stopPropagation();  
         break;
     default:
-      alert(code + " unknow")
-        break;
+      //alert(code + " unknow")
+      break;
   }
-  evt.stopPropagation();
   return false;
 }
 
