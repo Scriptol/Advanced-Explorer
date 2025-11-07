@@ -591,9 +591,9 @@ var topQuit = function (target) {
   exitExplorer();
 }
 
-/*
-	Panel Events building
-*/
+
+//	Panel Events building
+
 var panelReload = function (target) {
 	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
   sendFromInterface(a);
@@ -642,64 +642,61 @@ function alreadyInList(parent, name) {
 
 
 function acceptRename(oldname, newname, target) {
-	var a = { 'command': 'rename', 'target': target, 'oldname': oldname, 'newname' : newname };
+	var a = { 
+    'command': 'rename', 
+    'target': target, 
+    'oldname': oldname, 
+    'newname' : newname 
+  };
 	sendFromInterface(a);
 }
+
+
 
 var elementRename = function(spanitem, panelName) {
 	var saved = spanitem.innerHTML;
 	var p1 = saved.indexOf('>');
 	var p2 = saved.indexOf('<', p1);
-    if(p2 == -1)
-        p2 = saved.length;
+    if(p2 == -1)  p2 = saved.length;
 	var oldname = saved.slice(p1 + 1, p2);
     oldname = noHTMLchars(oldname);
-
 	var x = document.createElement("input");
 	x.setAttribute('type', 'text');
 	x.setAttribute('value', oldname);
 	x.setAttribute('size', '40');
+  //x.focus();
 
-  x.onkeypress = function(evt) {
-  evt.stopPropagation();
-  var code = evt.keyCode || evt.which;
-  if(code == 13) {
-		var newname = x.value;
-		if(newname) {
-        if(alreadyInList(spanitem.parentNode, newname))  {
-            alert("Name already used");
-        }
+  x.onkeydown = function(evt) {
+    let code = evt.code;
+    if(code == "Enter") {
+		  let newname = x.value;
+		  if(newname) {
+        if(alreadyInList(spanitem.parentNode, newname))  
+          alert("Name already used");
         else {
 				  acceptRename(oldname, newname, panelName);
 				  saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
         }
-		}
-		x.blur();
+		  }
+		  x.blur();
+      evt.stopPropagation();
     }
     else
-    if(evt.ctrlKey)
-    switch(code)  {
-      case 17: 	x.blur();
-            break;
+    if(code == "Escape")  {
+      x.blur();
+      evt.stopPropagation();
     }
-	};
-
-  x.onkeydown = function(evt) {
-     evt.stopPropagation();
   }
 
-	x.onblur = function(evt) {
-		spanitem.innerHTML = saved;
-	};
-	spanitem.innerHTML = "";
-	spanitem.appendChild(x);
-	x.focus();
+  x.onblur = function(evt) {
+	  spanitem.innerHTML = saved;
+  };
+  spanitem.innerHTML = "";
+  spanitem.appendChild(x);
+  x.focus();
 }
 
-/*var panelRename = function(panelName) {
-  spanitem = getPointedContent(panelName);
-  elementRename(spanitem, panelName);
-}*/
+// Size of dir/selection
 
 function panelFileInfo(target) {
 	var slist = getSelectedNames(target);
@@ -788,9 +785,8 @@ var panelGo = function(target, x) {
 }
 
 
-/*
-  Recents directories
-*/  
+//  Recents directories
+
 
 function bmSize(idx) {
   return config.Bookmarks.list[idx].select.length;
@@ -830,10 +826,7 @@ function recentsClear(idx) {
     Recdirs.list[idx]=[];
 }
   
-
-/*
-  Bookmarks.
-*/
+//  Bookmarks.
 
 function bookmarkDelete(idx, name) {
   var bm = config.Bookmarks.list[idx].select
@@ -841,6 +834,7 @@ function bookmarkDelete(idx, name) {
   if(tf > -1)
     bm.splice(tf, 1)
 }
+
 
 function bmDel(element, code) {
   var n = element.nextSibling;
@@ -1011,79 +1005,6 @@ function keyUnzip() {
 }
 
 
-/*
-  These key code bypass default handlers
-*/
-
-function passHandler(evt, code)
-{
-  switch(code)
-  {
-      case 37:
-      case 38:
-      case 40: keyScroll(code);   break;
-      case 67: topCopy(); break;
-      case 85: keyUnzip(); break;
-      default: break;
-  }
-}
-
-/*
-  Key down handling in list of files. Target is the left or right panel.
-*/
-
-var keydownHandler = function(evt, code, target) {
-  //alert("keyPress " + code + " " + evt.ctrlKey);
-
-  switch(code)  {
-    case "ControlLeft":
-    case "ControlRight":
-        break;  
-    case "Delete": // key delete
-        panelDelete(target);
-        evt.stopPropagation();  
-        break;
-    case "KeyI":  // ctrl-i show dir info
-        if(!evt.ctrlKey) break;
-        panelFileInfo(target);
-        evt.stopPropagation();  
-        break;
-    case "KeyU":  // unzip        
-        if(!evt.ctrlKey) break;
-        if(target != "lcontent") {
-          alert("From the left panel only")
-          break;
-        }   
-        keyUnzip()
-        evt.stopPropagation();
-        break;
-    case "KeyC"    : // copy
-        if(!evt.ctrlKey) break;
-        if(target != "lcontent") {
-          alert("From the left panel only")
-          break;
-        }  
-        topCopy();
-        evt.stopPropagation();
-        break;    
-    case "Enter": // enter
-        var element = getPointedContent(target);
-        var filename = getNameSelected(element);
-        if(isDirectory(element))  {
-            elementToSelect = '*';
-            chDir(filename, target);
-        }
-        else
-            open(element, true);
-        evt.stopPropagation();  
-        break;
-    default:
-      //alert(code + " unknow")
-      break;
-  }
-  return false;
-}
-
 // Forms in icons
 
 function setVisible(id) {
@@ -1174,6 +1095,69 @@ function AESaveDialog(cb) {
 // Listeners
 
 
+//  Key down handling in list of files. Target is the left or right panel.
+
+
+var keydownHandler = function(evt, code, target) {
+  switch(code)  {
+    case "ControlLeft":
+    case "ControlRight":
+        break;  
+    case "Delete": // key delete
+        panelDelete(target);
+        evt.stopPropagation();  
+        break;
+    case "KeyN":  // ctrl-n rename
+        if(!evt.ctrlKey) break;
+        var namelist = getSelected(target);
+	      if(namelist.length != 1) {
+	        alert("Select only one file to rename");
+	        break;
+	      }         
+        elementRename(namelist[0], target);
+        evt.stopPropagation();  
+        break;        
+    case "KeyI":  // ctrl-i show dir info
+        if(!evt.ctrlKey) break;
+        panelFileInfo(target);
+        evt.stopPropagation();  
+        break;
+    case "KeyU":  // unzip        
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alert("From the left panel only")
+          break;
+        }   
+        keyUnzip()
+        evt.stopPropagation();
+        break;
+    case "KeyC"    : // copy
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alert("From the left panel only")
+          break;
+        }  
+        topCopy();
+        evt.stopPropagation();
+        break;    
+    case "Enter": // enter
+        var element = getPointedContent(target);
+        var filename = getNameSelected(element);
+        if(isDirectory(element))  {
+            elementToSelect = '*';
+            chDir(filename, target);
+        }
+        else
+            open(element, true);
+        evt.stopPropagation();  
+        break;
+    default:
+      //alert(code + " unknow")
+      break;
+  }
+  return false;
+}
+
 function addKeyListEvents(target) {
   var x;
   if(target=='lcontent')
@@ -1203,9 +1187,8 @@ function addInputEvent(id, func, target) {
   else
     x.attachEvent('onchange', function() { func(target, x)});
 
-	x.onkeypress = function(evt) {
-	var code = evt.keyCode || evt.which;
-		if(code == 13 || code == 17) x.blur();
+	x.onkeydown = function(evt) {
+			if(evt.code == "Enter" || evt.code == "Escape") x.blur();
 	};
 }
 
@@ -1254,12 +1237,16 @@ function buildEvents() {
    return false;
   });
 
-  darear.addEventListener('drop', function(evnt) {
-    if (evnt.stopPropagation) evnt.stopPropagation();
-    var x = evnt.dataTransfer.getData('text');
-    topCopy();
-    evnt.preventDefault(); // for Firefox
-    return false;
-  }, false);
+  darear.addEventListener(
+    'drop', 
+    function(evnt) {
+      if (evnt.stopPropagation) evnt.stopPropagation();
+      var x = evnt.dataTransfer.getData('text');
+      topCopy();
+      evnt.preventDefault(); // for Firefox
+      return false;
+    }, 
+    false
+  );
 
 }

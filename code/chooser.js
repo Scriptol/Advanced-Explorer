@@ -1050,9 +1050,9 @@ function compare() {
       newer = true;
     }
     else {
-console.log("ENTRY B STATSYNC "+ child.innerHTML) 
+
       var fdesc = fs.statSync(rightpath);
-console.log("FDESC " + fdesc)      
+
       if (fdesc && fdesc.isDirectory()) {
       	child = child.nextSibling;
         continue;
@@ -1064,7 +1064,7 @@ console.log("FDESC " + fdesc)
       var m = day.slice(3,5)
       var y = day.slice(6,10)
       day = y + "-" + m + "-" + d;
-console.log("LDATE BRUT " + daytime.slice(-16) )
+
       var nd = day + "T" + daytime.slice(-5) + ":00";
       var ld = new Date(nd);
       ld = ld.getTime();
@@ -1095,6 +1095,22 @@ console.log("LDATE BRUT " + daytime.slice(-16) )
   console.log(result);
 }
 
+/*
+  These key code bypass default handlers
+*/
+
+function passHandler(evt, code) {
+  switch(code)  {
+      case "ArrowUp":
+      case "ArrowLeft":
+      case "ArrowDown": keyScroll(code);   break;
+      case "keyC": topCopy(); break;
+      case "KeyU": keyUnzip(); break;
+      default: break;
+  }
+}
+
+
 var isCTRL = false;
 var isSHIFT = false;
 document.onkeyup=function(evt) {
@@ -1103,15 +1119,13 @@ document.onkeyup=function(evt) {
 }
 
 document.onkeydown=function(evt) {
-  if(evt.shiftKey) isSHIFT = true;
-              else isSHIFT = false;
-  var code = (evt.keyCode || evt.which);
-  switch(code)  {  
-      case 13:
+  evt.shiftKey = true ? isSHIFT = true : isSHIFT = false;
+  switch(evt.code)  {  
+      case "Enter":
         return true;
-      case 37: // left
-      case 38: // up
-      case 40: // down
+      case "ArrowLeft": // left
+      case "ArrowUp": // up
+      case "ArrowDown": // down
         evt.preventDefault(); 
         passHandler(evt, code);
         return true;    
@@ -1119,19 +1133,10 @@ document.onkeydown=function(evt) {
   
   if(evt.ctrlKey)   {
     isCTRL = true;
-    switch(code)  {
-      case 17: // ctrl key
+    switch(evt.code)  {
+      case "ControlKey": // ctrl key
         break;
-/*        
-		  case 67:  // ctrl-c
-        evt.preventDefault();
-        passHandler(evt, code);
-        isCTRL = false;
-        break;
-      case 73: // ctrl-i
-        break;  
-*/        
-      case 85: // ctrl-u
+      case "KeyU": // ctrl-u
         evt.preventDefault();
         passHandler(evt, code);
         isCTRL = false;
