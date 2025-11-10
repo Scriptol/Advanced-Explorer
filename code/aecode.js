@@ -664,10 +664,11 @@ var elementRename = function(spanitem, panelName) {
 	x.setAttribute('type', 'text');
 	x.setAttribute('value', oldname);
 	x.setAttribute('size', '40');
-  //x.focus();
+  x.focus();
 
   x.onkeydown = function(evt) {
     let code = evt.code;
+    
     if(code == "Enter") {
 		  let newname = x.value;
 		  if(newname) {
@@ -679,15 +680,14 @@ var elementRename = function(spanitem, panelName) {
         }
 		  }
 		  x.blur();
-      evt.stopPropagation();
     }
     else
     if(code == "Escape")  {
       x.blur();
-      evt.stopPropagation();
     }
+    evt.stopPropagation();
   }
-
+  
   x.onblur = function(evt) {
 	  spanitem.innerHTML = saved;
   };
