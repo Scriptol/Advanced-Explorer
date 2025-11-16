@@ -1,7 +1,7 @@
 /* File Chooser
    File input replacement with path and default value
    for local use of JavaScript on the desktop.
-   (c) 2012-2020 By Denis Sureau.
+   (c) 2012-2025 By Denis Sureau.
    
    License LGPL 3.0.
    Free to use provided this copyright notice is not removed.
@@ -258,6 +258,8 @@ function sortByDate(a, b) {
   return 0;
 }
 
+// Display list of files content = lcontent or rcontent
+
 function fileList(content, sortMode = 0) {
 	var target = content.target;
 	insidezip[target]=content.iszip;
@@ -310,9 +312,17 @@ function fileList(content, sortMode = 0) {
 	page += "</div>";
 	d.innerHTML = page;
 
-  
-	addKeyListEvents(target);
-    if(ChooserDrag[target])  setDrag(listid);
+  let x;
+  if(target=='lcontent')
+    x=document.getElementById('lcontentlist');
+  else
+    x=document.getElementById('rcontentlist');
+
+  x.onkeydown = function(evt) {
+    keydownHandler(evt, evt.code, target);
+  }
+
+  if(ChooserDrag[target])  setDrag(listid);
 
 	if(elementToSelect != null) {
 		if(elementToSelect == '*') setFirstSelected(target);
@@ -325,8 +335,8 @@ function fileList(content, sortMode = 0) {
 	elementToSelect = null;
 	elementToOffset = null;
 
-	var currdiv = document.getElementById(listid);
-	currdiv.focus();
+	//var currdiv = document.getElementById(listid);
+	//currdiv.focus();
 }
 
 
@@ -466,19 +476,16 @@ function view(element, filepath, panelid, forcePage) {
         
 }
 
-function nodeClear(node)
-{
+function nodeClear(node) {
   var child = node.firstChild;
-  while(child)
-  {
+  while(child) {
     child.className="file";
     child = child.nextSibling;
   }  
 }
 
 
-function deselectAll(parent)
-{
+function deselectAll(parent) {
 	var child = parent.firstChild; // child of flist
 	while(child) {
         if(child.className == 'entrybold') 	{
@@ -490,8 +497,7 @@ function deselectAll(parent)
 
 var chooserLastSelected = null;
 
-function setSelected(element)
-{
+function setSelected(element) {
     var name = getNameSelected(element)
     if(name.charAt(0) == '.') return;
     element.className="entrybold";	     
@@ -638,7 +644,7 @@ function promptDialog(question, defval, cb) {
   var x = pDialog.showModal()
   pDialog.addEventListener('close', fe);
   document.onkeydown=function(e) {
-      if([33,34,37,38,40].indexOf(e.keyCode)!=-1) {
+      if(["PageUp","PageDown","ArrowLeft","ArrowUp","ArrowDown"].indexOf(e.code)!=-1) {
           e.preventDefault();
           return false;
       }
@@ -1028,7 +1034,7 @@ function merge(base, nf) {
   File in left panel missing or updated in right panel are selected
 */
 
-function compare() {
+function compare() {  
   var source = document.getElementById('lcontent');
   var total = 0;
 	var left = document.getElementById('lcontentpath').value;
@@ -1037,8 +1043,8 @@ function compare() {
   var parent = source.firstChild;
 	var child = parent.firstChild.firstChild; 
 	while(child) 	{
-    var newer = false;
-    var filename = child.innerHTML;
+    let newer = false;
+    let filename = child.innerHTML;
     filename = extractFilename(filename);
     if(filename == ".." || filename == "") {
       	child = child.nextSibling;
@@ -1050,39 +1056,34 @@ function compare() {
       newer = true;
     }
     else {
-
-      var fdesc = fs.statSync(rightpath);
-
+      let fdesc = fs.statSync(rightpath);
       if (fdesc && fdesc.isDirectory()) {
       	child = child.nextSibling;
         continue;
-    }; 
+      }; 
        
-      var daytime = child.querySelector("span").textContent;
-      var day = daytime.slice(-16)
-      var d = day.slice(0,2)
-      var m = day.slice(3,5)
-      var y = day.slice(6,10)
+      let daytime = child.querySelector("span").textContent;
+      let day = daytime.slice(-16)
+      let d = day.slice(0,2)
+      let m = day.slice(3,5)
+      let y = day.slice(6,10)
       day = y + "-" + m + "-" + d;
 
-      var nd = day + "T" + daytime.slice(-5) + ":00";
-      var ld = new Date(nd);
-      ld = ld.getTime();
-      //console.log("LTIME "+ ld)
+      let nd = day + "T" + daytime.slice(-5) + ":00";
+      let ld = new Date(nd).getTime();
 
-      var rdate = fs.statSync(rightpath)
-      rdate = rdate.mtime;
-      var rd = new Date(rdate);
-      rd = rd.getTime();
-      //console.log("RTIME " + rd)
-
-
+      var rdate = fs.statSync(rightpath).mtime;
+      var rd = new Date(rdate).getTime();
       if(parseInt(ld) > parseInt(rd)) newer = true;
-   }
-
+    }
     if(newer) {
       child.className = 'entrybold';
       total++;
+    }
+    else {
+      if(child.className == 'entrybold') 	{
+        child.className="file";  
+      }  
     }
 
 		child = child.nextSibling;
@@ -1103,7 +1104,7 @@ function passHandler(evt, code) {
   switch(code)  {
       case "ArrowUp":
       case "ArrowLeft":
-      case "ArrowDown": keyScroll(code);   break;
+      case "ArrowDown": keyScroll(code, isSHIFT, isCTRL);   break;
       case "keyC": topCopy(); break;
       case "KeyU": keyUnzip(); break;
       default: break;
@@ -1119,15 +1120,14 @@ document.onkeyup=function(evt) {
 }
 
 document.onkeydown=function(evt) {
-  evt.shiftKey = true ? isSHIFT = true : isSHIFT = false;
+  evt.shiftKey == true ? isSHIFT = true : isSHIFT = false;
   switch(evt.code)  {  
-      case "Enter":
-        return true;
+      case "Enter": return true;
       case "ArrowLeft": // left
       case "ArrowUp": // up
       case "ArrowDown": // down
         evt.preventDefault(); 
-        passHandler(evt, code);
+        passHandler(evt, evt.code);
         return true;    
   }
   
@@ -1138,7 +1138,7 @@ document.onkeydown=function(evt) {
         break;
       case "KeyU": // ctrl-u
         evt.preventDefault();
-        passHandler(evt, code);
+        passHandler(evt, evt.code);
         isCTRL = false;
         break;
       default:

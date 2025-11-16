@@ -418,7 +418,7 @@ var topDup = function (target) {
 
 
 var topCopy = function () {
-	if(document.getElementById('dirpane').style.display=="none")	return;
+  if(document.getElementById('dirpane').style.display=="none")	return;
 	var namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
 		alert("No dir/file selected in left panel");
@@ -475,9 +475,10 @@ var topZip = function (target) {
 }
 
 
-var topComp = function (target) {
+var topComp = function (target) { 
 	if(document.getElementById('dirpane').style.display=="none")	return;
-  compare();
+  compare(); 
+  document.getElementById('lcontentlist').focus();
 }
 
 
@@ -925,12 +926,13 @@ function bookmark(letter) {
 
 // Keys
 
-function keyScroll(code) {
+function keyScroll(code, isSHIFT, isCTRL) {
   var element, temp, offset;
+  
   if(chooserLastSelected == null) return;
   var par = chooserLastSelected.parentNode
 
-  if(code == 37) {
+  if(code == "ArrowLeft") {
     var c = par.id.charAt(0);
     var target = c + 'content';
     panelUp(target);
@@ -938,7 +940,7 @@ function keyScroll(code) {
     return;
   }
 
-  if(code == 38) {
+  if(code == "ArrowUp") {
     temp = chooserLastSelected.previousSibling;
     if(temp == null) return;
     element = temp.previousSibling;
@@ -947,7 +949,7 @@ function keyScroll(code) {
     if(offset < 140 )
        par.parentNode.scrollTop -= 22;
   }
-  if(code == 40) {
+  if(code == "ArrowDown") {
     element = chooserLastSelected.nextSibling;
     if(element==null) return;
     element = chooserLastSelected.nextSibling.nextSibling;
@@ -1098,7 +1100,7 @@ function AESaveDialog(cb) {
 //  Key down handling in list of files. Target is the left or right panel.
 
 
-var keydownHandler = function(evt, code, target) {
+var keydownHandler = function(evt, code, target) { 
   switch(code)  {
     case "ControlLeft":
     case "ControlRight":
@@ -1122,7 +1124,7 @@ var keydownHandler = function(evt, code, target) {
         panelFileInfo(target);
         evt.stopPropagation();  
         break;
-    case "KeyU":  // unzip        
+    case "KeyU":  // unzip      
         if(!evt.ctrlKey) break;
         if(target != "lcontent") {
           alert("From the left panel only")
@@ -1157,19 +1159,6 @@ var keydownHandler = function(evt, code, target) {
   }
   return false;
 }
-
-function addKeyListEvents(target) {
-  var x;
-  if(target=='lcontent')
-    x=document.getElementById('lcontentlist');
-  else
-    x=document.getElementById('rcontentlist');
-
-    x.onkeydown = function(evt) {
-    keydownHandler(evt, evt.code, target);
-  }
-}
-
 
 function addEvent(id, func, target) {
   var x = document.getElementById(id);
@@ -1221,6 +1210,7 @@ function buildEvents() {
   addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
+
 
   // drag and drop events
 
