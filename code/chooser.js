@@ -408,14 +408,14 @@ function view(element, filepath, panelid, forcePage) {
   if(forcePage) ext ='';
   
   for(var cv in customview)  {
-	 if(ext == cv)  {
-		var a = customview[cv];
-		a.params.filename = filepath;
-		a.params.path = getNameSelected(element);
-		a.params.target = panelid;
-    sendFromInterface(a);
-		return;
-	 }
+	  if(ext == cv)  {
+		  var a = customview[cv];
+		  a.params.filename = filepath;
+		  a.params.path = getNameSelected(element);
+		  a.params.target = panelid;
+      sendFromInterface(a);
+		  return;
+	  }
   }
   
   filepath = noHTMLchars(filepath);
@@ -514,8 +514,7 @@ function selectRange(item1, item2) {
   var counter = 0;
  	var child = parent.firstChild;  
 	while(child) {
-    if(child.className == 'dir' || child.className == 'file' || child.className=='entrybold')  {
-      if(skipFollowers == false)  {
+     if(skipFollowers == false)  {
         if(item1==child)  {
           setSelected(child);
           inRange=true;
@@ -534,21 +533,17 @@ function selectRange(item1, item2) {
         }
         if(inRange) {
           setSelected(child);
-		  child = child.nextSibling;        
+		      child = child.nextSibling;        
           continue;
         }
       }
-      if(child.className == 'entrybold')  {
-            child.className="file";    
-	    }
-    }
-	child = child.nextSibling;
+    child.className="file";    
+	  child = child.nextSibling;
 	}  	  
   chooserLastSelected = null;
 }
 
-function sel(element)
-{
+function sel(element) {  
   if(isSHIFT)  {
     if(chooserLastSelected != null)  {
       selectRange(chooserLastSelected, element);
