@@ -460,7 +460,32 @@ function view(element, filepath, panelid, forcePage) {
     case 'ts':   
     case 'xml':    
      	  edit(element);
-        break;      
+        break;  
+    case 'php':
+		      let reterr
+          let temporary = "temp001$.tmp"
+          const params = {
+            'fname': filepath,
+            'temp': temporary
+          }
+
+          fetch("phpserver.php", {
+            method: "POST",
+            body: JSON.stringify(params),
+            headers: {
+              "Content-Type": "application/json; charset=UTF-8"
+            }
+          })
+          .then((response) => reterr)
+          if(reterr == "err") {
+            edit(element)
+            break;
+          } 
+          else { 
+		        var a = { 'command': 'viewtext', 'path': temporary, 'target': panelid, 'ext': ext};
+            sendFromInterface(a);
+          }
+        break        
     default:
      	if(filepath.slice(0, 5) != 'http:')
         filepath = "file:///" + filepath;

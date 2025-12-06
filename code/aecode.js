@@ -658,10 +658,12 @@ var elementRename = function(spanitem, panelName) {
 	var saved = spanitem.innerHTML;
 	var p1 = saved.indexOf('>');
 	var p2 = saved.indexOf('<', p1);
-    if(p2 == -1)  p2 = saved.length;
-	var oldname = saved.slice(p1 + 1, p2);
-    oldname = noHTMLchars(oldname);
-	var x = document.createElement("input");
+  if(p2 == -1)  p2 = saved.length;
+	
+  var oldname = saved.slice(p1 + 1, p2);
+  oldname = noHTMLchars(oldname);
+	
+  var x = document.createElement("input");
 	x.setAttribute('type', 'text');
 	x.setAttribute('value', oldname);
 	x.setAttribute('size', '40');
@@ -669,30 +671,33 @@ var elementRename = function(spanitem, panelName) {
 
   x.onkeydown = function(evt) {
     let code = evt.code;
-    
-    if(code == "Enter") {
-		  let newname = x.value;
-		  if(newname) {
-        if(alreadyInList(spanitem.parentNode, newname))  
-          alert("Name already used");
-        else {
-				  acceptRename(oldname, newname, panelName);
-				  saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-        }
-		  }
-		  x.blur();
-    }
-    else
-    if(code == "Escape")  {
-      x.blur();
-    }
     evt.stopPropagation();
+    
+    switch(code) {
+      case "Enter": 
+		    let newname = x.value;
+		    if(newname) {
+          if(alreadyInList(spanitem.parentNode, newname))  
+            alert("Name already used");
+          else {
+				    acceptRename(oldname, newname, panelName);
+				    saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
+            spanitem.innerHTML = saved;
+          }
+		    }
+		    x.blur();
+        x.remove();      
+        break;
+    case "Escape":
+      x.blur();
+      x.remove();      
+      break;
+    default:
+      evt.stopPropagation();   
+    }
+    return;   
   }
-  
-  x.onblur = function(evt) {
-	  spanitem.innerHTML = saved;
-  };
-  spanitem.innerHTML = "";
+
   spanitem.appendChild(x);
   x.focus();
 }
