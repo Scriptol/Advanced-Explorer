@@ -57,11 +57,10 @@ var config={
             {
                 "name": "rcontent",
                 "label": "Right panel",
-                "initial": "c:\\",
+                "initial": "c:/",
                 "select": [
-                    "c:\\",
-                    "d:/",
-                    "i:/"
+                    "c:/",
+                    "d:/"
                 ]
             }
         ]

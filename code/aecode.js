@@ -448,29 +448,35 @@ var topCopyRename = function() {
   copyRename(namelist[0]);
 }  
 
-var topZip = function (target) {
-	if(document.getElementById('dirpane').style.display=="none")	return;
+function checkSelected() {
+  let namelist = getSelectedNames('lcontent');
+	if(namelist.length == 0) {
+		alert("No dir/file selected in left panel");
+		return false;
+	}
+  return true;
+}
 
-	var namelist = getSelectedNames('lcontent');
+var topZip = function (target) {
+	let namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
 		alert("No dir/file selected in left panel");
 		return;
 	}
 
-	var zipname = document.getElementById("zip").value;
+	let zipname = document.getElementById("zip").value;
 	if(zipname == null || zipname == '') return;
-	var p = zipname.lastIndexOf(".");
+	let p = zipname.lastIndexOf(".");
 	if(zipname.substr(p) != ".zip")	zipname += ".zip";
-
-  var archiver = config.Archiver.input;
-
-	var a = { 'command': 'archive', 
+  let archiver = config.Archiver.input;
+	let a = { 'command': 'archive', 
             'archiver': archiver,
             'zipname': zipname, 
             'list': namelist,
             'source' : 'lcontent',
             'target': 'rcontent' 
 	};
+
 	sendFromInterface(a);
 }
 
@@ -663,44 +669,57 @@ var elementRename = function(spanitem, panelName) {
   var oldname = saved.slice(p1 + 1, p2);
   oldname = noHTMLchars(oldname);
 	
-  var x = document.createElement("input");
-	x.setAttribute('type', 'text');
-	x.setAttribute('value', oldname);
-	x.setAttribute('size', '40');
-  x.focus();
+  var diag = document.createElement("dialog");
+  diag.className = "modal-rename";
 
-  x.onkeydown = function(evt) {
-    let code = evt.code;
-    evt.stopPropagation();
-    
-    switch(code) {
-      case "Enter": 
-		    let newname = x.value;
-		    if(newname) {
-          if(alreadyInList(spanitem.parentNode, newname))  
-            alert("Name already used");
-          else {
-				    acceptRename(oldname, newname, panelName);
-				    saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-            spanitem.innerHTML = saved;
-          }
-		    }
-		    x.blur();
-        x.remove();      
-        break;
-    case "Escape":
-      x.blur();
-      x.remove();      
-      break;
-    default:
-      evt.stopPropagation();   
+  diag.innerHTML = `
+        <div class="modal-content">
+            <label for="modalInput" style="display:block; margin-bottom:10px; font-weight:bold;">Rename to:</label>
+            <input type="text" id="modalInput" value="${oldname}">
+            <div class="modal-buttons" style="text-align:right;">
+                <button id="btnCancel" class="gray">Cancel</button>
+                <button id="btnOk" class="blue">OK</button>
+            </div>
+        </div>
+    `;  
+
+  document.body.appendChild(diag);
+  diag.showModal();
+  const input = diag.querySelector('#modalInput');
+  const btnOk = diag.querySelector('#btnOk');
+  const btnCancel = diag.querySelector('#btnCancel');
+
+  input.focus();
+  input.select();  
+
+  const validate = () => {
+    let newname = input.value;
+    if (newname && newname !== oldname) {
+      if (alreadyInList(spanitem.parentNode, newname)) {
+          alert("Name already used");
+            return;
+      } 
+      else {
+        acceptRename(oldname, newname, panelName);
+        spanitem.innerHTML = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
+      }
     }
-    return;   
-  }
+    diag.close();
+  };
 
-  spanitem.appendChild(x);
-  x.focus();
+
+  btnOk.onclick = validate;
+  btnCancel.onclick = () => diag.close();
+
+  input.onkeydown = (evt) => {
+      evt.stopPropagation(); // On bloque la remontée vers Electron
+      if (evt.key === "Enter") validate();
+      if (evt.key === "Escape") diag.close();
+  };
+
+  diag.onclose = () => diag.remove();
 }
+
 
 // Size of dir/selection
 
@@ -1106,6 +1125,12 @@ function AESaveDialog(cb) {
 
 
 var keydownHandler = function(evt, code, target) { 
+    if (evt.target.tagName === 'INPUT' || 
+        evt.target.tagName === 'TEXTAREA' || 
+        evt.target.isContentEditable) {
+        return; 
+    }
+
   switch(code)  {
     case "ControlLeft":
     case "ControlRight":

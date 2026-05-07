@@ -124,10 +124,11 @@ function createWindow () {
     }   
   });
   if(debug) win.webContents.openDevTools()
-	win.setMenu(null)
 
-  explorer.setRoot(__dirname);
-  console.log("Working directory : " + __dirname)
+    win.setMenu(null)
+
+    explorer.setRoot(__dirname);
+    console.log("Working directory : " + __dirname)
 
   // And load the HTML page
 

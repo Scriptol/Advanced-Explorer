@@ -25,6 +25,9 @@ var customview = [];
 const { contextBridge, ipcRenderer } = require('electron');
 const { dialog } = require('@electron/remote');
 const fs = require('fs');  
+const { execSync } = require("child_process");
+const path = require("path");
+
 
 // event
 
@@ -37,8 +40,6 @@ ipcRenderer.on("message", (event, data) => {
         alert(jobj.data);      
      }
 });
-
-
 
 
 function sendFromInterface(a) {
@@ -578,15 +579,10 @@ function sel(element) {
     }
   }
 
-  if(element.className == 'entrybold' && !isSHIFT)  {
-    element.className="file";
-  }
-  else  {
-    if(!isCTRL) deselectAll(element.parentNode);
-    setSelected(element); 
-  }    
-  chooserLastSelected = element;
+  if(!isCTRL) deselectAll(element.parentNode);
+  setSelected(element); 
 
+  chooserLastSelected = element;
   isSHIFT = false;
 }
 
@@ -652,10 +648,11 @@ function open(element, forcePage) {
 
 function promptDialog(question, defval, cb) {
   var pDialog = document.getElementById('pDialog')
-
+  pDialog.focus();
   var fe = function(e) {
       cb(pDialog.returnValue)
       pDialog.removeEventListener("close", fe)
+      pDialog.blur();
       return false
   }
 
@@ -671,31 +668,66 @@ function promptDialog(question, defval, cb) {
   }
 }
 
+
+function resolveSubstPath(p) {
+  const drive = p.slice(0, 2); 
+  try {
+    const output = execSync(`cmd /c "subst ${drive}"`).toString().trim();
+    if (!output) {
+      return p;
+    }
+
+    const match = output.match(/=>\s*(.*)$/);
+    if (!match) return p;
+
+    const realRoot = match[1];
+    const rest = p.slice(2);
+
+    return path.join(realRoot, rest);
+  } catch {
+    return p;
+  }
+}
+
+function winToUnix(p) {
+  return p.replace(/\\/g, "/").toLowerCase();
+}
+
 function copyRename(element) {
     var oldname = getNameSelected(element);
     oldname = noHTMLchars(oldname);
     var dispname = oldname;
     if(clipBoardFn != "")  dispname = clipBoardFn;
-	  var newname = promptDialog("New name:", dispname, function(answer) {
-        var newname = noHTMLchars(answer);
-        if(newname == null || newname == "") return;
-        var sourcepath = pathJoin(currentpath['lcontent'], oldname);
-        var targetpath = pathJoin(currentpath['rcontent'], newname);
-        if(sourcepath == targetpath) {
-  	        alert("Can't copy a file over itself!");	
-		      return;
-        }
-        var a = { 
-            'command': 'copyrename', 
-            'oldpath': sourcepath, 
-            'newpath': targetpath,      
-            'source' : 'lcontent', 
-            'target' : 'rcontent',
-            'isDirectory': isDirectory(element) 
-	      };
-	      sendFromInterface(a);	
-    });
-}
+    let realpath = resolveSubstPath(currentpath['rcontent'] + "/" + oldname)
+    let targetpath = dialog.showSaveDialogSync(null, { 
+      title : "Copy/Rename",
+      buttonLabel : "Copy",
+      defaultPath : realpath
+    })
+ 
+    if(targetpath == "") return;
+    if(targetpath == undefined) return;
+    var sourcepath = pathJoin(currentpath['lcontent'], oldname);
+    sourcepath = winToUnix(sourcepath)
+    targetpath = winToUnix(targetpath)
+
+    if(sourcepath == targetpath) {
+  	  alert("Can't copy a file over itself!");	
+		  return;
+    }    
+    // send command to Explorer.js
+    var a = { 
+        'command': 'copyrename', 
+        'oldpath': sourcepath, 
+        'newpath': targetpath,      
+        'source' : 'lcontent', 
+        'target' : 'rcontent',
+        'isDirectory': isDirectory(element) 
+	    };
+  sendFromInterface(a);	  
+      
+}  // function
+
 
 function elementClip(element) {
     var oldname = getNameSelected(element);
