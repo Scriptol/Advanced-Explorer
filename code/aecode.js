@@ -617,10 +617,8 @@ var panelHome = function (target) {
 	sendFromInterface(a);
 }
 
-var panelUp = function(target)
-{
-  if(insidezip[target])
-  {
+var panelUp = function(target) {
+  if(insidezip[target])  {
     panelReload(target);
     return;
   }
@@ -712,7 +710,7 @@ var elementRename = function(spanitem, panelName) {
   btnCancel.onclick = () => diag.close();
 
   input.onkeydown = (evt) => {
-      evt.stopPropagation(); // On bloque la remontée vers Electron
+      evt.stopPropagation(); 
       if (evt.key === "Enter") validate();
       if (evt.key === "Escape") diag.close();
   };

@@ -646,26 +646,46 @@ function open(element, forcePage) {
     view(element, fname, target, forcePage);
 }
 
-function promptDialog(question, defval, cb) {
-  var pDialog = document.getElementById('pDialog')
-  pDialog.focus();
-  var fe = function(e) {
-      cb(pDialog.returnValue)
-      pDialog.removeEventListener("close", fe)
-      pDialog.blur();
-      return false
-  }
 
-  document.getElementById("pLabel").innerHTML = question
-  document.getElementById("pAnswer").value = defval
-  var x = pDialog.showModal()
-  pDialog.addEventListener('close', fe);
-  document.onkeydown=function(e) {
-      if(["PageUp","PageDown","ArrowLeft","ArrowUp","ArrowDown"].indexOf(e.code)!=-1) {
-          e.preventDefault();
-          return false;
-      }
-  }
+function promptDialog(question, defval, cb) {
+  var diag = document.createElement("dialog");
+  diag.className = "modal-rename";
+  diag.innerHTML = `
+        <div class="modal-content">
+            <label for="modalInput" style="display:block; margin-bottom:10px; font-weight:bold;">${question}</label>
+            <input type="text" id="modalInput" value="${defval}">
+            <div class="modal-buttons" style="text-align:right;">
+                <button id="btnCancel" class="gray">Cancel</button>
+                <button id="btnOk" class="blue">OK</button>
+            </div>
+        </div>
+    `;  
+
+  document.body.appendChild(diag);
+  diag.showModal();
+  const input = diag.querySelector('#modalInput');
+  const btnOk = diag.querySelector('#btnOk');
+  const btnCancel = diag.querySelector('#btnCancel');
+
+  input.focus();
+  input.select();  
+
+  const validate = () => {
+    cb(input.value)
+    diag.close();
+  };
+
+
+  btnOk.onclick = validate;
+  btnCancel.onclick = () => diag.close();
+
+  input.onkeydown = (evt) => {
+      evt.stopPropagation(); 
+      if (evt.key === "Enter") validate();
+      if (evt.key === "Escape") diag.close();
+  };
+
+  diag.onclose = () => diag.remove();
 }
 
 
