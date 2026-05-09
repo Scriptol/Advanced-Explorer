@@ -457,6 +457,7 @@ function checkSelected() {
   return true;
 }
 
+var zipname="";
 var topZip = function (target) {
 	let namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
@@ -464,20 +465,22 @@ var topZip = function (target) {
 		return;
 	}
 
-	let zipname = document.getElementById("zip").value;
-	if(zipname == null || zipname == '') return;
-	let p = zipname.lastIndexOf(".");
-	if(zipname.substr(p) != ".zip")	zipname += ".zip";
-  let archiver = config.Archiver.input;
-	let a = { 'command': 'archive', 
+	promptDialog("Zip archive name:", `${zipname}`, function(answer) {
+        zipname = noHTMLchars(answer);
+        if(zipname == null || zipname == "") return;
+
+    	let p = zipname.lastIndexOf(".");
+	    if(zipname.substr(p) != ".zip")	zipname += ".zip";
+        let archiver = config.Archiver.input;
+	    let a = { 'command': 'archive', 
             'archiver': archiver,
             'zipname': zipname, 
             'list': namelist,
             'source' : 'lcontent',
             'target': 'rcontent' 
-	};
-
-	sendFromInterface(a);
+	    };
+	    sendFromInterface(a);
+	})
 }
 
 

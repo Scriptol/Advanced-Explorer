@@ -23,9 +23,8 @@
 <div class="ticon"><img src="images/copyren.png" id='tcopyren' alt="Copy/Rename" title="Copy a file/dir with a new name"></div> 
 <div class="ticon"><img src="images/sync.png" id='tsync' title="Synchronize target with source"></div>
 <div class="ticon">
-  <div class="icoprompt">
-    <img class="image" src="images/archive.png" alt="Zip archive"  title="Make a zip archive" 
-        onclick="if(checkSelected()) zipForm.showModal()" >
+    <img class="image" src="images/archive.png" alt="Zip archive"  title="Make a zip archive" onclick="topZip()" >
+<!--
     <dialog id="zipForm">
       <h3>Zip archive</h3>
       <form method="dialog">
@@ -34,8 +33,9 @@
         <button class="gray" id="zipCancel" onclick="zipForm.close()">Cancel</button>
       </form>
     </dialog>
-  </div>
+-->    
 </div>  
+<!--
 <script>
   const zDialog = document.getElementById("zipForm");
   const zipButton = document.getElementById("zipIt");
@@ -44,6 +44,7 @@
     zDialog.close();
   });    
 </script>
+-->
 <div class="ticon"><img src="images/edit.png" id='tedit' title="Open/Close the editor"></div>
 <div class="alignright" style="margin-right:8px;">
 <div class="ticon"><img src="images/options.png" id='topt' title="Setting up A.E."></div>

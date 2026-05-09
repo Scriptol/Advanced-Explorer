@@ -1032,20 +1032,19 @@ function isDirectory(item) {
 */
 
 function getSelectedNames(source) {  
-  var namelist = new Array();
-  var slist = getSelected(source);
+    let namelist = new Array();
+    let slist = getSelected(source);
 
 	for(i = 0; i < slist.length; i++) {
-    var elem = slist[i].innerHTML;
-    var p = elem.indexOf('>');
-    elem = elem.slice(p+1);
-    p = elem.indexOf('<');
-    if(p > 0)
-      elem = elem.slice(0, p);
-    if(elem=='') continue;      
-    namelist.push(elem);
-  }
-  //alert("selection : " + namelist.join(' '));
+        let elem = slist[i].innerHTML;
+        let p = elem.indexOf('>');
+        elem = elem.slice(p+1);
+        p = elem.indexOf('<');
+        if(p > 0)
+        elem = elem.slice(0, p);
+        if(elem=='') continue;      
+        namelist.push(elem);
+    }
 	return namelist;    
 }
 
@@ -1056,19 +1055,19 @@ function getSelectedNames(source) {
 */
 
 function getAllNames(source) {  
-  var namelist = new Array();
-  var slist = getContent(source);
+    let namelist = new Array();
+    let slist = getContent(source);
 
 	for(i = 0; i < slist.length; i++) {
-    var elem = slist[i].innerHTML;
-    var p = elem.indexOf('>');
-    elem = elem.slice(p+1);
-    p = elem.indexOf('<');
-    if(p > 0)
-      elem = elem.slice(0, p);
-    if(elem=='') continue;      
-    namelist.push(elem);
-  }
+        let elem = slist[i].innerHTML;
+        let p = elem.indexOf('>');
+        elem = elem.slice(p+1);
+        p = elem.indexOf('<');
+        if(p > 0)
+            elem = elem.slice(0, p);
+        if(elem=='') continue;      
+        namelist.push(elem);
+    }
 	return namelist;    
 }
 
@@ -1078,7 +1077,7 @@ function getAllNames(source) {
 */  
 
 function selectToDelete(source) {
-  var slist = getSelected(source);
+    let slist = getSelected(source);
 	for(i = 0; i < slist.length; i++)	{
 		var element = slist[i];
     element.style.backgroundColor = 'white';
@@ -1089,8 +1088,8 @@ function selectToDelete(source) {
 
 
 function extractFilename(s) {
-  var p1 = s.indexOf('>');
-  var p2 = s.indexOf('<', p1);
+  let p1 = s.indexOf('>');
+  let p2 = s.indexOf('<', p1);
   if(p2 == -1) p2 = s.length;
   return s.slice(p1 + 1, p2);
 }
@@ -1107,65 +1106,65 @@ function merge(base, nf) {
 */
 
 function compare() {  
-  var source = document.getElementById('lcontent');
-  var total = 0;
-	var left = document.getElementById('lcontentpath').value;
-	var right = document.getElementById('rcontentpath').value;  
+    let source = document.getElementById('lcontent');
+    let total = 0;
+	let left = document.getElementById('lcontentpath').value;
+	let right = document.getElementById('rcontentpath').value;  
 
-  var parent = source.firstChild;
-	var child = parent.firstChild.firstChild; 
+    let parent = source.firstChild;
+	let child = parent.firstChild.firstChild; 
 	while(child) 	{
-    let newer = false;
-    let filename = child.innerHTML;
-    filename = extractFilename(filename);
-    if(filename == ".." || filename == "") {
-      	child = child.nextSibling;
-        continue;
-    };
-    leftpath = merge(left, filename);
-    rightpath = merge(right, filename);
-    if (!fs.existsSync(rightpath)) { 
-      newer = true;
-    }
-    else {
-      let fdesc = fs.statSync(rightpath);
-      if (fdesc && fdesc.isDirectory()) {
-      	child = child.nextSibling;
-        continue;
-      }; 
+        let newer = false;
+        let filename = child.innerHTML;
+        filename = extractFilename(filename);
+        if(filename == ".." || filename == "") {
+      	    child = child.nextSibling;
+            continue;
+        };
+        leftpath = merge(left, filename);
+        rightpath = merge(right, filename);
+        if (!fs.existsSync(rightpath)) { 
+            newer = true;
+        }
+        else {
+            let fdesc = fs.statSync(rightpath);
+            if (fdesc && fdesc.isDirectory()) {
+      	    child = child.nextSibling;
+            continue;
+        }; 
        
-      let daytime = child.querySelector("span").textContent;
-      let day = daytime.slice(-16)
-      let d = day.slice(0,2)
-      let m = day.slice(3,5)
-      let y = day.slice(6,10)
-      day = y + "-" + m + "-" + d;
+        let daytime = child.querySelector("span").textContent;
+        let day = daytime.slice(-16)
+        let d = day.slice(0,2)
+        let m = day.slice(3,5)
+        let y = day.slice(6,10)
+        day = y + "-" + m + "-" + d;
 
-      let nd = day + "T" + daytime.slice(-5) + ":00";
-      let ld = new Date(nd).getTime();
+        let nd = day + "T" + daytime.slice(-5) + ":00";
+        let ld = new Date(nd).getTime();
 
-      var rdate = fs.statSync(rightpath).mtime;
-      var rd = new Date(rdate).getTime();
-      if(parseInt(ld) > parseInt(rd)) newer = true;
+        let rdate = fs.statSync(rightpath).mtime;
+        let rd = new Date(rdate).getTime();
+        if(parseInt(ld) > parseInt(rd)) newer = true;
     }
+    
     if(newer) {
-      child.className = 'entrybold';
-      total++;
+        child.className = 'entrybold';
+        total++;
     }
     else {
-      if(child.className == 'entrybold') 	{
-        child.className="file";  
-      }  
+        if(child.className == 'entrybold') 	{
+            child.className="file";  
+        }  
     }
 
 		child = child.nextSibling;
 	}    
   
-  var s = ""; 
-  if(total > 1) s = "s";
-  const result = total +' file'+s+' updated or missing.';
-
-  console.log(result);
+    let s = ""; 
+    if(total > 1) s = "s";
+    const result = total +' file'+s+' updated or missing.';
+    console.log(result);
 }
 
 /*
