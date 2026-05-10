@@ -671,7 +671,7 @@ var elementRename = function(spanitem, panelName) {
   oldname = noHTMLchars(oldname);
 	
   var diag = document.createElement("dialog");
-  diag.className = "modal-rename";
+  diag.className = "modal-dialog";
 
   diag.innerHTML = `
         <div class="modal-content">

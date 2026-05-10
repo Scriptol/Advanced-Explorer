@@ -448,32 +448,6 @@ a {
 	text-align:center;
 }
 
-#zipForm {
-	color:white;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-    background: #2d2d2d; 	
-    font-size:13px;
- 	border:1px solid #CCC;
-	border-radius:8px;	
-	text-align:left;   
-}
-
-#zipForm  h3 {
-	color: white;
-    background: inherit;	
-	font-size: 16px;
-	margin-top:-6px;
-	margin-bottom:8px;
-	border:none;
-}
-
-#zipForm input {
-	color: white;
-    background:black;	
-	border-radius: 4px;
-	outline: none;		
-}
-
 button {
 	border-radius: 4px;
     color: white;
@@ -524,7 +498,7 @@ button {
 	display:inline-block;
 	line-height:18px;
 }
-
+/*
 #pDialog {
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
@@ -541,7 +515,7 @@ button {
 #pDialog button {
     width:64px;
 } 
-
+*/
 #sDialog {
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
@@ -567,7 +541,7 @@ button {
     margin:0 2px 0 2px;
 } 
 
-.modal-rename {
+.modal-dialog {
     border: 1px solid #444;
     border-radius: 8px;
     padding: 10px;
@@ -577,11 +551,11 @@ button {
     width: 350px;
 }
 
-.modal-rename::backdrop {
-    background:rgba(0, 0, 0, 0.7);
+.modal-dialog::backdrop {
+    background:rgba(0, 0, 0, 0.4);
 }
 
-.modal-rename input[type="text"] {
+.modal-dialog input[type="text"] {
     background: black;
     color: #ffffff;
     border: 1px solid #555;
@@ -592,12 +566,12 @@ button {
     outline: none;
 }
 
-.modal-rename input[type="text"]:focus {
+.modal-dialog input[type="text"]:focus {
     border-color: #0078d4; /* Liseré bleu au focus */
 }
 
 
-.modal-rename label {
+.modal-dialog label {
     font-size: 14px;
     color: #bbb;
 }

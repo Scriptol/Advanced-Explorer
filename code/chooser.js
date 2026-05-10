@@ -649,7 +649,7 @@ function open(element, forcePage) {
 
 function promptDialog(question, defval, cb) {
   var diag = document.createElement("dialog");
-  diag.className = "modal-rename";
+  diag.className = "modal-dialog";
   diag.innerHTML = `
         <div class="modal-content">
             <label for="modalInput" style="display:block; margin-bottom:10px; font-weight:bold;">${question}</label>
@@ -719,24 +719,18 @@ function copyRename(element) {
     var dispname = oldname;
     if(clipBoardFn != "")  dispname = clipBoardFn;
     let realpath = resolveSubstPath(currentpath['rcontent'] + "/" + oldname)
-    let targetpath = dialog.showSaveDialogSync(null, { 
-      title : "Copy/Rename",
-      buttonLabel : "Copy",
-      defaultPath : realpath
-    })
- 
-    if(targetpath == "") return;
-    if(targetpath == undefined) return;
-    var sourcepath = pathJoin(currentpath['lcontent'], oldname);
-    sourcepath = winToUnix(sourcepath)
-    targetpath = winToUnix(targetpath)
 
-    if(sourcepath == targetpath) {
-  	  alert("Can't copy a file over itself!");	
-		  return;
-    }    
-    // send command to Explorer.js
-    var a = { 
+	  promptDialog("Copy under a new namee:", `${realpath}`, function(answer) {
+      targetpath = noHTMLchars(answer);
+      if(targetpath == null || targetpath == "") return;
+      var sourcepath = pathJoin(currentpath['lcontent'], oldname);
+      sourcepath = winToUnix(sourcepath)
+      targetpath = winToUnix(targetpath)
+      if(sourcepath == targetpath) {
+  	    alert("Can't copy a file over itself!");	
+		    return;
+      }  
+	    var a = { 
         'command': 'copyrename', 
         'oldpath': sourcepath, 
         'newpath': targetpath,      
@@ -744,8 +738,8 @@ function copyRename(element) {
         'target' : 'rcontent',
         'isDirectory': isDirectory(element) 
 	    };
-  sendFromInterface(a);	  
-      
+      sendFromInterface(a);	 
+	})      
 }  // function
 
 
