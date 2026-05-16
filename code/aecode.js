@@ -1,6 +1,5 @@
 /* AECode, client side  code for Advanced Explorer
-   (c) 2012-2025 Denis Sureau - License GPL 3 */
-
+   (c) 2012-2026 Denis Sureau - License GPL 3 */
 
 
 var leftpanel = document.getElementById("lpane");
@@ -307,17 +306,17 @@ function getExtension(filename) {
 }
 
 function getCurrentDirectory(target) {
-  var panel = target + 'path';
-  var path = document.getElementById(panel).value;
-  var p = path.lastIndexOf('/');
+  const panel = target + 'path';
+  const path = document.getElementById(panel).value;
+  const p = path.lastIndexOf('/');
   return path.slice(p + 1);
 }
 
 function setSortMode(panel, value) {
   AExplorerSort[panel] = value;
-  var panelpath = panel + "path";
-	var xid = document.getElementById(panelpath);
-	var a = { 'command': 'godir', 'path': xid.value, 'target': panel };
+  const panelpath = panel + "path";
+	const xid = document.getElementById(panelpath);
+	const a = { 'command': 'godir', 'path': xid.value, 'target': panel };
 	sendFromInterface(a);  
 }
 
@@ -368,7 +367,7 @@ function addListMenu(element, panel) {
 /* Data exchange file */
 
 function buildXData(target) {
-  var xdata = {};
+  let xdata = {};
   xdata['source']= {}
   xdata['target'] = {}  
 
@@ -384,7 +383,7 @@ function buildXData(target) {
     xdata.target['path'] = document.getElementById("rcontentpath").value;
     xdata.target['list'] = getSelectedNames('rcontent');
   }
-  var a = { 
+  const a = { 
 	      'command': 'store', 
 				'filename': "xdata.js",
 				'content' : "var xdata =" + JSON.stringify(xdata, " "),
@@ -400,26 +399,23 @@ function buildXData(target) {
 
 var topInvert = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-	var x = document.getElementById('lcontentpath');
-	var y = document.getElementById('rcontentpath');
-	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
-	sendFromInterface(a);
-
-	var a = { 'command': 'godir', 'path': y.value, 'target': 'lcontent' };
+	const x = document.getElementById('lcontentpath');
+	const y = document.getElementById('rcontentpath');
+	const a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
 	sendFromInterface(a);
 }
 
 var topDup = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-	var x = document.getElementById('lcontentpath');
-	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
+	const x = document.getElementById('lcontentpath');
+	const a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
 	sendFromInterface(a);
 }
 
 
 var topCopy = function () {
   if(document.getElementById('dirpane').style.display=="none")	return;
-	var namelist = getSelectedNames('lcontent');
+	let namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
 		alert("No dir/file selected in left panel");
 		return;
@@ -428,19 +424,19 @@ var topCopy = function () {
         keyUnzip()
         return;
     }
-	var left = document.getElementById('lcontentpath').value;
-	var right = document.getElementById('rcontentpath').value;
+	let left = document.getElementById('lcontentpath').value;
+	let right = document.getElementById('rcontentpath').value;
 	if(left == right) {
 		alert("Can't copy a file over itself!");
 		return;
 	}
 
-	var a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
+	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
 	sendFromInterface(a);
 }
 
 var topCopyRename = function() {
-  var namelist = getSelected('lcontent');
+  let namelist = getSelected('lcontent');
 	if(namelist.length != 1) {
 	  alert("Select just one file to copy under a new name");
 	  return;
@@ -501,14 +497,14 @@ var topSync = function (target) {
     return;
   }  
   
-  var allFlag = false;
-	var nameList = getSelectedNames('lcontent');
+  let allFlag = false;
+	let nameList = getSelectedNames('lcontent');
 	if(nameList.length == 0) {
 		allFlag = true; 
 	}
   
-  var lc = document.getElementById('lcontent');
-  var d = document.createElement('iframe');
+  let lc = document.getElementById('lcontent');
+  let d = document.createElement('iframe');
   d.src="synchronizer.html";   
   lc.removeChild(lc.firstChild);
   lc.appendChild(d);
@@ -517,7 +513,7 @@ var topSync = function (target) {
   d.style.border = "0";
   d.id = 'syncframe';   
 
-	var fcontent = (d.contentWindow || d.contentDocument);
+	let fcontent = (d.contentWindow || d.contentDocument);
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
   fcontent.allFlag = allFlag;
@@ -526,12 +522,12 @@ var topSync = function (target) {
 
 
 function displayEditor(data, fromTop) {               
-  var dpane = document.getElementById('dirpane');
-	var epane = document.getElementById('editpane');
-	var edfra = document.getElementById('editor');
-	var opane = document.getElementById('optpane');
-	var framedit = document.getElementById("editor");
-	var fc = (framedit.contentWindow || framedit.contentDocument);
+  let dpane = document.getElementById('dirpane');
+	let epane = document.getElementById('editpane');
+	let edfra = document.getElementById('editor');
+	let opane = document.getElementById('optpane');
+	let framedit = document.getElementById("editor");
+	let fc = (framedit.contentWindow || framedit.contentDocument);
 	if(epane.style.display=="none")	{ 
     dpane.style.display = "none";
     opane.style.display = "none";
@@ -555,7 +551,7 @@ var topEdit = function() {
 }
 
 function updateIni() {
-  var a = { 
+  const a = { 
       'command': 'updateIni',
       'path': 'aexplorer.ini.js', 
       'target': null  
@@ -564,20 +560,20 @@ function updateIni() {
 }
 
 var topSetup = function() {
-	var dpane = document.getElementById('dirpane');
-	var epane = document.getElementById('editpane');
-	var opane = document.getElementById('optpane');
+	const dpane = document.getElementById('dirpane');
+	const epane = document.getElementById('editpane');
+	const opane = document.getElementById('optpane');
 
 	if(opane.style.display=="none") {
     epane.style.display = "none";
 		dpane.style.display = "none";
 		opane.style.display = "block";
 
-    var framed = document.getElementById("editor");
-    var fc = (framed.contentWindow || framed.contentDocument);
+    const framed = document.getElementById("editor");
+    const fc = (framed.contentWindow || framed.contentDocument);
 
-    var frameopt = document.getElementById("options");
-    var oc = (frameopt.contentWindow || frameopt.contentDocument);
+    const frameopt = document.getElementById("options");
+    let oc = (frameopt.contentWindow || frameopt.contentDocument);
     oc.iniSetup(config, 'aexplorer.ini.js');
     return;
 	}
@@ -588,7 +584,7 @@ var topSetup = function() {
 }
 
 var topHelp = function (target) {
-  var a = { 
+  let a = { 
         'command': 'viewtext',
         'path': 'https://www.scriptol.com/scripts/advanced-explorer-manual.php', 
         'target': null,
@@ -605,18 +601,18 @@ var topQuit = function (target) {
 //	Panel Events building
 
 var panelReload = function (target) {
-	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
+	let a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
   sendFromInterface(a);
 }
 
 var panelHome = function (target) {
-  var panel = target + 'path';
-  var c = document.getElementById(panel).value;
-  var np = '/';
+  let panel = target + 'path';
+  let c = document.getElementById(panel).value;
+  let np = '/';
   if(c.length > 2)
     if(c.charAt(1) == ':') np = c.slice(0,3);
 
-	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target, "dot": dotFlag() };
+	let a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
@@ -625,22 +621,22 @@ var panelUp = function(target) {
     panelReload(target);
     return;
   }
-	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target, "dot": dotFlag() };
+	let a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
 var panelCreate = function(target) { 
-	var newname = promptDialog("Name of the new folder:", '', function(answer) {
-    var newname = noHTMLchars(answer);
+	  promptDialog("Name of the new folder:", '', function(answer) {
+    let newname = noHTMLchars(answer);
     if(newname == null || newname == "") return;
-    var a = { 'command': 'mkdir', 'target': target, "newname": newname, "dot": dotFlag() };
+    let a = { 'command': 'mkdir', 'target': target, "newname": newname, "dot": dotFlag() };
 	  sendFromInterface(a);
   });
 }
 
 // check if a new name may be given
 function alreadyInList(parent, name) {
-	var child = parent.firstChild; // child of flist
+	let child = parent.firstChild; // child of flist
 	while(child) 	{
     if(getNameSelected(child) == name)  return true;
 		child = child.nextSibling;
@@ -650,7 +646,7 @@ function alreadyInList(parent, name) {
 
 
 function acceptRename(oldname, newname, target) {
-	var a = { 
+	let a = { 
     'command': 'rename', 
     'target': target, 
     'oldname': oldname, 
@@ -662,63 +658,25 @@ function acceptRename(oldname, newname, target) {
 
 
 var elementRename = function(spanitem, panelName) {
-	var saved = spanitem.innerHTML;
-	var p1 = saved.indexOf('>');
-	var p2 = saved.indexOf('<', p1);
+	let saved = spanitem.innerHTML;
+	let p1 = saved.indexOf('>');
+	let p2 = saved.indexOf('<', p1);
   if(p2 == -1)  p2 = saved.length;
 	
-  var oldname = saved.slice(p1 + 1, p2);
+  let oldname = saved.slice(p1 + 1, p2);
   oldname = noHTMLchars(oldname);
-	
-  var diag = document.createElement("dialog");
-  diag.className = "modal-dialog";
 
-  diag.innerHTML = `
-        <div class="modal-content">
-            <label for="modalInput" style="display:block; margin-bottom:10px; font-weight:bold;">Rename to:</label>
-            <input type="text" id="modalInput" value="${oldname}">
-            <div class="modal-buttons" style="text-align:right;">
-                <button id="btnCancel" class="gray">Cancel</button>
-                <button id="btnOk" class="blue">OK</button>
-            </div>
-        </div>
-    `;  
+	promptDialog("Enter a new name :", `${oldname}`, function(answer) {
+    let newname = noHTMLchars(answer);
+    if(newname == null || newname == "" || newname == oldname) return;
+    if (alreadyInList(spanitem.parentNode, newname)) {
+        alert("Name already used");
+        return;
+    } 
+    spanitem.innerHTML = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
+    acceptRename(oldname, newname, panelName);    
+  });  
 
-  document.body.appendChild(diag);
-  diag.showModal();
-  const input = diag.querySelector('#modalInput');
-  const btnOk = diag.querySelector('#btnOk');
-  const btnCancel = diag.querySelector('#btnCancel');
-
-  input.focus();
-  input.select();  
-
-  const validate = () => {
-    let newname = input.value;
-    if (newname && newname !== oldname) {
-      if (alreadyInList(spanitem.parentNode, newname)) {
-          alert("Name already used");
-            return;
-      } 
-      else {
-        acceptRename(oldname, newname, panelName);
-        spanitem.innerHTML = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-      }
-    }
-    diag.close();
-  };
-
-
-  btnOk.onclick = validate;
-  btnCancel.onclick = () => diag.close();
-
-  input.onkeydown = (evt) => {
-      evt.stopPropagation(); 
-      if (evt.key === "Enter") validate();
-      if (evt.key === "Escape") diag.close();
-  };
-
-  diag.onclose = () => diag.remove();
 }
 
 

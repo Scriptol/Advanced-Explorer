@@ -498,30 +498,15 @@ button {
 	display:inline-block;
 	line-height:18px;
 }
-/*
-#pDialog {
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #666;
-    border-bottom: 1px solid #666;
-    border-radius:6px;
-    padding:16px 16px 16px 16px;
-}    
-#pDialog menu {
-    text-align:right;
-    padding:0;
-    margin:12px 0 0 0;
-} 
-#pDialog button {
-    width:64px;
-} 
-*/
+
 #sDialog {
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
     border-right: 1px solid #666;
     border-bottom: 1px solid #666;
     border-radius:6px;
+	background: #333;
+	color: white;
     padding:16px;
 } 
 
@@ -539,6 +524,8 @@ button {
 #sDialog button {
     width:96px;
     margin:0 2px 0 2px;
+	background:#666;
+	color:white;
 } 
 
 .modal-dialog {

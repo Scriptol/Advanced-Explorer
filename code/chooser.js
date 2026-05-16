@@ -661,8 +661,10 @@ function promptDialog(question, defval, cb) {
         </div>
     `;  
 
+  
   document.body.appendChild(diag);
   diag.showModal();
+
   const input = diag.querySelector('#modalInput');
   const btnOk = diag.querySelector('#btnOk');
   const btnCancel = diag.querySelector('#btnCancel');
@@ -679,13 +681,18 @@ function promptDialog(question, defval, cb) {
   btnOk.onclick = validate;
   btnCancel.onclick = () => diag.close();
 
-  input.onkeydown = (evt) => {
-      evt.stopPropagation(); 
+  input.addEventListener("keydown", evt => {
+      evt.stopPropagation();
       if (evt.key === "Enter") validate();
       if (evt.key === "Escape") diag.close();
-  };
+  });
 
-  diag.onclose = () => diag.remove();
+  diag.addEventListener("close", () => {
+    setTimeout(() => {
+        diag.remove();
+        editor.focus();
+    }, 0);
+  });
 }
 
 
@@ -720,7 +727,7 @@ function copyRename(element) {
     if(clipBoardFn != "")  dispname = clipBoardFn;
     let realpath = resolveSubstPath(currentpath['rcontent'] + "/" + oldname)
 
-	  promptDialog("Copy under a new namee:", `${realpath}`, function(answer) {
+	  promptDialog("Copy under a new name:", `${realpath}`, function(answer) {
       targetpath = noHTMLchars(answer);
       if(targetpath == null || targetpath == "") return;
       var sourcepath = pathJoin(currentpath['lcontent'], oldname);
@@ -740,7 +747,7 @@ function copyRename(element) {
 	    };
       sendFromInterface(a);	 
 	})      
-}  // function
+}  
 
 
 function elementClip(element) {
@@ -784,6 +791,16 @@ function rsel(element) {
   d.className = 'ctxmenu';
   d.style.left = xMousePosition + "px";
   d.style.top = yMousePosition + "px";
+
+  requestAnimationFrame(() => {
+    const menuHeight = d.offsetHeight;
+    const viewportHeight = window.innerHeight;
+
+    if (yMousePosition + menuHeight > viewportHeight) {
+        d.style.top = (viewportHeight - menuHeight - 10) + "px"; 
+    }
+  });  
+
   d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
   d.onmouseleave = function(e) { 
     this.style.display='none'; 
@@ -883,6 +900,16 @@ function dsel(element) {
   d.className = 'ctxmenu';
   d.style.left = xMousePosition + "px";
   d.style.top = yMousePosition + "px";
+
+  requestAnimationFrame(() => {
+    const menuHeight = d.offsetHeight;
+    const viewportHeight = window.innerHeight;
+
+    if (yMousePosition + menuHeight > viewportHeight) {
+        d.style.top = (viewportHeight - menuHeight - 10) + "px"; 
+    }
+  });  
+
   d.onmouseover = function(e) { this.style.cursor = 'pointer'; } 
   d.onmouseleave = function(e) { 
     this.style.display='none'; 
@@ -1184,6 +1211,7 @@ document.onkeyup=function(evt) {
   if(!evt.shiftKey) isSHIFT = false;
 }
 
+/*
 document.onkeydown=function(evt) {
   evt.shiftKey == true ? isSHIFT = true : isSHIFT = false;
   switch(evt.code)  {  
@@ -1215,4 +1243,32 @@ document.onkeydown=function(evt) {
   isCTRL = false;
   return true;
 }
+*/
+document.onkeydown = function(evt) {
+    const tag = evt.target.tagName.toLowerCase();
+    const editable = evt.target.isContentEditable;
+    const isAceInput = evt.target.classList.contains("ace_text-input");
+
+    if (tag === "input" || tag === "textarea" || editable || isAceInput) {
+      return; 
+  }
+
+    switch(evt.code) {
+        case "ArrowLeft":
+        case "ArrowUp":
+        case "ArrowDown":
+            evt.preventDefault();
+            passHandler(evt, evt.code);
+            return;
+    }
+
+    if (evt.ctrlKey) {
+        switch(evt.code) {
+            case "KeyU":
+                evt.preventDefault();
+                passHandler(evt, evt.code);
+                return;
+        }
+    }
+};
 
