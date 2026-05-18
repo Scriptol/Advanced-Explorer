@@ -399,10 +399,12 @@ function buildXData(target) {
 
 var topInvert = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-	const x = document.getElementById('lcontentpath');
-	const y = document.getElementById('rcontentpath');
-	const a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
+	const l = document.getElementById('lcontentpath');
+	const r = document.getElementById('rcontentpath');
+	const a = { 'command': 'godir', 'path': l.value, 'target': 'rcontent' };
 	sendFromInterface(a);
+	const b = { 'command': 'godir', 'path': r.value, 'target': 'lcontent' };
+	sendFromInterface(b);  
 }
 
 var topDup = function (target) {
