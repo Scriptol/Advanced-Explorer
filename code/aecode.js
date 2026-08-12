@@ -1,59 +1,64 @@
 /* AECode, client side  code for Advanced Explorer
-   (c) 2012-2020 Denis Sureau - License GPL 3 */
+   (c) 2012-2026 Denis Sureau - License GPL 3 */
 
 var leftpanel = document.getElementById("lpane");
 var rightpanel = document.getElementById("rpane");
 var currpanel = leftpanel;
 var AExplorerDrag = {'lcontent': true, 'rcontent':false };
 var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
-var AERoot = null;
 
 function sameDir() {
-  var l = document.getElementById('lcontentpath').value;
-  var r = document.getElementById('rcontentpath').value;
+  const l = document.getElementById('lcontentpath').value;
+  const r = document.getElementById('rcontentpath').value;
   return(l == r);
 }
 
+let copyUpdateTimer = null;
 function showNotification(jobj) {
-	var action = jobj.action;
-	var target = jobj.target;
-	switch(action) 	{
-   case 'update':
+	switch(jobj.action) 	{
+    case 'update':
+      const target = jobj.target;  
       if(sameDir()) {
           panelReload('lcontent');
-          target = 'rcontent';
+          panelReload('rcontent');
+          return;
       }
 			panelReload(target);
 			break;
-	 default:
+    case 'differed':
+      if (copyUpdateTimer) {
+        clearTimeout(copyUpdateTimer);
+      }
+      copyUpdateTimer = setTimeout(function() { 
+        panelReload('rcontent');
+        copyUpdateTimer = null; 
+      }, 1500);
+  	 default:
 	}
 }
 
 function socketConfirm(jo) {
-	var answer = confirm(jo.question);
+	confirmDialog(jo.question, function(answer) {
+    if(answer === false) return;
     switch(jo.command) {
-    case "copyover":
-        if(answer===true) {
-        var a = { 'command': 'copyover', 'source': jo.path, 'target': jo.tpath };
-	        sendFromInterface(a);
-        }
+      case "copyover":
+	      sendFromInterface({ 'command': 'copyover', 'source': jo.path, 'target': jo.tpath });
+        copyUpdateTimer = null
         break;
-    case "createdir":
-      	if(answer===true) {
-	        var a = { 'command': 'mkdir', 'target': jo.tpath, "dot": dotFlag() };
-	        sendFromInterface(a);
-	    };
+      case "createdir":
+	      sendFromInterface({ 'command': 'mkdir', 'target': jo.tpath, "dot": dotFlag() });
         break;
-    default:
-         break;   
-  }
+      default:
+        break;   
+    }      
+  });
 }
 
 function socketImage(jobj) {
-  var store = document.getElementById('rcontent');
-	var imagepath = jobj.path;
-	var ext = jobj.ext.slice(1);
-	var i = 2;
+  let store = document.getElementById('rcontent');
+	let imagepath = jobj.path;
+	let ext = jobj.ext.slice(1);
+	let i = 2;
 	switch(ext.toLowerCase()) {
 		case "png": i = 0;break;
 		case "gif": i = 1;break;
@@ -61,36 +66,32 @@ function socketImage(jobj) {
 			ext = 'jpeg';
 	}
   
-  var inner = document.createElement('div');
+  let inner = document.createElement('div');
   store.innerHTML ='';
   store.appendChild(inner);
   inner.className='divimage';
 
-  //var canvas = document.createElement("iframe");
-  //canvas.setAttribute("style", "border:none;");
-  //canvas.setAttribute("scrolling", "no");  
-  var canvas = document.createElement("canvas");
+  let canvas = document.createElement("canvas");
   canvas.setAttribute("id", "canvasid");
   canvas.onclick=function() { 
-    var a = { 'command': 'viewtext', 'path': imagepath, 'target': 0, 'ext': ext};
-    sendFromInterface(a);    
+    sendFromInterface({ 'command': 'viewtext', 'path': imagepath, 'target': 0, 'ext': ext});    
   };
   
-  var image=new Image();
+  let image=new Image();
 
   image.onload=function() { 
-    var w = image.width;
-    var h = image.height;
-    var cw = store.scrollWidth;
-    var ch = store.scrollHeight;
+    let w = image.width;
+    let h = image.height;
+    let cw = store.scrollWidth;
+    let ch = store.scrollHeight;
 
-    var scalew = 1;
-    var scaleh = 1;
-    var ow = w;
-    var oh = h;
+    let scalew = 1;
+    let scaleh = 1;
+    let ow = w;
+    let oh = h;
 
-    var imgratio = h / w;
-    var scnratio = ch / cw;
+    let imgratio = h / w;
+    let scnratio = ch / cw;
 
     if(imgratio > scnratio)  // to be aligned on height
     {
@@ -111,16 +112,15 @@ function socketImage(jobj) {
       }   
     }
 
-
-    //alert(scalew + ' ' + cw + "/" + w + "  " + scaleh + " " + ch + "/"+ h);
+    
     if(h < ch)
     {
-      var offseth = (ch - h) / 2;
+      let offseth = (ch - h) / 2;
       inner.style.marginTop = offseth + "px";
     }
     if(w < cw)
     {
-      var offsetw = (cw - w) / 2;
+      let offsetw = (cw - w) / 2;
       inner.style.marginLeft = offsetw + "px";
     }
 
@@ -132,22 +132,21 @@ function socketImage(jobj) {
 
     inner.appendChild(canvas);
     
-    var context = canvas.getContext("2d");
+    let context = canvas.getContext("2d");
     context.scale(scalew, scaleh);
     context.drawImage(image, 0, 0);
-    var model = "";
-    var focale = "";
-    var zoom = "";
-    var exposition = "";
-    var iso = "";
-    var ouverture = "";
-    var pmode = "";
-
+    let model = "";
+    let focale = "";
+    let zoom = "";
+    let exposition = "";
+    let iso = "";
+    let ouverture = "";
+    let pmode = "";
  
-    var message = imagepath + ", " + ow + " x " + oh + " px";
+    let message = imagepath + ", " + ow + " x " + oh + " px";
 
     updateStatusBar(message);
-    var exiff = true;
+    let exiff = true;
     EXIF.getData(image, function() {
       iso = EXIF.getTag(this, "ISOSpeedRatings");
       if(iso === undefined) {
@@ -184,14 +183,12 @@ function socketImage(jobj) {
       }
     });    
     if(!exiff) return;
-    var exif = ` &nbsp;&nbsp;  - &nbsp;&nbsp;   ${model} &nbsp;&nbspF/${focale} &nbsp;&nbsp${zoom} &nbsp;&nbsp${exposition}s &nbsp;&nbspISO ${iso} &nbsp;&nbsp${pmode} `;
+    let exif = ` &nbsp;&nbsp;  - &nbsp;&nbsp;   ${model} &nbsp;&nbspF/${focale} &nbsp;&nbsp${zoom} &nbsp;&nbsp${exposition}s &nbsp;&nbspISO ${iso} &nbsp;&nbsp${pmode} `;
     document.getElementById('status').innerHTML += exif;
     return;
   };
 
-	image.src = 'data:image/'+ext+';base64, ' + jobj.content;
-	// using the file path does not work locally with Chrome
-  //image.src = "file:///" + imagepath;
+	image.src = 'data:image/'+ext+';base64, ' + jobj.content; 
 }
 
 var leftFiles;
@@ -202,7 +199,7 @@ var rightDirs;
 var rightSize;
 
 function processDirdata(jobj) {
-  var target = jobj.target;
+  const target = jobj.target;
   fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
 }
@@ -213,7 +210,7 @@ function updateStatusBar(message) {
 }
 
 ipcRenderer.on('stats', (event, data) => {
-  var jobj = JSON.parse(data);
+  let jobj = JSON.parse(data);
   if(jobj.target == 'lcontent') {
      leftDirs = jobj.dirs;
      leftFiles = jobj.files;
@@ -225,12 +222,12 @@ ipcRenderer.on('stats', (event, data) => {
      rightSize = jobj.size;
    }
   
-   var lpd = leftDirs > 1 ? 's, ' : ', ';
-   var lpf = leftFiles > 1 ? 's, ' : ', ';
-   var rpd = rightDirs > 1 ? 's, ' : ', ';
-   var rpf = rightFiles > 1 ? 's, ' : ', ';
+   let lpd = leftDirs > 1 ? 's, ' : ', ';
+   let lpf = leftFiles > 1 ? 's, ' : ', ';
+   let rpd = rightDirs > 1 ? 's, ' : ', ';
+   let rpf = rightFiles > 1 ? 's, ' : ', ';
         
-   var stats = "<span class='lstats'>"
+   let stats = "<span class='lstats'>"
         + leftDirs + " dir" + lpd
         + leftFiles + " file" + lpf
         + leftSize + " bytes.</span><span class='rstats'>"
@@ -242,7 +239,7 @@ ipcRenderer.on('stats', (event, data) => {
 
 
 ipcRenderer.on('interface', (event, data) => {
-  var jobj = JSON.parse(data);
+  let jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'notification':
         showNotification(jobj);
@@ -257,29 +254,30 @@ ipcRenderer.on('interface', (event, data) => {
         displayEditor(jobj, false);
         break;
     case 'message':
-        alert(jobj.content); 
+        alertDialog(jobj.content); 
         break;    
     case 'status':
         updateStatusBar(jobj.content);
-        break;    
-    case 'image':
+        break;
+    case 'synchro'        :
+        const ifr = document.getElementById("syncframe");
+        const page = (ifr.contentWindow || ifr.contentDocument);
+        const storage = page.document.getElementById("syncresult");
+	      storage.innerHTML = jobj.content;
+        break;
+    case 'image': 
         socketImage(jobj);
         break; 
     case 'dirinfo':
-        dialog.showMessageBoxSync({
-          title:"Directory information on content",
-          buttons: ["Ok"],
-          message: jobj.content
-        });
-        //alert(jobj.content);
+        alertDialog("Size of selected elements : " + jobj.content); 
         break;
     case 'updateIni':
         eval(jobj.content);
         break;
     case 'mouse':
-        var lp = document.getElementById('lcontent');
+        let lp = document.getElementById('lcontent');
         if (lp.style) lp.style.cursor=jobj.pointer;
-        var rp = document.getElementById('rcontent');
+        let rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
  
@@ -288,7 +286,7 @@ ipcRenderer.on('interface', (event, data) => {
         break;
   
     default:
-        //alert("AECode Message '" + jobj.type + "' not handled here.");    
+        
   }
 });
 
@@ -297,25 +295,23 @@ ipcRenderer.on('interface', (event, data) => {
   Utilities
 */
 
-function getExtension(filename)
-{
-  var p = filename.lastIndexOf('.');
+function getExtension(filename) {
+  let p = filename.lastIndexOf('.');
   return filename.slice(p + 1);
 }
 
-function getCurrentDirectory(target)
-{
-  var panel = target + 'path';
-  var path = document.getElementById(panel).value;
-  var p = path.lastIndexOf('/');
+function getCurrentDirectory(target) {
+  const panel = target + 'path';
+  const path = document.getElementById(panel).value;
+  const p = path.lastIndexOf('/');
   return path.slice(p + 1);
 }
 
 function setSortMode(panel, value) {
   AExplorerSort[panel] = value;
-  var panelpath = panel + "path";
-	var xid = document.getElementById(panelpath);
-	var a = { 'command': 'godir', 'path': xid.value, 'target': panel };
+  const panelpath = panel + "path";
+	const xid = document.getElementById(panelpath);
+	const a = { 'command': 'godir', 'path': xid.value, 'target': panel };
 	sendFromInterface(a);  
 }
 
@@ -324,12 +320,12 @@ function setSortMode(panel, value) {
 */
 
 function addListMenu(element, panel) {
-  var id = panel + "ctxm"; 
-  var x = document.getElementById(id);
+  let id = panel + "ctxm"; 
+  let x = document.getElementById(id);
   if(x) x.parentNode.removeChild(x); 
   
-  var parent = element.parentNode; 
-  var d = document.createElement('div');
+  let parent = element.parentNode; 
+  let d = document.createElement('div');
   parent.appendChild(d);
   
   d.id = id;
@@ -343,19 +339,19 @@ function addListMenu(element, panel) {
     catch(e) {}   
   };
   
-  var p = document.createElement('p');
+  let p = document.createElement('p');
   d.appendChild(p);
   p.onclick=function() { setSortMode(panel, 2); };
   p.setAttribute('class', 'ctxline');
   p.innerHTML = "Sort by dates"; 
   
-  var p2 = document.createElement('p');
+  let p2 = document.createElement('p');
   d.appendChild(p2);
   p2.onclick=function() { setSortMode(panel, 1); };
   p2.setAttribute('class', 'ctxline');
   p2.innerHTML = "Sort by sizes"; 
 
-  var p3 = document.createElement('p');
+  let p3 = document.createElement('p');
   d.appendChild(p3);
   p3.onclick=function() { setSortMode(panel, 0); };
   p3.setAttribute('class', 'ctxline');
@@ -366,23 +362,23 @@ function addListMenu(element, panel) {
 /* Data exchange file */
 
 function buildXData(target) {
-  var xdata = {};
+  let xdata = {};
   xdata['source']= {}
   xdata['target'] = {}  
 
   if(target == "lcontent") {
     xdata.source['path'] = document.getElementById("lcontentpath").value;
     xdata.source['list'] = getSelectedNames('lcontent');
-    xdata.target['path'] = "";
+    xdata.target['path'] = document.getElementById("rcontentpath").value;
     xdata.target['list'] = "";    
   }
   else {
-    xdata.source['path'] = "";
+    xdata.source['path'] = document.getElementById("lcontentpath").value;
     xdata.source['list'] = "";
     xdata.target['path'] = document.getElementById("rcontentpath").value;
     xdata.target['list'] = getSelectedNames('rcontent');
   }
-  var a = { 
+  const a = { 
 	      'command': 'store', 
 				'filename': "xdata.js",
 				'content' : "var xdata =" + JSON.stringify(xdata, " "),
@@ -396,81 +392,105 @@ function buildXData(target) {
 	Top Events building
 */
 
-var topInvert = function (target) {
-	if(document.getElementById('dirpane').style.display=="none")	return;
-	var x = document.getElementById('lcontentpath');
-	var y = document.getElementById('rcontentpath');
-	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
-	sendFromInterface(a);
 
-	var a = { 'command': 'godir', 'path': y.value, 'target': 'lcontent' };
-	sendFromInterface(a);
+var topInvert = function () {
+	if(document.getElementById('dirpane').style.display=="none")	return;
+	const l = document.getElementById('lcontentpath');
+	const r = document.getElementById('rcontentpath');
+	const a = { 'file': '', 'command': 'getdir', 'path': l.value,  'target': 'rcontent', 'dot': dotFlag()  };
+  sendFromInterface(a);
+	const b = { 'file': '', 'command': 'getdir', 'path': r.value,  'target': 'lcontent', 'dot': dotFlag()  };
+  sendFromInterface(b);
+}
+
+var panelReload = function (target) {
+	let a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
+  sendFromInterface(a);
 }
 
 var topDup = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
-	var x = document.getElementById('lcontentpath');
-	var a = { 'command': 'godir', 'path': x.value, 'target': 'rcontent' };
-	sendFromInterface(a);
+	const l = document.getElementById('lcontentpath');
+  const b = { 'file': '', 'command': 'getdir', 'path': l.value,  'target': 'rcontent', 'dot': dotFlag()  };  
+	sendFromInterface(b);
 }
 
-
 var topCopy = function () {
-	if(document.getElementById('dirpane').style.display=="none")	return;
-	var namelist = getSelectedNames('lcontent');
+  if(document.getElementById('dirpane').style.display=="none")	return;
+	let namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
-		alert("No dir/file selected in left panel");
+		alertDialog("No dir/file selected in left panel");
 		return;
 	}
     if(insidezip['lcontent']) {
         keyUnzip()
         return;
     }
-	var left = document.getElementById('lcontentpath').value;
-	var right = document.getElementById('rcontentpath').value;
+	let left = document.getElementById('lcontentpath').value;
+	let right = document.getElementById('rcontentpath').value;
 	if(left == right) {
-		alert("Can't copy a file over itself!");
+		alertDialog("Can't copy a file over itself!");
 		return;
 	}
 
-	var a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
+	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
 	sendFromInterface(a);
+
 }
 
 var topCopyRename = function() {
-  var namelist = getSelected('lcontent');
+  let namelist = getSelected('lcontent');
 	if(namelist.length != 1) {
-	  alert("Select just one file to copy under a new name");
+	  alertDialog("Select just one file to copy under a new name");
 	  return;
 	} 
   copyRename(namelist[0]);
 }  
 
-var topZip = function (target) {
-	if(document.getElementById('dirpane').style.display=="none")	return;
-
-	var namelist = getSelectedNames('lcontent');
+function checkSelected() {
+  let namelist = getSelectedNames('lcontent');
 	if(namelist.length == 0) {
-		alert("No dir/file selected in left panel");
+		alertDialog("No dir/file selected in left panel");
+		return false;
+	}
+  return true;
+}
+
+let zipname="";
+var topZip = function (target) {
+	let namelist = getSelectedNames('lcontent');
+	if(namelist.length == 0) {
+		alertDialog("No dir/file selected in left panel");
 		return;
 	}
 
-	var zipname = document.getElementById("zip").value;
-	if(zipname == null || zipname == '') return;
-	var p = zipname.lastIndexOf(".");
-	if(zipname.substr(p) != ".zip")	zipname += ".zip";
+	promptDialog("Zip archive name:", `${zipname}`, function(answer) {
+    if(answer == false)  return;
+    zipname = noHTMLchars(answer);
+    if(zipname == "") return;
 
-  var archiver = config.Archiver.input;
-
-	var a = { 'command': 'archive', 
-            'archiver': archiver,
-            'zipname': zipname, 
-            'list': namelist,
-            'source' : 'lcontent',
-            'target': 'rcontent' 
-	};
-	sendFromInterface(a);
+    let p = zipname.lastIndexOf(".");
+	  if(zipname.substr(p) != ".zip")	zipname += ".zip";
+    let archiver = config.Archiver.input;
+	  let a = { 'command': 'archive', 
+      'archiver': archiver,
+      'zipname': zipname, 
+      'list': namelist,
+      'source' : 'lcontent',
+      'target': 'rcontent' 
+	  };
+    sendFromInterface(a);
+	})
 }
+
+
+
+var topComp = function (target) { 
+	if(document.getElementById('dirpane').style.display=="none")	return;
+  compare(); 
+  document.getElementById('lcontentlist').focus();
+}
+
 
 var topSync = function (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
@@ -482,14 +502,14 @@ var topSync = function (target) {
     return;
   }  
   
-  var allFlag = false;
-	var nameList = getSelectedNames('lcontent');
+  let allFlag = false;
+	let nameList = getSelectedNames('lcontent');
 	if(nameList.length == 0) {
 		allFlag = true; 
 	}
   
-  var lc = document.getElementById('lcontent');
-  var d = document.createElement('iframe');
+  let lc = document.getElementById('lcontent');
+  let d = document.createElement('iframe');
   d.src="synchronizer.html";   
   lc.removeChild(lc.firstChild);
   lc.appendChild(d);
@@ -498,7 +518,7 @@ var topSync = function (target) {
   d.style.border = "0";
   d.id = 'syncframe';   
 
-	var fcontent = (d.contentWindow || d.contentDocument);
+	let fcontent = (d.contentWindow || d.contentDocument);
 	fcontent.sourcepath = document.getElementById('lcontentpath').value;
 	fcontent.targetpath = document.getElementById('rcontentpath').value;
   fcontent.allFlag = allFlag;
@@ -507,12 +527,12 @@ var topSync = function (target) {
 
 
 function displayEditor(data, fromTop) {               
-  var dpane = document.getElementById('dirpane');
-	var epane = document.getElementById('editpane');
-	var edfra = document.getElementById('editor');
-	var opane = document.getElementById('optpane');
-	var framedit = document.getElementById("editor");
-	var fc = (framedit.contentWindow || framedit.contentDocument);
+  let dpane = document.getElementById('dirpane');
+	let epane = document.getElementById('editpane');
+	let edfra = document.getElementById('editor');
+	let opane = document.getElementById('optpane');
+	let framedit = document.getElementById("editor");
+	let fc = (framedit.contentWindow || framedit.contentDocument);
 	if(epane.style.display=="none")	{ 
     dpane.style.display = "none";
     opane.style.display = "none";
@@ -520,13 +540,12 @@ function displayEditor(data, fromTop) {
     edfra.style.display = "block";
     fc.display(data);
 	}
-	else // closing
-	{
+	else 	{   // closing
+    fc.setActiveRow();
     epane.style.display = "none";
 		edfra.style.display = "none";
-		dpane.style.display = "block";
-      if(fc.editor.getValue() != '') fc.editorIcon(true);
-      fc.setActiveRow();
+		dpane.style.display = "flex";
+
   }
 	return;
 }
@@ -536,7 +555,7 @@ var topEdit = function() {
 }
 
 function updateIni() {
-  var a = { 
+  const a = { 
       'command': 'updateIni',
       'path': 'aexplorer.ini.js', 
       'target': null  
@@ -545,20 +564,20 @@ function updateIni() {
 }
 
 var topSetup = function() {
-	var dpane = document.getElementById('dirpane');
-	var epane = document.getElementById('editpane');
-	var opane = document.getElementById('optpane');
+	const dpane = document.getElementById('dirpane');
+	const epane = document.getElementById('editpane');
+	const opane = document.getElementById('optpane');
 
 	if(opane.style.display=="none") {
     epane.style.display = "none";
 		dpane.style.display = "none";
 		opane.style.display = "block";
 
-    var framed = document.getElementById("editor");
-    var fc = (framed.contentWindow || framed.contentDocument);
+    const framed = document.getElementById("editor");
+    const fc = (framed.contentWindow || framed.contentDocument);
 
-    var frameopt = document.getElementById("options");
-    var oc = (frameopt.contentWindow || frameopt.contentDocument);
+    const frameopt = document.getElementById("options");
+    let oc = (frameopt.contentWindow || frameopt.contentDocument);
     oc.iniSetup(config, 'aexplorer.ini.js');
     return;
 	}
@@ -569,7 +588,7 @@ var topSetup = function() {
 }
 
 var topHelp = function (target) {
-  var a = { 
+  let a = { 
         'command': 'viewtext',
         'path': 'https://www.scriptol.com/scripts/advanced-explorer-manual.php', 
         'target': null,
@@ -578,52 +597,51 @@ var topHelp = function (target) {
   sendFromInterface(a);
 }
 
-var topQuit = function (target) {
+var topQuit = function (target) { 
   exitExplorer();
 }
 
-/*
-	Panel Events building
-*/
+
+//	Panel Events building
+
 var panelReload = function (target) {
-	var a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
+	const a = { 'file': '', 'command': 'getdir', 'path': '.',  'target': target, 'dot': dotFlag()  };
   sendFromInterface(a);
 }
 
 var panelHome = function (target) {
-  var panel = target + 'path';
-  var c = document.getElementById(panel).value;
-  var np = '/';
+  let panel = target + 'path';
+  let c = document.getElementById(panel).value;
+  let np = '/';
   if(c.length > 2)
     if(c.charAt(1) == ':') np = c.slice(0,3);
 
-	var a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target, "dot": dotFlag() };
+	let a = { 'file': '', 'command': 'chdir', 'path': np, 'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
-var panelUp = function(target)
-{
-  if(insidezip[target])
-  {
+var panelUp = function(target) {
+  if(insidezip[target])  {
     panelReload(target);
     return;
   }
-	var a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target, "dot": dotFlag() };
+	const a = { 'file': '', 'command': 'dirup', 'path': '',  'target': target, "dot": dotFlag() };
 	sendFromInterface(a);
 }
 
 var panelCreate = function(target) { 
-	var newname = promptDialog("Name of the new folder:", '', function(answer) {
-    var newname = noHTMLchars(answer);
-    if(newname == null || newname == "") return;
-    var a = { 'command': 'mkdir', 'target': target, "newname": newname, "dot": dotFlag() };
+	  promptDialog("Name of the new folder:", '', function(answer) {
+    if(answer == false) return;
+    let newname = noHTMLchars(answer);
+    if(newname == "") return;
+    const a = { 'command': 'mkdir', 'target': target, "newname": newname, "dot": dotFlag() };
 	  sendFromInterface(a);
   });
 }
 
 // check if a new name may be given
 function alreadyInList(parent, name) {
-	var child = parent.firstChild; // child of flist
+	let child = parent.firstChild; // child of flist
 	while(child) 	{
     if(getNameSelected(child) == name)  return true;
 		child = child.nextSibling;
@@ -633,111 +651,78 @@ function alreadyInList(parent, name) {
 
 
 function acceptRename(oldname, newname, target) {
-	var a = { 'command': 'rename', 'target': target, 'oldname': oldname, 'newname' : newname };
-	sendFromInterface(a);
+	sendFromInterface( { 
+    'command': 'rename', 
+    'target': target, 
+    'oldname': oldname, 
+    'newname' : newname 
+  });
 }
+
 
 var elementRename = function(spanitem, panelName) {
-	var saved = spanitem.innerHTML;
-	var p1 = saved.indexOf('>');
-	var p2 = saved.indexOf('<', p1);
-    if(p2 == -1)
-        p2 = saved.length;
-	var oldname = saved.slice(p1 + 1, p2);
-    oldname = noHTMLchars(oldname);
+  let saved = spanitem.innerHTML;
+  let oldname = noHTMLchars(spanitem.dataset.name);
 
-	var x = document.createElement("input");
-	x.setAttribute('type', 'text');
-	x.setAttribute('value', oldname);
-	x.setAttribute('size', '40');
+	promptDialog("Enter a new name :", `${oldname}`, function(answer) {
+    if(answer === false) return
+    let newname = noHTMLchars(answer);
+    if(newname == "" || newname == oldname) return;
+    if (alreadyInList(spanitem.parentNode, newname)) {
+        alertDialog("Name already used");
+        return;
+    } 
+    spanitem.dataset.name = newname;
+    spanitem.innerHTML = saved.replace(oldname, newname)
+    acceptRename(oldname, newname, panelName);    
+  });  
+} 
 
-  x.onkeypress = function(evt) {
-  evt.stopPropagation();
-  var code = evt.keyCode || evt.which;
-  if(code == 13) {
-		var newname = x.value;
-		if(newname) {
-        if(alreadyInList(spanitem.parentNode, newname))  {
-            alert("Name already used");
-        }
-        else {
-				  acceptRename(oldname, newname, panelName);
-				  saved = saved.slice(0, p1 + 1) + newname + saved.slice(p2);
-        }
-		}
-		x.blur();
-    }
-    else
-    if(evt.ctrlKey)
-    switch(code)  {
-      case 17: 	x.blur();
-            break;
-    }
-	};
 
-  x.onkeydown = function(evt) {
-     evt.stopPropagation();
-  }
+// Size of dir/selection
 
-	x.onblur = function(evt) {
-		spanitem.innerHTML = saved;
-	};
-	spanitem.innerHTML = "";
-	spanitem.appendChild(x);
-	x.focus();
-}
-
-/*var panelRename = function(panelName) {
-  spanitem = getPointedContent(panelName);
-  elementRename(spanitem, panelName);
-}*/
-
-function panelFileInfo(target) {
-	var slist = getSelectedNames(target);
+function panelFileInfo(target) { 
+	let slist = getSelectedNames(target); 
 	if(slist.length < 1) 	{
 		target = 'rcontent';
 		slist = getSelectedNames(target);
 		if(slist.length < 1) {
-			alert('File info: ' + slist.length + " selected. ");
+			//alertDialog('File info: ' + slist.length + " selected. ");
 			return;
 		}
 	}
-	var a = { 'command': 'dirinfo', 'target': target, 'filelist': slist };
+	const a = { 'command': 'dirinfo', 'target': target, 'filelist': slist };
   sendFromInterface(a);
 }
 
 
 var panelDelete = function(target) {
-	var namelist = getSelectedNames(target);
+	let namelist = getSelectedNames(target);
 
 	if(namelist.length == 0) 	{
-		alert("Nothing selected to delete");
+		alertDialog("Nothing selected to delete");
 		return;
 	}
   selectToDelete(target);
 
-	var message = "Delete ";
+	let message = "Delete ";
 	if(namelist.length > 1)
 		message += namelist.length + " files?";
 	else
 		message += namelist[0] + '?';
-  setTimeout(function() {
-	  if(window.confirm(message) == false)
-	  {
-		  panelReload(target);
-		  return;
-	  }
-
-	  var a = { 'command': 'unlink', 'list': namelist, 'target': target };
-	  sendFromInterface(a);
-  }, 100);
+	  confirmDialog(message, function(answer) {
+      if(answer !== false) {
+        sendFromInterface({ 'command': 'unlink', 'list': namelist, 'target': target });
+      }
+    });
+	  
 }
 
 function openBox(target) {   
-  var letter = target.charAt(0).toUpperCase();
-  var parent = window.document.getElementById(target);
+  let letter = target.charAt(0).toUpperCase();
+  let parent = window.document.getElementById(target);
 
-  var box = document.createElement("iframe");
+  let box = document.createElement("iframe");
   box.width = "100%";
   box.height = "100%";
   box.setAttribute("style", "border:0;");
@@ -750,45 +735,73 @@ function openBox(target) {
   parent.appendChild(box);
 }
 
-function boxApp(apath, target) {
-  var parent = window.document.getElementById(target);
-  var box = document.createElement("iframe");
-  box.setAttribute("sandbox", "allow-forms allow-popups allow-pointer-lock allow-same-origin allow-scripts")
-  box.setAttribute("style", "border:0;");
-  box.width="100%"
-  box.height="100%"
-  box.id=""
-  box.src = apath;   
-  parent.removeChild(parent.firstChild)  
-  parent.innerHTML = ""; 
-  parent.appendChild(box)
+function closeBox(target) {
+    let letter = target.charAt(0).toUpperCase();
+    let parent = window.document.getElementById(target);
+    let boxId = "Box" + letter;
+    let box = document.getElementById(boxId);
+    if (!box) return;
+    parent.removeChild(box);
 }
 
 
-var panelBox = function(target) {
-  var id = target + "list";
-  var check = document.getElementById(id);  // file list displayed?
-  if(check != null)  buildXData(target);
+function boxApp(apath, target) {
+  const parent = document.getElementById(target);
 
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+
+  const box = document.createElement("iframe");
+  box.setAttribute("sandbox", "allow-forms allow-popups allow-pointer-lock allow-same-origin allow-scripts");
+  box.style.border = "0";
+  box.width = "100%";
+  box.height = "100%";
+  box.src = apath;
+  parent.appendChild(box);
+}
+
+
+function isBoxOpen(target) {
+  const parent = document.getElementById(target);
+  return parent.querySelector("iframe") !== null;
+}
+
+var panelBox = function(target) {
+  if(isBoxOpen(target)) {
+    panelReload(target);
+    return;
+  }  
+  const id = target + "list";
+  const check = document.getElementById(id); 
+  if(check != null)  buildXData(target);
   openBox(target)
 }
 
 var panelGo = function(target, x) {
-	var a = { 'command': 'godir', 'path': x.value, 'target': target };
+	const a = { 'command': 'godir', 'path': x.value, 'target': target };
 	sendFromInterface(a);
 }
 
 
-/*
-  Recents directories
-*/  
+//  Recents directories
 
 function bmSize(idx) {
-  return config.Bookmarks.list[idx].select.length;
+  try {
+    return config.Bookmarks.list[idx].select.length;
+  }
+  catch(e) {
+    return 0
+  }
 }
 
 function recentsFind(idx, name)  {
-    return config.Recdirs.list[idx].indexOf(name)
+    try {
+      return config.Recdirs.list[idx].indexOf(name)
+    }
+    catch(e) {
+      return -1
+    }
 } 
 
 function recentsAdd(idx, name) {
@@ -801,8 +814,8 @@ function recentsAdd(idx, name) {
     else {
       if(recentsFind(idx, name) > -1) return;
     }
-    var bms = bmSize(idx);
-    if(bms >= 24)  return;   // full of bookmarks
+    const bms = bmSize(idx);
+    if(bms >= config.RECENTSMAX)  return;   // full of bookmarks
     if(bms + config.Recdirs.list[idx].length >= 24) {
       config.Recdirs.list[idx].pop();
     }  
@@ -810,9 +823,8 @@ function recentsAdd(idx, name) {
 }
 
 function recentsDelete(idx, name) {
-    var r = config.Recdirs.list[idx]
-    var i = r.indexOf(name)
-    //alert(i + " " + name)
+    let r = config.Recdirs.list[idx]
+    let i = r.indexOf(name)
     if(i > -1)
       r.splice(i, 1)    
 }
@@ -821,21 +833,24 @@ function recentsClear(idx) {
     Recdirs.list[idx]=[];
 }
   
-
-/*
-  Bookmarks.
-*/
+//  Bookmarks.
 
 function bookmarkDelete(idx, name) {
-  var bm = config.Bookmarks.list[idx].select
-  var tf = bm.indexOf(name)
+  try {
+  let bm = config.Bookmarks.list[idx].select
+  let tf = bm.indexOf(name)
   if(tf > -1)
     bm.splice(tf, 1)
+  }
+  catch(e) {
+
+  }
 }
 
+
 function bmDel(element, code) {
-  var n = element.nextSibling;
-  var name = n.innerHTML;
+  let n = element.nextSibling;
+  let name = n.innerHTML;
   bookmarkDelete(code, name)
 }
 
@@ -848,11 +863,11 @@ function bmToSkip(element) {
 }
 
 function openBM(element, code) {
-  var letter = (code == 0 ? "l" : "r")
-  var id = letter + "bm";
-  var target = letter + "content";
-  var d = document.getElementById(id);
-  var dpath = element.getAttribute("alt")
+  let letter = (code == 0 ? "l" : "r")
+  let id = letter + "bm";
+  let target = letter + "content";
+  let d = document.getElementById(id);
+  let dpath = element.getAttribute("alt")
   d.style.display="none"  
   chDir(dpath, target)
 }
@@ -862,13 +877,13 @@ function closeBM(element) {
 }
 
 function dispBookmarks(letter, bm) {
-    var id = letter + "bm"
-	  var d = document.getElementById(id);
-    var code = (letter == "l" ? 0 : 1);
-    var blist = ""
-    var i;
+    let id = letter + "bm"
+	  let d = document.getElementById(id);
+    let code = (letter == "l" ? 0 : 1);
+    let blist = ""
+    let i;
 	  for(i = 0; i < bm.length; i++) {
-		  var item = bm[i];
+		  let item = bm[i];
       blist +=  "<p alt='" + item + "' onclick='openBM(this, "+ 
         code + ")'  onmouseover='bmToDel(this)' onmouseout='bmToSkip(this)'><span class='bmdel' onclick='bmDel(this,"+ 
         code+ ")'>x</span><span class='bmname'>" + 
@@ -876,45 +891,63 @@ function dispBookmarks(letter, bm) {
 	  }
 
     // recents
+
+    let r = 0
+
     if(i < 25 && config.hasOwnProperty("Recdirs")) {
       blist += "<hr>"
-      var r = config.Recdirs.list[code]
-      for(var i = 0; i < r.length; i++) {
+      try {
+        r = config.Recdirs.list[code]
+        for(let i = 0; i < r.length; i++) {
           blist +=  "<p alt='" + r[i] + "' onclick='openBM(this, "+ 
           code + ")'><span class='recname'>"  +r[i] + "</span></p>"
+        }
       }
+      catch(e) {
+      }
+
     }
-    //alert(blist)
+    //alertDialog(blist)
 	  d.innerHTML = blist;
     d.style.display="block"  
 }
 
 
 function computer(letter) {
-  var idx = (letter == 'l') ? 0 : 1;
-  var bm = config.Bookmarks.list[idx].select;
+  let idx = (letter == 'l') ? 0 : 1;
+  let bm
+  try {
+    bm = config.Bookmarks.list[idx].select;
+  }
+  catch(e) {
+  }
 	dispBookmarks(letter, bm);
 }
 
 function bookmark(letter) {
-  var idx = (letter == 'l') ? 0 : 1;
-  var bm = config.Bookmarks.list[idx].select;
-  if(bm.length > 25) {
-    alert("Full!")
-    return;
+  let idx = (letter == 'l') ? 0 : 1;
+  let bm
+  try {
+    bm = config.Bookmarks.list[idx].select;
+    if(bm.length > 25) {
+      alertDialog("Full!")
+      return;
+    }
   }
-  var tpath = letter + 'contentpath';
+  catch(e) {
+  }
+  let tpath = letter + 'contentpath';
   tpath = document.getElementById(tpath).value;
 
   tpath = tpath.replace(/\\/gi, '/');
   if(tpath.substr(-1) != "/") tpath += "/"
-  var already = bm.some(function(x) { return (x == tpath)} );
+  let already = bm.some(function(x) { return (x == tpath)} );
   if(!already) {
     recentsDelete(idx, tpath)
     bm.push(tpath);
   }
-  var id = letter + 'star';
-  var elem = document.getElementById(id);
+  let id = letter + 'star';
+  let elem = document.getElementById(id);
   elem.src = "images/starlight.png";
   setTimeout(function() { elem.src="images/star.png"; }, 500);
 }
@@ -922,39 +955,41 @@ function bookmark(letter) {
 
 // Keys
 
-function keyScroll(code) {
-  var element, temp, offset;
+function keyScroll(evt) {
+  let code = evt.code;
+  let isSHIFT = evt.shiftKey;
+  let isCTRL =  evt.ctrlKey;
+  let element = null
+  let temp
+  let offset;
+  
   if(chooserLastSelected == null) return;
-  var par = chooserLastSelected.parentNode
+  let par = chooserLastSelected.parentNode
 
-  if(code == 37) {
-    var c = par.id.charAt(0);
-    var target = c + 'content';
+  if(code == "ArrowLeft") {
+    let c = par.id.charAt(0);
+    let target = c + 'content';
     panelUp(target);
     elementToSelect = '*';
     return;
   }
-
-  if(code == 38) {
-    temp = chooserLastSelected.previousSibling;
-    if(temp == null) return;
-    element = temp.previousSibling;
+  else if(code == "ArrowUp") {
+    element = chooserLastSelected.previousSibling;
     if(element == null) return;
     offset = element.offsetTop - par.parentNode.scrollTop;
     if(offset < 140 )
        par.parentNode.scrollTop -= 22;
-  }
-  if(code == 40) {
+  }  
+  else if(code == "ArrowDown") {
     element = chooserLastSelected.nextSibling;
     if(element==null) return;
-    element = chooserLastSelected.nextSibling.nextSibling;
-    if(element==null) return;
 
-    var rect = par.parentNode.getBoundingClientRect();
-    var localpos = element.offsetTop - par.parentNode.scrollTop;
+    let rect = par.parentNode.getBoundingClientRect();
+    let localpos = element.offsetTop - par.parentNode.scrollTop;
     if(localpos + 22 > rect.bottom)
       par.parentNode.scrollTop += 22;
   }
+
   if(element != null) {
     if(!isSHIFT && !isCTRL) deselectAll(par);
     element.className = 'entrybold';
@@ -962,19 +997,21 @@ function keyScroll(code) {
   }
 }
 
-function keyUnzip() {
-  var list = config.Unarchive.list;
-  var overwrite = list[0].checkbox;
-  var keepath = list[1].checkbox;
 
-  var namelist = getSelectedNames('lcontent');
+
+function keyUnzip() {
+  let list = config.Unarchive.list;
+  let overwrite = list[0].checkbox;
+  let keepath = list[1].checkbox;
+
+  let namelist = getSelectedNames('lcontent');
   if(insidezip['lcontent']) {
-    var zipname = document.getElementById('lcontentpath').value;
+    let zipname = document.getElementById('lcontentpath').value;
    	if(namelist.length == 0) {
-		  alert("Select files to extract in the left panel.");
+		  alertDialog("Select files to extract in the left panel.");
     }
     
-    var a = { 
+    const a = { 
      'command': 'extract',
      'archive': zipname,
      'filelist': namelist,
@@ -989,7 +1026,7 @@ function keyUnzip() {
   else 
   {
     zipname = namelist[0];
-    var a = {  
+    const a = {  
      'command': 'unzip',
      'archive': zipname,
      'overwrite': overwrite,
@@ -1001,74 +1038,6 @@ function keyUnzip() {
   }
 }
 
-
-/*
-  These key code bypass default handlers
-*/
-
-function passHandler(evt, code)
-{
-  switch(code)
-  {
-      case 37:
-      case 38:
-      case 40: keyScroll(code);   break;
-      case 67: topCopy(); break;
-      case 85: keyUnzip(); break;
-      default: break;
-  }
-}
-
-var keydownHandler = function(evt, code, target)
-{
-  //alert("keyInPanel " + code + " " + target);
-  switch(code)
-  {
-    case 46:
-      panelDelete(target);
-      evt.stopPropagation();
-      break;
-    case 82:
-      evt.keyCode = 0;
-      evt.cancelBubble = true;
-      break;
-    default:
-      break;
-  }
-  isCTRL = false;
-  return false;
-}
-
-var keypressHandler = function(evt, code, target)
-{
-  switch(code)
-  {
-    case 9:  // ctrl-i
-        panelFileInfo(target);
-        break;
-    case 13: // enter
-        var element = getPointedContent(target);
-        var filename =  getNameSelected(element);
-        if(isDirectory(element))
-        {
-            elementToSelect = '*';
-            chDir(filename, target);
-        }
-        else
-            open(element, true);
-        break;
-    case 18: // ctrl-r
-        evt.keyCode = 0;
-        evt.cancelBubble = true;
-        break;    
-    case 19: // ctrl-s
-        break;
-    default:
-        break;
-  }
-  isCTRL = false;
-  return false;
-}
 
 // Forms in icons
 
@@ -1083,9 +1052,9 @@ function setHidden(id) {
 // Dialog to save edits before replacing file or exit
 
 function getFileNode(filename) {
-    var fname = filename;    
+    let fname = filename;    
     if(filename !="") {
-        var pos = fname.lastIndexOf("/");
+        let pos = fname.lastIndexOf("/");
         if(pos == -1) pos = fname.lastIndexOf("\\");
         if(pos > 0) fname = fname.substr(pos + 1);
     }
@@ -1093,39 +1062,39 @@ function getFileNode(filename) {
 }  
     
 function AESaveDialog(cb) { 
-  var framedit = document.getElementById("editor");
-	var fc = (framedit.contentWindow || framedit.contentDocument);
-	var temp = fc.editor.getValue();  
+  let framedit = document.getElementById("editor");
+	let fc = (framedit.contentWindow || framedit.contentDocument);
+	let temp = fc.editor.getValue();  
 	if(temp.length > 0)	{  
-        var sDialog = document.createElement("dialog")
+        let sDialog = document.createElement("dialog")
         sDialog.id="sDialog"
         document.body.appendChild(sDialog)
         
-        var sLabel = document.createElement("p")
+        let sLabel = document.createElement("p")
         sLabel.innerHTML = "Save changes in " + getFileNode(fc.filename) + "?"
         sDialog.appendChild(sLabel)
 
-        var menu = document.createElement("menu")
+        let menu = document.createElement("menu")
         sDialog.appendChild(menu)
         
-        var b2 = document.createElement("button")
+        let b2 = document.createElement("button")
         b2.onclick=function() { sDialog.close(2) }
         b2.innerHTML="Save"
         menu.appendChild(b2)
         
-        var b1 = document.createElement("button")
+        let b1 = document.createElement("button")
         b1.onclick=function() { sDialog.close(1) }
         b1.innerHTML="Do not save"
         menu.appendChild(b1)
 
-        var b0 = document.createElement("button")
+        let b0 = document.createElement("button")
         b0.onclick=function() { sDialog.close(0) }
         b0.innerHTML="Cancel"
         menu.appendChild(b0)
         sDialog.showModal();
         
         sDialog.addEventListener('close', function(e) {
-            var response = sDialog.returnValue;
+            let response = sDialog.returnValue;
             if(response == 0) {
                 cb(false); 
                 return;
@@ -1157,31 +1126,82 @@ function AESaveDialog(cb) {
 }
 
 
-// Listeners
+//  Key down handling in list of files. Target is the left or right panel.
 
-function addKeyListEvents(target)
-{
-  var x;
-  if(target=='lcontent')
-    x=document.getElementById('lcontentlist');
-  else
-    x=document.getElementById('rcontentlist');
-
-  x.onkeypress = function(evt) {
-  	var code = evt.keyCode || evt.which;
-    keypressHandler(evt, code, target);
+var keydownHandler = function(evt, target) { 
+  if (evt.target.tagName === 'INPUT' || 
+      evt.target.tagName === 'TEXTAREA' || 
+      evt.target.isContentEditable) {
+    return; 
   }
 
-  x.onkeydown = function(evt) {
-  	var code = evt.keyCode || evt.which;
-    keydownHandler(evt, code, target);
+  switch(evt.code)  {
+    case "ArrowLeft":
+    case "ArrowUp":
+    case "ArrowDown":
+        evt.preventDefault();
+        keyScroll(evt);   
+        break;    
+    case "ControlLeft":
+    case "ControlRight":
+        break;  
+    case "Delete": // key delete
+        panelDelete(target);
+        evt.stopPropagation();  
+        break;
+    case "KeyN":  // ctrl-n rename
+        if(!evt.ctrlKey) break;
+        var namelist = getSelected(target);
+	      if(namelist.length != 1) {
+	        alertDialog("Select only one file to rename");
+	        break;
+	      }         
+        elementRename(namelist[0], target);
+        evt.stopPropagation();  
+        break;        
+    case "KeyI":  // ctrl-i show dir info
+        if(!evt.ctrlKey) break;
+        panelFileInfo(target);
+        evt.stopPropagation();  
+        break;
+    case "KeyU":  // unzip      
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alertDialog("From the left panel only")
+          break;
+        }   
+        keyUnzip()
+        evt.stopPropagation();
+        break;
+    case "KeyC"    : // copy
+        if(!evt.ctrlKey) break;
+        if(target != "lcontent") {
+          alertDialog("From the left panel only")
+          break;
+        }  
+        topCopy();
+        evt.stopPropagation();
+        break;    
+    case "Enter": // enter
+        let element = getPointedContent(target);
+        let filename = getNameSelected(element);
+        if(isDirectory(element))  {
+            elementToSelect = '*';
+            chDir(filename, target);
+        }
+        else
+            open(element, true);
+        evt.stopPropagation();  
+        break;
+    default:
+      //alertDialog(code + " unknow")
+      break;
   }
+  return false;
 }
 
-
-function addEvent(id, func, target)
-{
-  var x = document.getElementById(id);
+function addEvent(id, func, target) {
+  const x = document.getElementById(id);
   if (x.addEventListener)
     x.addEventListener('click', function() { func(target)}, false);
   else
@@ -1189,31 +1209,27 @@ function addEvent(id, func, target)
 }
 
 
-function addInputEvent(id, func, target)
-{
-  var x = document.getElementById(id);
+function addInputEvent(id, func, target) {
+  const x = document.getElementById(id);
   if (x.addEventListener)
     x.addEventListener('change', function() { func(target, x)}, false);
   else
     x.attachEvent('onchange', function() { func(target, x)});
 
-	x.onkeypress = function(evt) {
-	var code = evt.keyCode || evt.which;
-		if(code == 13 || code == 17) x.blur();
+	x.onkeydown = function(evt) {
+			if(evt.code == "Enter" || evt.code == "Escape") x.blur();
 	};
 }
 
-
-function buildEvents()
-{
+function buildEvents() {  
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
 	addEvent('tcopy', topCopy);
   addEvent('tcopyren', topCopyRename);
+  addEvent('tcomp', topComp);
   addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
-	addEvent('thelp', topHelp);
 	addEvent('tquit', topQuit);
 
 	addEvent('lreload', panelReload, 'lcontent');
@@ -1234,9 +1250,10 @@ function buildEvents()
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 
+
   // drag and drop events
 
-  var darear = document.getElementById('rcontent');
+  const darear = document.getElementById('rcontent');
 
   darear.addEventListener('dragenter', function(evnt) {
    if (evnt.preventDefault) evnt.preventDefault();
@@ -1249,12 +1266,16 @@ function buildEvents()
    return false;
   });
 
-  darear.addEventListener('drop', function(evnt) {
-    if (evnt.stopPropagation) evnt.stopPropagation();
-    var x = evnt.dataTransfer.getData('text');
-    topCopy();
-    evnt.preventDefault(); // for Firefox
-    return false;
-  }, false);
+  darear.addEventListener(
+    'drop', 
+    function(evnt) {
+      if (evnt.stopPropagation) evnt.stopPropagation();
+      //var x = evnt.dataTransfer.getData('text');
+      topCopy();
+      evnt.preventDefault(); // for Firefox
+      return false;
+    }, 
+    false
+  );
 
 }

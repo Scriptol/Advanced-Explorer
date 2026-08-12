@@ -1,61 +1,101 @@
 /* Advanced Explorer (c) 2012-2015 Scriptol.com */
-#body {
+
+body {
 	margin:0;
 	padding:0;
 	overflow: hidden;
 }
 
+
 #main {
-	position: absolute;
-	top: 42px;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	margin:4px;	
-	padding:0;
-	border:1px solid #999;
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #999;
+    height: 100vh;            /* Assure un layout stable sur toute la hauteur */
+    box-sizing: border-box;
 }
 
+/* Panneau de gauche : Recents */
 #recents {
-	position:relative;
-	top:0px;
-	left:0;
-	bottom:0;
+    display: flex;
+    flex-direction: column;
 	width:200px;
 	height:100%;
 	overflow:hidden;
 	border-right:1px solid #999;
-	display:block;
+    box-sizing: border-box;	
 }
 
-#recbar {
-	position:absolute;
-	top:0;
-	left:0;
-	width:200px;
-	height:28px;
-	padding:4px;
+
+#editpanel {
+    flex: 1;             
+    display: flex;
+    flex-direction: column;
+    min-width: 240px;
+    overflow: hidden;
+  	min-height: 0;	
+  	box-sizing: border-box;	
+}
+
+
+#toolbar {
+  	display: flex;
+  	align-items: center;
+  	gap: 10px;
+	height:29px;
 	margin:0;
+	margin-bottom:8px;
+	padding:0;
+	padding-left: 16px;
+  	width: 100%;
+  	box-sizing: border-box; 
+	background:#444; 
+	color:white;
+    border-bottom: 1px solid #999;	
+}
+
+/* Zone d’édition */
+#editor {
+    flex: 1;
+    overflow: auto;
+	height:100%;
+	padding:0;
 	overflow:hidden;
-	background: url(images/prjback.png);
-	padding:4px 4px 0px 4px;
+}
+
+
+#recbar {
+    display: flex;
+  	align-items: center;	
+    gap: 16px;
+	width:100%;
+	height:28px;
+	margin:0;
+   	padding: 0;	
+	padding-left:8px;
+	overflow:hidden;
+	background: linear-gradient(to bottom, #666 0%, #666 50%, #444 50%, #444 100%);
+	color:white;
 }
 
 #reclist {
-	position:absolute;
-	top:29px;
-	left:0;
-	bottom:0;	
+    flex: 1;
+    overflow-y: auto;
 	width:100%;
 	height:100%;
 	padding:8px 2px 8px 2px;
-	margin:0px;
+	margin:0;
 	background:black;
-	overflow:hidden;
 	border-top:1px solid #999;
+	box-sizing: border-box;
+    scrollbar-width: auto;
+    scrollbar-color: #444 #111; 	
 }
 
 #reclist p {
+	flex: 1;
     margin:2px 4px 2px 2px;
     padding:0 4px 0 4px;
     overflow:hidden;
@@ -71,84 +111,66 @@
 	border:1px solid #bbb;
 }
 
-#editor { 
-	position: absolute;
-	display:inline-block;
-	top: 0px;
-	right: 0px;
-	bottom: 0px;
-	left: 201px;
-	height:100%;
-	padding:0;
-	overflow:hidden;
+
+#recentsClr {
+	color:#DDD;
 }
 
-.toolbar {
-	position:absolute;
-	top:0;
-	left:4px;
-	right:4px;
-	height: 36px; 
-	background: url(images/back.png);
-	border-radius:4px;
-	padding:4px 0px 0px 8px;
-	border-top:1px solid #666;
-	border-left:1px solid #666;	
-	border-right:1px solid #111;	
-	border-bottom:1px solid #111;		
-	border-radius:4px;
-	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
+
+#recentsClr:hover {
+	color:orange;
 }
-.imagebutton 
-{
+
+#recentsSort:Hover {
+	color:orange;
+}
+
+#recentsSort.active {
+    color: lightblue;
+	font-size:15px;
+}
+
+.recent-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    cursor: default;
+}
+
+.bold {
+	font-weight: bold;
+	color: white;
+}
+
+.trash-icon {
+    cursor: pointer;
+    padding-left: 10px;
+    color: #888;
+}
+
+.trash-icon:hover {
+    color: #fff;
+}
+
+.edicon {
 	display:inline-block;
-	margin-right:2px;
-	border-radius:4px;
     box-sizing: border-box;	
-	border:1px solid transparent;
-	height:32px;
-	width: 32px;
-}
-.imagebutton:hover
-{
-	border:1px solid #333;
-}
-.imagebutton img {
-	margin:0;
 }
 
-.sideright {
-  position:relative;
-  float:right;
-  right:0px;
-  padding:0;
+.edicon:hover {
+	color:orange;
 }
 
 .tfield {
-  position:relative;
-  display:inline-block;
-  float:left;
-  line-height:20px;
-  padding:2px 8px 2px 8px;
-  margin:4px 4px 0px 0;
-  background:#ddd;
-  border:1px solid #999;
-  border-radius:4px;
-  opacity:0.5;
-  overflow:hidden;
-  color:#000;
-  font-weight:bold;
-  font-family:Arial, sans-serif;
+	margin-left: auto;
+  	background:#444;
+  	overflow:hidden;
+  	color:#FFF;
+  	font-family:Arial, sans-serif;
+  	margin-top:2px;
+  	margin-right:16px;
 }
 
-.indicator {
-	position:relative;
-	right:0px;
-	display:inline-block;
-	height: 34px; 
-	width: 34px; 
-	padding:1px 0 1px 1px;	
-}
 
 .image {
 	position: relative; 

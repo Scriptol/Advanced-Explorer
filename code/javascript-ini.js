@@ -1,7 +1,7 @@
 /*
   JavaScript-ini 
   Load and save ini file for JavaScript apps and build the user interface.
-  (c) Copyright 2012 Denis Sureau.  
+  (c) Copyright 2012-2025 Denis Sureau.  
   Provided under the MIT License.
   Use it freely but keep this copyright notice. 
 */
@@ -145,7 +145,7 @@ function iniSetup(cfg, inifile) {
 	 if(group == "Recents") continue;
 	 if(group == "Bookmarks") continue;
 	 if(group == "Recdirs") continue;
-	 form += "<p class='group'>" + group + "</p>";
+	 form += "<p class='group'><u>" + group + "</u></p>";
 	 parseGroup(config[group]);	
   }
   form += "<p><input type='button' onclick='saveIni(\""+inifile+"\")' value=' Apply '></p>";

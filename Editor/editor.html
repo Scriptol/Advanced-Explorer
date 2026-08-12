@@ -1,6 +1,6 @@
 <!--
 Advanced Explorer Code Editor Interface 
-(c) 2012-2017 Denis Sureau
+(c) 2012-2025 Denis Sureau
 License GPL 3.0
 
 Make use of:
@@ -14,46 +14,43 @@ Make use of:
 <script src="src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 </head>
 <body>
-<div class="toolbar" id="toolbar">
-<div class="imagebutton" id="saveas" onClick="act(this)"><img class="image" src="images/save-as.png" alt="Save" title="Save as"></div>
-<div class="imagebutton" id="new"  onClick="act(this)"><img class="image" src="images/new.png" alt="New blank page" title="New blank page"></div>
-<div class="imagebutton" id="find" onClick="act(this)"><img class="image" src="images/find.png" alt="Search" title="Search  CTRL-F"></div>
-<div class="imagebutton" id="replace" onClick="act(this)"><img class="image" src="images/replace.png" alt="Search & replace" title="Search & replace  CTRL-H"></div>
-
-<div class="imagebutton" id="outdent" onClick="act(this)"><img class="image" src="images/outdent.png" alt="Outdent" title="Unindent  SHIFT-TAB"></div>
-<div class="imagebutton" id="indent"  onClick="act(this)"><img class="image" src="images/indent.png" alt="Indent" title="Indent  TAB"></div>
-<div class="imagebutton" id="cut"     onClick="act(this)"><img class="image" src="images/cut.png" alt="Cut" title="Cut  CTRL-X"></div>
-<div class="imagebutton" id="copy"    onClick="act(this)"><img class="image" src="images/copy.png" alt="Copy" title="Copy  CTRL-X"></div>
-<div class="imagebutton" id="paste"   onClick="act(this)"><img class="image" src="images/paste.png" alt="Paste" title="Paste  CTRL-V"></div>
-<div class="imagebutton" id="undo"    onClick="act(this)"><img class="image" src="images/undo.png" alt="Undo" title="Undo  CTRL-Z"></div>
-<div class="imagebutton" id="redo"    onClick="act(this)"><img class="image" src="images/redo.png" alt="Redo" title="Redo  CTRL-Y"></div>
-
-<div class="sideright">
-   <div class="tfield" id="filename"></div>
-  <div class="indicator"><img class="image" id="changed" src="images/saved.png" alt="Change status" title="Change status">
-</div>
-</div>
-</div> <!--toolbar-->
-
 <div id="main">
     <div id="recents">
         <div id="recbar">
-            <img class="rimage" src="images/prjrem.png" title="Remove selected file(s)"  onclick="removeFromRecents()">
-            <img class="rrimage" src="images/prjexit.png" title="Clear recents" onclick="clearRecents()">
+            <div id="recentsClr" title="Clear all recents" onclick="clearRecents()" >X</div>
+            <div id="recentsSort" title="Sort list" onclick="sortRecents()">&#8645;</div>
         </div>
         <div id="reclist"></div>
     </div>
-    <div id="editor"></div>
+    <div id="editpanel">
+        <div id="toolbar">
+            <div class="edicon" id="saveas" onClick="act(this)" title="Save as">&#128427;</div>
+            <div class="edicon" id="new"  onClick="act(this)" title="New blank page">&#128459;</div>
+            <div class="edicon" id="find" onClick="act(this)" title="Search  CTRL-F">&#128269;</div>
+            <div class="edicon" id="replace" onClick="act(this)" title="Search & replace  CTRL-H">&#128221;</div>
+            <div class="edicon" id="outdent" onClick="act(this)" title="Unindent  SHIFT-TAB">⇤</div>
+            <div class="edicon" id="indent"  onClick="act(this)" title="Indent  TAB">⇥</div>
+            <div class="edicon" id="cut"     onClick="act(this)" title="Cut  CTRL-X">✂</div>
+            <div class="edicon" id="copy"    onClick="act(this)" title="Copy  CTRL-X">&#128458;</div>
+            <div class="edicon" id="paste"   onClick="act(this)" title="Paste  CTRL-V">📋</div>
+            <div class="edicon" id="undo"    onClick="act(this)" title="Undo  CTRL-Z">↶</div>
+            <div class="edicon" id="redo"    onClick="act(this)" title="Redo  CTRL-Y">↷</div>
+            <div class="tfield" id="filename"></div>
+        </div>
+        <div id="editor"></div>
+    </div>
 </div>
     
 <script>
     
-var editorHasContent = false;
-const {ipcRenderer} = top.require('electron')
-const {dialog} = top.require('electron').remote
-var editor = ace.edit("editor");
-var root;
-var recents;
+let editorHasContent = false;
+const { contextBridge, ipcRenderer } = top.require('electron');
+const remote = top.require('@electron/remote');
+const { dialog } = remote;
+
+let editor = ace.edit("editor");
+let root;
+let recents;
     
 
 var languageExt = {
@@ -95,37 +92,38 @@ var languageExt = {
         name: 'saving',
         bindKey: {win: 'Ctrl-S',  mac: 'Command-S'},
         exec: function(editor) { save(false); }
+    },
+    {
+        name: "find",
+        bindKey: {
+            win: "Ctrl-F",  mac: "Command-F"
         },
-        {
-            name: "find",
-            bindKey: {
-                win: "Ctrl-F", 
-                mac: "Command-F"
-            },
-            exec: function(editor, needle) {
-                if (typeof needle === "object") {
-                    var arg = this.name + " " + editor.getCopyText();
-                    editor.cmdLine.setValue(arg, 1);
-                    editor.cmdLine.focus();
-                    return;
-                }
-                editor.find(needle);
+        exec: function(editor, needle) {
+            if (typeof needle === "object") {
+                var arg = this.name + " " + editor.getCopyText();
+                editor.cmdLine.setValue(arg, 1);
+                editor.cmdLine.focus();
+                return;
             }
-        },
-        {
-            name: "gotoline",
-            bindKey: {win: "Ctrl-L", mac: "Command-L"},
-            exec: function(editor, line) {
-                if (typeof line === "object") {
-                    var arg = this.name + " " + editor.getCursorPosition().row;
-                    editor.cmdLine.setValue(arg, 1);
-                    editor.cmdLine.focus();
-                    return;
-                }
-                line = parseInt(line, 10);
-                if (!isNaN(line))   editor.gotoLine(line);
-            }
+            editor.find(needle);
         }
+    },
+    {
+        name: "gotoline",
+        bindKey: {
+            win: "Ctrl-L", mac: "Command-L"
+        },
+        exec: function(editor, line) {
+            if (typeof line === "object") {
+                var arg = this.name + " " + editor.getCursorPosition().row;
+                editor.cmdLine.setValue(arg, 1);
+                editor.cmdLine.focus();
+                 return;
+            }
+            line = parseInt(line, 10);
+            if (!isNaN(line))   editor.gotoLine(line);
+        }
+    }
 );	
 
 function updateStatusBar(message) { 
@@ -133,13 +131,14 @@ function updateStatusBar(message) {
 }
 
 function setFileName(fname) {
+    if(fname == undefined) return;
     filename = fname;
     if(fname != "") {
         var pos = fname.lastIndexOf("/");
         if(pos === -1) pos = fname.lastIndexOf("\\");
         if(pos > 0) fname = fname.substr(pos + 1);
     }
-    var fno =  document.getElementById("filename")
+    var fno =  document.getElementById("filename")    
     fno.innerHTML = fname;
     fno.setAttribute("title", filename);
 }
@@ -153,7 +152,7 @@ function editorIcon(actif) {
         edicon.src = "images/edit.png";
         editor.setValue('');	        
     }    
-}
+}   
 
 function newDoc() {
     editor.session.setValue("");
@@ -189,7 +188,7 @@ function displaySub(data) {
     changedStatus(false);
     updateStatusBar(filename);
     editorIcon(true);
-    recentsDisplay();    
+    recentsDisplay();  
     editor.focus();   
 }
 
@@ -276,21 +275,6 @@ function indexInRecents(fname)  {
     return -1;    
 } 
 
-function recentsDisplay() {
-    var d = document.getElementById("reclist");
-    var content = "";
-    for(var i = 0; i < recents.list.length; i++) {
-        var path = recents.list[i][0];
-        var row  = recents.list[i][1];
-        var fname = extractFile(path);
-        var flag = pathCompare(filename, path);
-        content += '<p title="' + path + '" onclick="openDoc(this.title); editor.gotoLine('+row+',0)">';
-        if(flag)  content += '<b>'+fname+'</b></p>';
-        else      content += fname + '</p>';
-    }
-    d.innerHTML = content;
-}
-
 
 function addToRecents() {
     if(recents === null) {
@@ -302,20 +286,87 @@ function addToRecents() {
     if(pos !== -1)
         recents.list.splice(pos, 1);  
     else {    
-        if(recents.list.length > 20) recents.list.pop();
+        if(recents.list.length > config.RECENTSMAX) recents.list.pop();
     }
     recents.list.unshift([filename, editor.getFirstVisibleRow()]);
 }
 
-function removeFromRecents() {
+function removeFromRecents(filename) {
     var pos = indexInRecents(filename);
     if(pos === -1) return;
     recents.list.splice(pos, 1);    
     recentsDisplay();
 }
 
+let config = window.parent.config;
+
+function recentsDisplay() {
+    var div = document.getElementById("reclist");
+    div.innerHTML = ""
+/*
+    if (config.sortRecents) {
+        recents.list.sort((a, b) => {
+            const fa = a[0].split(/[/\\]/).pop();
+            const fb = b[0].split(/[/\\]/).pop();
+            return fa.localeCompare(fb);
+        });
+    }
+*/
+    let displayList = recents.list;
+    if (config.sortRecents) {
+        displayList = [...recents.list].sort((a, b) => {
+            const fa = a[0].split(/[/\\]/).pop();
+            const fb = b[0].split(/[/\\]/).pop();
+            return fa.localeCompare(fb);
+        });
+    }
+
+    for(let i = 0; i < displayList.length; i++) {
+        let path = displayList[i][0];
+        let row  = displayList[i][1];
+
+        const p = document.createElement("p");
+        const fname = path.split(/[/\\]/).pop();
+        let flag = pathCompare(filename, path);
+        p.title = path;
+        p.dataset.row = row;
+        p.className = "recent-entry";
+        if(flag) p.classList.add("bold")
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = fname;  
+        textSpan.onclick = (event) => {
+            event.stopPropagation();  
+            const fullPath = event.currentTarget.parentElement.title;
+            openDoc(fullPath); 
+            filename = fullPath;
+            editor.gotoLine('+row+',0)
+        };      
+
+        const trash = document.createElement("span");
+        trash.innerHTML = "&#128465;"; 
+        trash.className = "trash-icon";
+        trash.onclick = (event) => {
+            event.stopPropagation();  
+            removeFromRecents(path);
+        };    
+    
+        p.appendChild(textSpan);
+        p.appendChild(trash);
+        div.appendChild(p);        
+    }
+}
+
+
 function clearRecents() {
     recents.list=[];
+    recentsDisplay();
+}
+
+function sortRecents() {
+    config.sortRecents = !config.sortRecents;
+    const r = document.getElementById("recentsSort");
+    r.classList.toggle("active", config.sortRecents);
     recentsDisplay();
 }
 
@@ -368,17 +419,17 @@ function act(element) {
             editor.redo();
             break;	
         default:
-            alert("Unknown command");
+            alertDialog("Unknown command");
         }			
         editor.focus();
 }
 
 function changedStatus(status) {
-    var chg = document.getElementById("changed");
+    var chg = document.getElementById("filename");
     if(status)
-        chg.src="images/changed.png";
+        chg.style.color="orange";
     else
-        chg.src="images/saved.png";		
+        chg.style.color="white";		
     editorHasContent = status;  
 }
 
@@ -424,7 +475,7 @@ ipcRenderer.on("editor", (event, data) => {
         }
         break;
     case "message":    
-        alert(data.message);
+        alertDialog(data.message);
         break;
     case "mouse":
         break;  
@@ -432,7 +483,7 @@ ipcRenderer.on("editor", (event, data) => {
         updateStatusBar(data.content);   
         break;    
     default:
-        alert("Unknow message '" + data.type + "' in editor");
+        alertDialog("Unknow message '" + data.type + "' in editor");
         break;    
     }
 });
@@ -443,34 +494,32 @@ var winsave = function() {
         defaultPath: filename,
         buttonLabel: "Save"
     })
-    if(filepath == undefined) {
-        alert(filename + " not saved");
-        return;
-    }
-    if(filepath.length > 0) {
+
+    if(filepath && filepath.length > 0) {
         return filepath;
-    }    
+    }     
+ 
     return "";  // abort
 }
 
-function save(pflag)
-{ 
+function save(pflag) { 
+    var content = editor.getValue();
+    if(content.length === 0) {
+        alertDialog("Nothing to save.")
+        return; 
+    }  
     if(pflag || filename === undefined || filename === "") {
         var x = winsave() 
-        if(x == "") return;
+        if(x == "") {
+            updateStatusBar("Content not saved");
+            return;
+        }
         setFileName(x);
-        updateStatusBar(true);
-        changedStatus(false);
     }
     else {
         editor.focus();
     }    
     setActiveRow();
-    var content = editor.getValue();
-    if(content.length === 0) {
-        alert("Nothing to save.")
-        return; 
-    }    
     updateStatusBar(x);
     changedStatus(false);
     var a = { 
@@ -483,7 +532,10 @@ function save(pflag)
 }
 
 window.onload=function() {
-    recents = parent.config.Recents;   
+    recents = parent.config.Recents; 
+    if(parent.config.sortRecents)  {
+        document.getElementById("recentsSort").classList.add("active")
+    }
 }
 
 </script>

@@ -1,1 +1,1 @@
-var xdata ={"source":{"path":"","list":""},"target":{"path":"p:\\AExplorer","list":[]}}
+var xdata ={"source":{"path":"p:\\AExplorer\\BoxL","list":[]},"target":{"path":"p:\\temp","list":""}}

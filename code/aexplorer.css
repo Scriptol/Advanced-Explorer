@@ -39,6 +39,66 @@ a {
 	height:44px;
 	padding-top:4px;
 }
+insertz-index
+
+.insert {
+    display:block;
+    position:relative;
+}
+
+.comlist {
+    display: none;
+    background: black;
+    color: #ddd;
+    font-size: 13px;
+    user-select: none;
+}
+ 
+.insert:hover .comlist {
+    display: block;
+    position: absolute;
+    top: 16px;
+    left: 0;
+    z-index: 9999;
+    width: 200px;
+    min-height: 40px;
+    border: 1px solid #BBB;
+    overflow: visible;
+    padding:0;
+	margin-left:-120px;
+	opacity:1;
+}
+
+.comlist h3 {
+	display:flex;
+  	align-items: center;
+	text-align: center;	
+    margin: 0;
+    padding: 4px;
+    margin-bottom: 4px;
+    background: #333;
+    color: #DDD;
+    font-size: 13px;
+	height:20px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 1px solid #BBB;
+}
+
+.comlist .item {
+    padding: 2px;
+    cursor: pointer;
+}
+
+.comlist .item:hover {
+    background: #444;
+}
+
+.item a {
+	color: lightblue;
+}
+
+
 
 #dirpane, #editpane, #optpane {
 	margin:0px auto;	
@@ -48,6 +108,16 @@ a {
 	padding:0 4px 48px 0;
 	text-align:center;
 }
+
+#dirpane {
+    display: flex;
+    flex-direction: row;
+}
+
+#editpane {
+	margin:0 8px 0 2px;
+}
+
 
 
 #statubar {
@@ -70,8 +140,8 @@ a {
 
 
 #lcontent, #rcontent {
-	float:left;
-	display:block;	
+	display:flex;	
+	flex-direction:column;
 	width:100%;
 	height:100%;
 	min-height:128px;	
@@ -81,9 +151,10 @@ a {
 	padding-bottom:0px;
 }
 
-#editpane {
-	margin:0 8px 0 2px;
+#lup, #rup {
+	transform:scale(1.5,1);
 }
+
 
 #editor, #options {
 	overflow:scroll;
@@ -113,6 +184,10 @@ a {
 	height:36px;
 }
 
+#lreload, #rreload {
+	padding-top:2px!important;
+}
+
 .etool {
 	width:48px;
 	height:48px;
@@ -137,6 +212,12 @@ a {
 	margin:0px;	
 }
 
+.filechooser {
+    scrollbar-width: auto;
+    scrollbar-color: #444 #111; 
+}
+
+
 .flist {
 	margin:8px;
 	padding: 0 8px 0 0;
@@ -154,19 +235,23 @@ a {
 	margin:1px 1px 1px 1px;
 	padding:0px 6px 0px 0px;	
 	width:100%;
-	background-image:none;  
+	background-image:none;
 }
 
-.dir img, .file img, .entrybold img {
-	float:left;
-	width:24px;
-	height:18px;
-	margin-right:8px;
+.ficon {
+	display: inline-block;
+	min-width: 32px !important;
+	text-align:center;
+	font-size:14px;
+}
+
+.timesize {
+	float:right;
 }
 
 .dir:hover, .file:hover {
-	border:1px dotted #ccc;
-	background-color: #333;
+	border:1px dotted lightgreen;
+	background-color: #444;
 }
 
 .entrybold, .entrybold:hover {
@@ -175,12 +260,9 @@ a {
 	margin:1px 1px 1px 1px;
 	padding:0px 6px 0px 0px;	
 	width:100%;
-  	border:1px dotted #FFF;
-	background-color: #333;
-	-background-image: linear-gradient(top, #E0F0FF, #B0DEF2);
-	-background-repeat: repeat-x;
+  	border:1px dotted white;
+	background-color: #444;
 	border-radius:3px;
-	color:orange;
 }
 
 .fsroot {
@@ -223,16 +305,22 @@ a {
 }
 
 .fstar {
-  	float:right;
-  	width:18px;
-  	height:18px;
-  	position:relative;
-  	top:0;  
+  	position:relative;	
+	margin-left:auto;
+	color:white;
+}
+
+.fstar:hover {
+	color:orange;
+	transform:scale(1.2, 1.2)
 }
 
 .fspath {
-	padding-left:32px;
-  	padding-right:4px;
+	display:flex;
+  	align-items: center;
+	padding-left: 8px;
+	padding-right: 8px;
+	margin:0, 8px, 0, 8px;	
 }
 
 .lstats {
@@ -243,9 +331,6 @@ a {
   	float:right;
 }
 
-.timesize {
-	float:right;
-}
 
 .divimage {
   	overflow:hidden;
@@ -256,32 +341,54 @@ a {
   	box-sizing:border-box;
 }
 
-.icon, .ticon {
-	border: 1px solid #ddd;
-	border-color: transparent;
+.panicon {
+	height:28px;
+	width:28px;
+	vertical-align:middle;
+	font-size: 20px;	
+	color:lightgreen;	
 	display: inline-block;
 	cursor: pointer;
 	padding:0px;
-	margin:0px 0 0px 0;
+	margin:4px 0 0 8px;
 	text-align:center;
   	border-radius:3px;
 }
 
-.icon img, .ticon img {
-	 height:32px;
-	 width:32px;
+.ticon {
+	border: 1px solid #666;
+	background: #444; 
+	display: inline-block;
+	cursor: pointer;
+	padding:4px;
+	margin:0px 0 0px 0;
+	text-align:center;
+  	border-radius:3px;
+	height:38px;
+}
+
+.ticon img {
+	 height:30px;
+	 width:30px;
 }	
 
-.ticon { height:34px; }
-.icon { height:34px; }
-.icon:hover, .ticon:hover
+.ticon {
+	transform: scale(0.8, 0.8);
+}
+
+.ticon:hover {
+	transform: scale(1.0, 1.0);
+}
+
+
+.ticon:hover, .panicon:hover
 {
-	color: #222;
-	background: #333 linear-gradient(top, rgba(64,64,64,.3) 0%,rgba(32,32,32,.3) 100%); /* W3C */
+	background: #333;
 	border: 1px solid #888;
 	border-top: 1px solid #aaa;
 	border-left: 1px solid #aaa;
 }
+
 
 .bmlist {
 	display:none;
@@ -380,6 +487,7 @@ a {
 	font-weight:bold;
 }  
 
+/*
 .tooltip {
     text-decoration:none;
     position:relative;
@@ -413,6 +521,7 @@ a {
     overflow:hidden;
     padding:8px;
 }
+*/	
 
 /* Dynamic dialog under icon */
 
@@ -448,29 +557,49 @@ a {
 	text-align:center;
 }
 
-.comlist, .closeForm {
-    display:none;
+button {
+	border-radius: 4px;
+    color: white;
+    padding: 2px 8px;
+	margin-top:2px;
+	margin-left:8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
 }
 
-.comlist, .openForm {
- 	position:absolute;
-  	top:24px;    
-  	left:0;
-	padding:0; 	  
-  	z-index:1000;
-	width:308px;    
-	min-width:308px;    
-    color:white;
-    background:black;
-    font-size:13px;
- 	border:1px solid #CCC;
-	border-radius:4px;	
-	text-align:left;   
-  	overflow:visible;
+.gray {
+    --btn-color: #454545; 
+    background: var(--btn-color);
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
 }
 
-.openForm {
-	display:block !important
+.gray:hover {
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    transform: translateY(1px);
+}
+
+.blue {
+    --btn-color: #0078d4; 
+    background: var(--btn-color);
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+}
+
+.blue:hover {
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    transform: translateY(1px);
 }
 
 
@@ -479,29 +608,14 @@ a {
 	line-height:18px;
 }
 
-#pDialog {
-    border-top: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #666;
-    border-bottom: 1px solid #666;
-    border-radius:6px;
-    padding:16px 16px 16px 16px;
-}    
-#pDialog menu {
-    text-align:right;
-    padding:0;
-    margin:12px 0 0 0;
-} 
-#pDialog button {
-    width:64px;
-} 
-
 #sDialog {
     border-top: 1px solid #ccc;
     border-left: 1px solid #ccc;
     border-right: 1px solid #666;
     border-bottom: 1px solid #666;
     border-radius:6px;
+	background: #333;
+	color: white;
     padding:16px;
 } 
 
@@ -519,4 +633,45 @@ a {
 #sDialog button {
     width:96px;
     margin:0 2px 0 2px;
+	background:#666;
+	color:white;
 } 
+
+.modal-dialog {
+    border: 1px solid #666;
+    border-radius: 8px;
+    color: #e0e0e0;
+    width: 480px;
+	padding:0;
+}
+
+.modal-content {
+	background:#444;
+    padding: 10px;	
+}
+
+
+.modal-dialog::backdrop {
+    background:rgba(0, 0, 0, 0.4);
+}
+
+.modal-dialog input[type="text"] {
+    background: black;
+    color: #ffffff;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 10px;
+	width:330px;
+    outline: none;
+}
+
+.modal-dialog input[type="text"]:focus {
+    border-color: #0078d4; /* Liseré bleu au focus */
+}
+
+
+.modal-dialog label {
+    font-size: 14px;
+    color: #bbb;
+}

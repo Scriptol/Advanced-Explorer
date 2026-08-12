@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<!-- Advanced Explorer (c) 2012-2020 Denis Sureau - License GPL 3.0 -->
+<!-- Advanced Explorer (c) 2012-2025 Denis Sureau - License GPL 3.0 -->
 <html>
 <head>
 <meta charset="utf-8">
@@ -112,13 +112,16 @@ function startSync() {
 <div id="targetid"></div>
 <div id="optgroup">
 <p class="option"><span class="lab">Process recursively sub-directories</span> <input id="idrec" type="checkbox" value="" onClick="cbChange(this)"></p>
-<p class="option"><span class="lab">Update only existing files</span> <input id="idupd" type="checkbox" value="" onClick="upChange(this)"></p>
+<p class="option"><span class="lab">Update existing files, add missing files</span> <input id="idupd" type="checkbox" value="" onClick="upChange(this)"></p>
 </div>
-<p><i>If directories are included in a selection, check the recurse option.</i><p>
 <center>
 <p><input type="button" value="Synchronize" class="process" onclick="startSync()"></p>
+</center>
+<p id="syncresult">Result here...</p>
+<center>
 <p>Click again on the <img src="images/sync.png"> button to cancel.</p>
 </center>
+
 <script>
 window.onload=function() { 
   document.getElementById("sourceid").innerHTML = sourcepath;
