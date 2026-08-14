@@ -14,41 +14,50 @@
 <body>
 <div id="aexplorer">
 <div id="outer">
-<div class="toolbar" id="topbar">
- &nbsp;
-<div class="ticon"><img src="images/invert.png" id='tinvert' title="Invert left and right panels"></div>
-<div class="ticon"><img src="images/forward.png" id='tdup' title="Display left on right too"></div>
-<div class="ticon"><img src="images/compare.png" id='tcomp' title="Compare directories"></div>
-<div class="ticon"><img src="images/copy.png" id='tcopy' title="Copy selected files/dirs to right window"></div>
-<div class="ticon"><img src="images/copyren.png" id='tcopyren' title="Copy a file or dir with a new name"></div> 
-<div class="ticon"><img src="images/sync.png" id='tsync' title="Synchronize target with source"></div>
-<div class="ticon"><img src="images/archive.png" title="Make a zip archive" onclick="topZip()"></div>
-<div class="ticon"><img src="images/edit.png" id='tedit' title="Open/Close the editor"></div>
-<div class="alignright" style="margin-right:8px;">
-<div class="ticon"><img src="images/options.png" id='topt' title="Setting up A.E."></div>
+<div class="toolbar" id="topbar"> 
+<div class="tbicon" id='tinvert' title="Invert left and right panels"><span>&hArr;</span></div>
+<div class="tbicon" id='tdup' title="Display left on right too"><span>&rArr;</span></div>
+
+<div class="tbicon" id='tcomp' title="Compare directories"><span class="dirside">&#128458;</span><span class="tbrside">?</span></div>
+<div class="tbicon" id='tcopy' title="Copy selected files/dirs to right window"><span class="tblside">&#128462;</span><span class="tbrside">&#128459;</span></div>
+<div class="tbicon" id='tcopyren' title="Copy a file or dir with a new name"><span class="tblside">&#128462;</span><span class="tbren">xy</span></div> 
+<div class="tbicon" id='tsync' title="Synchronize target with source"><span class="dirside">&#128458;</span><span class="tbrside">=</span></div>
+
+<div class="tbicon" title="Make a zip archive" onclick="topZip()"><span class="bkside">&#128217;</span><span class="tblabel">zip</span></div>
+<div class="tbicon" id='tedit' title="Open/Close the editor"><span id="spanedit">&#128459;</span><span class="tbelabel">&#128393;</span></div>
 
 
-<div class="ticon" id="thelp">
-  <div class="insert">
-    <img class="image" src="images/help.png" alt="Cut/paste" title="Copy/Paste">
-    <span class="comlist" unselectable="on">
-    <h3>Advanced Explorer</h3>
-    <p class="item">Version 7.0</p>
-    <p class="item">&copy; 2001-2026 D. Sureau</p>
-    <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
-    <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
-  </span>
- </div>
-</div>    
-    
-<div class="ticon"><img src="images/exit.png" id='tquit' width="32" height="32" title="Save all and close A.E."></div>
+<div class="tbright">
+<div class="tbicon" id='topt' title="Setting up A.E."><span>&#128736;</span></div>
+
+<div id="thelp" class="tbicon insert">
+  <span  title="Help">❓</span>
+  <div class="comlist" unselectable="on">
+      <p class="item"><b>Advanced Explorer</b></p>
+      <p class="item">Version 7.0</p>
+      <p class="item">&copy; 2001-2026 D. Sureau</p>
+      <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
+      <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
+  </div>
 </div>
+
+
+<div class="tbicon" id='tquit' title="Save all and close A.E.">
+<svg viewBox="0 0 32 32" width="26" height="26">
+    <rect width="32" height="32" rx="7" fill="#DC2626" />
+    <g stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none">
+      <path d="M 11 12 A 7 7 0 1 0 21 12" />
+      <line x1="16" y1="7" x2="16" y2="15" />
+    </g>
+</svg>
+
+</div>
+</div> 
 </div> <!--toolbar-->
 
 <div id="dirpane">
 <div id="lpane">
-  <div class="toolbar toolpane" id="lcontrol">
-	  &nbsp;
+  <div class="toolpane" id="lcontrol">
 	<div class="panicon" id="lup" title="Up to parent dir">⬆</div>
 	<div class="panicon" id="lhome" title="Up to root dir">🔝</div>	
 	<div class="panicon" id="lreload" title="Refresh">⟳</div>	
@@ -70,8 +79,7 @@
 </div>
 
 <div id="rpane">
-  <div class="toolbar toolpane" id="rcontrol">
-	  &nbsp;	
+  <div class="toolpane" id="rcontrol">
 	<div class="panicon" id="rup" title="Up to parent dir">⬆</div>
 	<div class="panicon" id="rhome" title="Up to root dir">🔝</div>	
 	<div class="panicon" id="rreload" title="Refresh">⟳</div>

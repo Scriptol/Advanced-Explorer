@@ -39,63 +39,74 @@ a {
 	height:44px;
 	padding-top:4px;
 }
-insertz-index
 
 .insert {
     display:block;
     position:relative;
 }
 
-.comlist {
-    display: none;
-    background: black;
-    color: #ddd;
-    font-size: 13px;
-    user-select: none;
-}
- 
 .insert:hover .comlist {
     display: block;
     position: absolute;
-    top: 16px;
     left: 0;
-    z-index: 9999;
-    width: 200px;
-    min-height: 40px;
-    border: 1px solid #BBB;
-    overflow: visible;
-    padding:0;
-	margin-left:-120px;
-	opacity:1;
+	margin-left:-180px;
 }
 
-.comlist h3 {
-	display:flex;
-  	align-items: center;
-	text-align: center;	
-    margin: 0;
-    padding: 4px;
-    margin-bottom: 4px;
-    background: #333;
-    color: #DDD;
-    font-size: 13px;
-	height:20px;
-    font-weight: bold;
+
+.comlist {
+    all: unset;
+    display: none;
+    position: absolute;
+    background: #ccc;
+    color: #000;
+    font-size: 12px;
+    user-select: none;
+    padding:8px;
     text-align: center;
-    border-bottom: 1px solid #BBB;
+    top: 24px;
+    -left: calc(50% - 150px);
+    z-index: 9999;
+    width: 180px;
+    min-height: 40px;
+    border:6px solid rgba(180, 180, 180, 0.35);
+    border-radius: 6px;
+    overflow: visible;
+    opacity:1;
+    font-family: sans-serif;
+    background:
+        linear-gradient(135deg,
+            #ffffff 0%,
+            #d9d9d9 25%,
+            #b5b5b5 50%,
+            #e0e0e0 75%,
+            #ffffff 100%
+        ),
+        radial-gradient(circle at top left,
+            rgba(255,255,255,0.7),
+            transparent 60%
+        ),
+        radial-gradient(circle at bottom right,
+            rgba(0,0,0,0.3),
+            transparent 70%
+        );
+    background-blend-mode: screen;
+    box-shadow:
+        inset 0 0 12px rgba(255,255,255,0.4),
+        inset 0 0 20px rgba(0,0,0,0.3);
 }
+
 
 .comlist .item {
     padding: 2px;
     cursor: pointer;
 }
 
-.comlist .item:hover {
-    background: #444;
+.comlist a:hover {
+    border-bottom:1px solid black;
 }
 
-.item a {
-	color: lightblue;
+.comlist .item a {
+	color: blue;
 }
 
 
@@ -168,8 +179,10 @@ insertz-index
 }
 
 .toolbar {
+	display:flex;
+	gap: 8px;
 	margin:0px 0px 4px 0;
-	padding:0px;
+	padding:6px 0 0 8px;
 	background-color:#333;	
 	border-top:1px solid #666;
 	border-left:1px solid #666;	
@@ -179,9 +192,144 @@ insertz-index
 	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
 }
 
+.tbright {
+	margin-left:auto;
+	margin-right:16px;
+    display: flex;
+	gap:8px;
+    align-items: center;	
+}
+
+
+.tbicon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;  
+    position: relative;
+    font-size: 16px; 
+	background: #444; 
+	cursor: pointer;
+	padding:4px;
+	margin:4px 0 0 0;
+	border: 1px solid #666;
+	border-radius:3px;
+}
+
+.tbicon span {
+    transform: scale(1.4);
+    transform-origin: center;
+    display: inline-block;
+    line-height: 1;
+	color:white;		
+}
+
+.tbicon:hover {
+	background: #333;
+	border: 1px solid #888;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;	
+    transform: scale(1.2);
+    transform-origin: center;
+	color:orange;	
+}
+
+.tbicon .tblabel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; 
+    font-size: 10px;
+    font-weight: bold;
+    color: black;
+}
+
+.tbelabel {
+    position: absolute;	
+	font-size:12px;
+    left: 40%;	
+	top: 50%;
+}
+
+
+.dirside {
+    position: absolute;
+    top: 15%;
+}
+
+.bkside {
+	margin-top:3px;
+}
+
+.tblside {
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    transform: translate(-25%, -25%);
+    pointer-events: none; 
+	text-shadow: 1px 1px 2px #888;
+}
+
+.tbrside {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    pointer-events: none;
+}
+
+.tbren {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    pointer-events: none;	
+	font-size:10px;
+}
+
+
+#spanedit {
+    display: inline-block; 
+    transform: scale(1.6);
+    transform-origin: center;
+}
+
+.panicon {
+	height:28px;
+	width:28px;
+	vertical-align:middle;
+	font-size: 20px;	
+	color:lightgreen;	
+	display: inline-block;
+	cursor: pointer;
+	padding:0px;
+	margin:4px 0 0 8px;
+	text-align:center;
+  	border-radius:3px;
+}
+
+.panicon:hover {
+	background: #333;
+	border: 1px solid #888;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+}
+
 .toolpane {
-	margin:0 -3px 4px 3px;
-	height:36px;
+	display:flex;
+  	align-items: center;
+	gap: 6px;
+	height:32px;
+	margin:0 -3px 4px 4px;	
+	padding:0;
+	background-color:#333;	
+	border-top:1px solid #666;
+	border-left:1px solid #666;	
+	border-right:1px solid #111;	
+	border-bottom:1px solid #111;		
+	border-radius:4px;
+	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
 }
 
 #lreload, #rreload {
@@ -194,10 +342,6 @@ insertz-index
 	margin:1px;
 }
 
-.alignright {
-	float:right;
-	margin-right:8px;
-}
 
 .filechooser {
 	display:block;
@@ -339,54 +483,6 @@ insertz-index
   	width:auto;
   	height:auto;
   	box-sizing:border-box;
-}
-
-.panicon {
-	height:28px;
-	width:28px;
-	vertical-align:middle;
-	font-size: 20px;	
-	color:lightgreen;	
-	display: inline-block;
-	cursor: pointer;
-	padding:0px;
-	margin:4px 0 0 8px;
-	text-align:center;
-  	border-radius:3px;
-}
-
-.ticon {
-	border: 1px solid #666;
-	background: #444; 
-	display: inline-block;
-	cursor: pointer;
-	padding:4px;
-	margin:0px 0 0px 0;
-	text-align:center;
-  	border-radius:3px;
-	height:38px;
-}
-
-.ticon img {
-	 height:30px;
-	 width:30px;
-}	
-
-.ticon {
-	transform: scale(0.8, 0.8);
-}
-
-.ticon:hover {
-	transform: scale(1.0, 1.0);
-}
-
-
-.ticon:hover, .panicon:hover
-{
-	background: #333;
-	border: 1px solid #888;
-	border-top: 1px solid #aaa;
-	border-left: 1px solid #aaa;
 }
 
 
