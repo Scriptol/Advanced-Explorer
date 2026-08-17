@@ -144,12 +144,12 @@ function setFileName(fname) {
 }
 
 function editorIcon(actif) {
-    var edicon = parent.document.getElementById('tedit');
+    var edicon = parent.document.getElementById('spanedit');
     if(actif) {
-        edicon.src = "images/edit-active.png";
+        edicon.innerHTML = "&#128462;";
     }    
     else  {
-        edicon.src = "images/edit.png";
+        edicon.innerHTML = "&#128459;";
         editor.setValue('');	        
     }    
 }   

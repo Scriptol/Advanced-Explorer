@@ -385,7 +385,7 @@ function setDirTopRow(path, target) {
 
 
 function chDir(filepath, target) {    
-	if(filepath.slice(0, 8) == "file:///") {
+	if((filepath.length > 8) && filepath.slice(0, 8) == "file:///") {
 		filepath = filepath.slice(8);
   }  
   setDirTopRow(filepath, target)

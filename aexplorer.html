@@ -34,24 +34,23 @@
   <span  title="Help">❓</span>
   <div class="comlist" unselectable="on">
       <p class="item"><b>Advanced Explorer</b></p>
-      <p class="item">Version 7.0</p>
+      <p class="item">Version 7.2</p>
       <p class="item">&copy; 2001-2026 D. Sureau</p>
       <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
       <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
   </div>
 </div>
 
-
-<div class="tbicon" id='tquit' title="Save all and close A.E.">
-<svg viewBox="0 0 32 32" width="26" height="26">
-    <rect width="32" height="32" rx="7" fill="#DC2626" />
-    <g stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" fill="none">
+<div class="tbicon" id="tquit" title="Save all and close A.E.">
+<svg viewBox="0 0 32 32" width="22" height="22" class="quit-svg">
+    <rect width="32" height="32" rx="7" />
+    <g stroke-width="2.5" stroke-linecap="round" fill="none">
       <path d="M 11 12 A 7 7 0 1 0 21 12" />
       <line x1="16" y1="7" x2="16" y2="15" />
     </g>
 </svg>
-
 </div>
+
 </div> 
 </div> <!--toolbar-->
 
@@ -67,13 +66,18 @@
   </div>
   <div class="fullpath">
    <div class="fsroot">
-     <span class="fsimg" onmouseover="computer('l')">&#128187;</span>
-       <div class="bmlist" id="lbm" onmouseleave="closeBM(this)"></div>
+     <span class="fsimg" onclick="computer('l')">&#128187;</span>
+       <div class="bmlist" id="lbm"></div>
    </div>
-   <div class="fspath" oncontextmenu="return false">
-        <input type="text" class="innpath" id="lcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'lcontent')">
-        <div id="lstar" class="fstar" onClick="bookmark('l')">&#9734;</div>          
-	 </div>   
+
+    <div class="fspath" oncontextmenu="return false">
+      <input type="text" class="innpath" id="lcontentpath" value="/"  
+           oncontextmenu="return addListMenu(this, 'lcontent')">
+      <div id="recentArrow" data-code="0" class="farrow" onclick="toggleRecentList(this)">&#9662;</div>
+      <div id="lstar" class="fstar" onClick="bookmark('l')">&#9734;</div>
+    </div>
+
+
   </div>
   <div id="lcontent"></div>
 </div>
@@ -89,13 +93,17 @@
   </div>
   <div class="fullpath"> 
     <div class="fsroot">
-        <span class="fsimg" onmouseover="computer('r')">&#128187;</span>
-         <div class="bmlist" id="rbm" onmouseleave="closeBM(this)"></div>
+        <span class="fsimg" onclick="computer('r')">&#128187;</span>
+         <div class="bmlist" id="rbm"></div>
     </div>
-	  <div class="fspath" oncontextmenu="return false">
-      <input type="text" class="innpath" id="rcontentpath" value="/"  oncontextmenu="return addListMenu(this, 'rcontent')">
+
+    <div class="fspath" oncontextmenu="return false">
+      <input type="text" class="innpath" id="rcontentpath" value="/"  
+           oncontextmenu="return addListMenu(this, 'rcontent')">
+      <div class="farrow" data-code="1" onclick="toggleRecentList(this)">&#9662;</div>
       <div id="rstar" class="fstar" onClick="bookmark('r')">&#9734;</div>
-    </div>  
+    </div>
+
   </div>
   <div id="rcontent"></div> 	  
 </div>

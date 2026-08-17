@@ -236,15 +236,13 @@ a {
 	color:orange;	
 }
 
-.tbicon .tblabel {
+.tblabel {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 35%;
+    left: 35%;
     pointer-events: none; 
-    font-size: 10px;
-    font-weight: bold;
-    color: black;
+    font-size: 9px !important;
+    color: black !important;
 }
 
 .tbelabel {
@@ -287,6 +285,32 @@ a {
     pointer-events: none;	
 	font-size:10px;
 }
+
+/* quit */
+/* Conteneur */
+.tbicon #tquit {
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* --- État normal --- */
+.quit-svg rect {
+    fill: white;        /* fond blanc */
+}
+
+.quit-svg g {
+    stroke: black;      /* traits noirs */
+}
+
+/* --- Hover --- */
+.tbicon:hover .quit-svg rect {
+    fill: red;       /* fond orange */
+}
+
+.tbicon:hover .quit-svg g {
+    stroke: black;      /* traits restent noirs (lisibles) */
+}
+
 
 
 #spanedit {
@@ -379,7 +403,6 @@ a {
 	margin:1px 1px 1px 1px;
 	padding:0px 6px 0px 0px;	
 	width:100%;
-	background-image:none;
 }
 
 .ficon {
@@ -456,7 +479,12 @@ a {
 
 .fstar:hover {
 	color:orange;
-	transform:scale(1.2, 1.2)
+}
+
+.fstar.active {
+  color: gold;
+  transform:scale(1.5);
+  transform-origin: center center;
 }
 
 .fspath {
@@ -466,6 +494,61 @@ a {
 	padding-right: 8px;
 	margin:0, 8px, 0, 8px;	
 }
+
+.farrow {
+    display: inline-block;
+	margin-top:4px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 20px;
+	color:white;
+}
+
+.farrow:hover {
+	color:orange;
+}
+
+.recent-popup {
+	all: unset;
+    position: absolute;
+    background: #444;
+	color:#ccc;
+    border: 1px solid #999;
+	margin-left:-10px;
+	width:200px;
+    box-shadow: 2px 2px 4px #666;
+    padding: 8px;
+    z-index: 9999;
+}
+
+.recent-item {
+	margin:2px;
+	padding:0;
+	font-size:13px;
+    cursor: pointer;
+}
+.recent-item:hover {
+	color:orange;
+}
+
+
+.recent-footer {
+    display: flex;
+    justify-content: flex-end; 
+}
+
+.recent-clear-btn {
+    cursor: pointer;
+    padding: 6px 10px;
+    font-size: 13px;
+    color: #ccc;
+    background: #444;
+    border: 1px solid #ccc;
+}
+.recent-clear-btn:hover {
+    color:orange;
+}
+
 
 .lstats {
   	float:left;
@@ -491,7 +574,7 @@ a {
 	position:absolute;
 	top:29px;
 	left:0;
-	width:360px;
+	width:80px;
 	height:auto;
 	padding:8px 2px 8px 2px;
 	margin:0px;
@@ -503,37 +586,62 @@ a {
 }
 
 .bmlist p {
-	display:block;
-    margin:2px 0 2px 0;
-    padding:0 0 0 4px;
-    overflow:hidden;
-    font-size:13px;
-	line-height:16px;
-	font-family:Arial, Tahoma, sans-serif;
-	border:1px dotted #333;
-	border-radius:4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2px 0;
+    padding: 0;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 16px;
+    font-family: Arial, Tahoma, sans-serif;
+    border: 1px dotted #333;
+    border-radius: 4px;
+    color: white;
 }
+
 
 .bmlist p:hover {
-	color:white;
+	color:orange;
 	font-size:15px;
-	border:1px dotted #999;	
 }
 
-.bmdel {
-	display:inline-block;
-	margin:0 8px 0 0;
-	font-weight: bold;
-	color:#333;
+/* Conteneur icône + texte */
+.drive-item {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 28px;
 }
 
-.bmdel:hover {
-	color:#fff;
+/* Icône disque */
+.icodsk {
+  	position: absolute;
+  	inset: 0;
+  	display: flex;
+  	align-items: center;
+  	justify-content: center;  
+  	font-size: 40px;
+  	text-align: center;
+	opacity:0.5;
 }
+
+/* Nom de l’item centré sur l’icône */
 
 .bmname {
-	display:inline-block;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: bold;
+  pointer-events: none;
+  margin-top: 4px;
+  -webkit-text-stroke: 0.8px black;
+  text-shadow: 1px 0px 0 black, -1px 0px 0 black, 0px 1px 0 black, 0px -1px 0 black;
 }
+
 
 .recname {
 	display:inline-block;
@@ -583,41 +691,6 @@ a {
 	font-weight:bold;
 }  
 
-/*
-.tooltip {
-    text-decoration:none;
-    position:relative;
-}
-
-.tooltip span {
-    display:none;
-    border-radius:6px;
-    color:white;
-    background:black;
-}
-
-.tooltip span img {
-    float:left;
-    margin:24px 8px 8px 0;
-}
-
-.tooltip:hover span {
-    display:block;
-    position:absolute;
-    top:16px;
-    left:-300px;
-    z-index:1000;
-    width:auto;
-    min-width:240px;
-    max-width:320px;
-    min-height:128px;
-    border:1px solid #ccc;
-    margin-top:12px;
-    margin-left:32px;
-    overflow:hidden;
-    padding:8px;
-}
-*/	
 
 /* Dynamic dialog under icon */
 
@@ -627,6 +700,7 @@ a {
     font-family: Arial,serif;
 }
 
+/*
 .image {
 	position: relative; 
 	height:32px; 
@@ -634,6 +708,7 @@ a {
 	border:none;
     margin:0;
 }
+*/	
 
 .icoprompt h3 {
     margin:0;

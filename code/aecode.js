@@ -237,6 +237,10 @@ ipcRenderer.on('stats', (event, data) => {
    updateStatusBar(stats);
 }); 
 
+ipcRenderer.on('computer' , (event, data) => {
+  let jobj = JSON.parse(data);
+  displayDrives(jobj.letter, jobj.drives)
+});
 
 ipcRenderer.on('interface', (event, data) => {
   let jobj = JSON.parse(data);
@@ -835,6 +839,7 @@ function recentsClear(idx) {
   
 //  Bookmarks.
 
+/*
 function bookmarkDelete(idx, name) {
   try {
   let bm = config.Bookmarks.list[idx].select
@@ -842,115 +847,180 @@ function bookmarkDelete(idx, name) {
   if(tf > -1)
     bm.splice(tf, 1)
   }
-  catch(e) {
-
-  }
+  catch(e) { }
 }
+*/
 
-
-function bmDel(element, code) {
-  let n = element.nextSibling;
-  let name = n.innerHTML;
-  bookmarkDelete(code, name)
-}
-
-function bmToDel(element) {
-  element.firstChild.style.color = "white"
-}
-
-function bmToSkip(element) {
-  element.firstChild.style.color = "#333"
-}
-
-function openBM(element, code) {
+function openDir(element, code, popup) {
   let letter = (code == 0 ? "l" : "r")
-  let id = letter + "bm";
   let target = letter + "content";
-  let d = document.getElementById(id);
-  let dpath = element.getAttribute("alt")
-  d.style.display="none"  
+  let dpath = element.dataset.path;
+  element.parentNode.remove()
   chDir(dpath, target)
 }
 
-function closeBM(element) {
+function closeDrive(element) {
   element.style.display="none"  
 }
 
-function dispBookmarks(letter, bm) {
+
+function clearRecentList(code, popupId) {
+    config.Recdirs.list[code] = [];
+    const popup = document.getElementById(popupId);
+    if (popup) popup.remove();
+}
+
+function fillRecents(popup, code) {
+    let r = 0
+    let blist = ""
+
+    let i;    
+    if(!config.hasOwnProperty("Recdirs")) return;
+    try {
+        r = config.Recdirs.list[code]
+        for(let i = 0; i < Math.min(25, r.length); i++) {
+          blist +=  "<p class='recent-item'" 
+          + " data-path='" + r[i] + "'"
+          + " onclick='openDir(this, " + code + ")'>"
+          + r[i] 
+          + "</p>"
+        }
+    }
+    catch(e) {   }
+
+    if (r.length > 0) {
+    blist += `
+        <div class="recent-footer">
+            <button class="recent-clear-btn"
+                    onclick="clearRecentList(${code}, 'recentPopup')">
+                 Clear
+            </button>
+        </div>
+    `;
+}
+
+    popup.innerHTML = blist;
+}
+
+function toggleRecentList(arrow) {
+    const code = Number(arrow.dataset.code);
+    const input = arrow.previousElementSibling; // l’input juste avant la flèche
+
+    const old = document.getElementById("recentPopup");
+    if (old) {
+        old.remove();
+        return;
+    }
+
+    const popup = document.createElement("div");
+    popup.id = "recentPopup";
+    popup.className = "recent-popup";
+
+    const rect = input.getBoundingClientRect();
+    popup.style.left = rect.left + "px";
+    popup.style.top = rect.bottom + "px";
+    popup.style.width = rect.width + "px";
+
+    fillRecents(popup, code);
+
+    popup.addEventListener("mouseleave", () => popup.remove());
+    document.body.appendChild(popup);
+    setTimeout(() => {
+        document.addEventListener("click", closeRecentOnOutsideClick, { once: true });
+    }, 0);
+}
+
+function closeRecentOnOutsideClick(e) {
+    const popup = document.getElementById("recentPopup");
+    if (!popup) return;
+
+    if (!popup.contains(e.target)) {
+        popup.remove();
+    }
+}
+
+
+function changeDirectory(element, code) {
+  let letter = (code == 0 ? "l" : "r")
+  let target = letter + "content";
+  let dpath = element.dataset.path;
+  element.parentNode.remove()
+  chDir(dpath, target)
+}
+
+function displayDrives(letter, dlist) {
     let id = letter + "bm"
 	  let d = document.getElementById(id);
+    if (!d) return;
     let code = (letter == "l" ? 0 : 1);
     let blist = ""
     let i;
-	  for(i = 0; i < bm.length; i++) {
-		  let item = bm[i];
-      blist +=  "<p alt='" + item + "' onclick='openBM(this, "+ 
-        code + ")'  onmouseover='bmToDel(this)' onmouseout='bmToSkip(this)'><span class='bmdel' onclick='bmDel(this,"+ 
-        code+ ")'>x</span><span class='bmname'>" + 
-        item + "</span></p>"
+	  for(i = 0; i < dlist.length; i++) {
+      let path = dlist[i]
+		  let item = dlist[i]
+      blist +=  "<p data-path='" + path 
+        + "' onclick='changeDirectory(this, " 
+        + code 
+        + ")'><span class='drive-item'><span class='icodsk'>&#128436;</span>"
+        + "<span class='bmname'>"+ item + "</span></span></p>"
 	  }
-
-    // recents
-
-    let r = 0
-
-    if(i < 25 && config.hasOwnProperty("Recdirs")) {
-      blist += "<hr>"
-      try {
-        r = config.Recdirs.list[code]
-        for(let i = 0; i < r.length; i++) {
-          blist +=  "<p alt='" + r[i] + "' onclick='openBM(this, "+ 
-          code + ")'><span class='recname'>"  +r[i] + "</span></p>"
-        }
-      }
-      catch(e) {
-      }
-
-    }
-    //alertDialog(blist)
+  
 	  d.innerHTML = blist;
     d.style.display="block"  
+
+    d.onmouseleave = () => {
+        d.style.display = "none";
+    };    
 }
 
 
 function computer(letter) {
-  let idx = (letter == 'l') ? 0 : 1;
-  let bm
-  try {
-    bm = config.Bookmarks.list[idx].select;
+  let id = letter + "bm"
+	let d = document.getElementById(id);
+  if (!d) return;
+  if (getComputedStyle(d).display === "block")   {
+      d.style.display = "none"
+      return;  
   }
-  catch(e) {
+  const a = {
+    "command":"getdrivelist",
+    "letter": letter
   }
-	dispBookmarks(letter, bm);
+ 
+  sendFromInterface(a)
 }
+
 
 function bookmark(letter) {
-  let idx = (letter == 'l') ? 0 : 1;
-  let bm
+  let idx = (letter === 'l') ? 0 : 1;
+  let bm;
+
   try {
-    bm = config.Bookmarks.list[idx].select;
-    if(bm.length > 25) {
-      alertDialog("Full!")
-      return;
+    bm = config.Recdirs.list[idx];
+    if (!Array.isArray(bm)) {
+      bm = config.Recdirs.list[idx] = [];
     }
+    if (bm.length > 24) {
+      bm.pop();
+    }
+  } catch (e) {
+    bm = config.Recdirs.list[idx] = [];
   }
-  catch(e) {
-  }
+
   let tpath = letter + 'contentpath';
   tpath = document.getElementById(tpath).value;
+  tpath = tpath.replace(/\\/g, '/');
+  if (!tpath.endsWith("/")) tpath += "/";
 
-  tpath = tpath.replace(/\\/gi, '/');
-  if(tpath.substr(-1) != "/") tpath += "/"
-  let already = bm.some(function(x) { return (x == tpath)} );
-  if(!already) {
-    recentsDelete(idx, tpath)
-    bm.push(tpath);
+  if (!bm.includes(tpath)) {
+    bm.unshift(tpath);
   }
-  let id = letter + 'star';
-  let elem = document.getElementById(id);
-  elem.src = "images/starlight.png";
-  setTimeout(function() { elem.src="images/star.png"; }, 500);
+
+  let star = document.getElementById(letter + "star");
+  star.classList.add("active");
+  setTimeout(() => star.classList.remove("active"), 500);  
 }
+
 
 
 // Keys

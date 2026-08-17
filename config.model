@@ -42,26 +42,6 @@ var config={
             }
         ]
     },
-    "Bookmarks": {
-        "list": [
-            {
-                "name": "lcontent",
-                "label": "Left panel",
-                "initial": "c:/",
-                "select": [
-                    "c:\\"
-                ]
-            },
-            {
-                "name": "rcontent",
-                "label": "Right panel",
-                "initial": "c:/",
-                "select": [
-                    "c:/"
-                ]
-            }
-        ]
-    },
     "Editor": {
         "list": [
             {
