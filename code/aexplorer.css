@@ -266,7 +266,6 @@ a {
     position: absolute;
     top: 25%;
     left: 25%;
-    transform: translate(-25%, -25%);
     pointer-events: none; 
 	text-shadow: 1px 1px 2px #888;
 }
@@ -287,28 +286,28 @@ a {
 }
 
 /* quit */
-/* Conteneur */
+
 .tbicon #tquit {
     display: inline-block;
     cursor: pointer;
 }
 
-/* --- État normal --- */
+
 .quit-svg rect {
-    fill: white;        /* fond blanc */
+    fill: white;
 }
 
 .quit-svg g {
-    stroke: black;      /* traits noirs */
+    stroke: black;
 }
 
 /* --- Hover --- */
 .tbicon:hover .quit-svg rect {
-    fill: red;       /* fond orange */
+    fill: red;
 }
 
 .tbicon:hover .quit-svg g {
-    stroke: black;      /* traits restent noirs (lisibles) */
+    stroke: black;
 }
 
 

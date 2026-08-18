@@ -569,6 +569,12 @@ function sel(evt, element) {
         return;
     }
 
+    if(isCTRL && element.classList.contains('entrybold')) {
+      element.classList.remove('entrybold');
+      element.classList.add('file');
+      return;
+    }
+
     if (!isCTRL) {
         deselectAll(element.parentNode);
     }
