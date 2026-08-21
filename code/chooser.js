@@ -1204,17 +1204,25 @@ function merge(base, nf) {
 
 /* 
   Compare directories
-  File in left panel missing or updated in right panel are selected
+  File in source panel missing in target panel or changed are selected
 */
 
-function compare() {  
+function compare(invertFlag) {  
     let total = 0;
-    let left = document.getElementById('lcontentpath').value;
-    let right = document.getElementById('rcontentpath').value;  
+    let sourcePanel;
+    let targetPanel;
 
-    let rsource = document.getElementById('rcontent');
-    let rparent = rsource.firstChild;
-    let rchild = rparent.firstChild.firstChild;
+    if(invertFlag) {
+      sourcePanel = 'rcontent'
+      targetPanel = 'lcontent'
+    }
+    else {
+      sourcePanel = 'lcontent'
+      targetPanel = 'rcontent'
+    }
+
+    let tparent = document.getElementById(targetPanel).firstChild;
+    let rchild = tparent.firstChild.firstChild;
 
     let rmap = new Map();
 
@@ -1232,8 +1240,7 @@ function compare() {
         rchild = rchild.nextSibling;
     }
 
-    let source = document.getElementById('lcontent');  
-    let parent = source.firstChild;
+    let parent = document.getElementById(sourcePanel).firstChild;
     let child = parent.firstChild.firstChild; 
 
     while (child) {

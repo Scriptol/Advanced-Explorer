@@ -14,10 +14,13 @@ function sameDir() {
 }
 
 let copyUpdateTimer = null;
+let compareAfter = false
 function showNotification(jobj) {
-	switch(jobj.action) 	{
-    case 'update':
+	switch(jobj.action) 	{ 
+
+    case 'update': 
       const target = jobj.target;  
+   
       if(sameDir()) {
           panelReload('lcontent');
           panelReload('rcontent');
@@ -202,6 +205,12 @@ function processDirdata(jobj) {
   const target = jobj.target;
   fileList(jobj, AExplorerSort[target]);
   currentpath[target] = jobj.path;
+
+  if(compareAfter) {
+    compare(true)
+    compareAfter = false;
+  }
+
 }
 
 function updateStatusBar(message) {
@@ -419,10 +428,18 @@ var topDup = function (target) {
 	sendFromInterface(b);
 }
 
-var topCopy = function () {
+var topCopy = function (pflag) {
   if(document.getElementById('dirpane').style.display=="none")	return;
+	let left = document.getElementById('lcontentpath').value;
+	let right = document.getElementById('rcontentpath').value;
+	if(left == right) {
+		alertDialog("Left and right panel must be differend directories!");
+		return;
+	}  
+  if(pflag == undefined) pflag = true;
+
 	let namelist = getSelectedNames('lcontent');
-	if(namelist.length == 0) {
+	if(pflag && namelist.length == 0) {
 		alertDialog("No dir/file selected in left panel");
 		return;
 	}
@@ -430,17 +447,11 @@ var topCopy = function () {
         keyUnzip()
         return;
     }
-	let left = document.getElementById('lcontentpath').value;
-	let right = document.getElementById('rcontentpath').value;
-	if(left == right) {
-		alertDialog("Can't copy a file over itself!");
-		return;
-	}
 
 	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
 	sendFromInterface(a);
-
 }
+
 
 var topCopyRename = function() {
   let namelist = getSelected('lcontent');
@@ -491,12 +502,23 @@ var topZip = function (target) {
 
 var topComp = function (target) { 
 	if(document.getElementById('dirpane').style.display=="none")	return;
-  compare(); 
+  compare(false); 
   document.getElementById('lcontentlist').focus();
 }
 
 
-var topSync = function (target) {
+function topDirSync() {
+	if(document.getElementById('dirpane').style.display=="none")	return;
+  confirmDialog("&#9888; Overwrite right panel files with newer left panel files", function(answer) {
+    if(answer == false) return;
+    compare(false); 
+    compareAfter = true;
+    topCopy(false);
+    document.getElementById('rcontentlist').focus();
+  })
+}
+
+function topTreeSync (target) {
 	if(document.getElementById('dirpane').style.display=="none")	return;
   
   var x = document.getElementById('syncframe');
@@ -1249,7 +1271,7 @@ var keydownHandler = function(evt, target) {
           alertDialog("From the left panel only")
           break;
         }  
-        topCopy();
+        topCopy(true);
         evt.stopPropagation();
         break;    
     case "Enter": // enter
@@ -1264,8 +1286,7 @@ var keydownHandler = function(evt, target) {
         evt.stopPropagation();  
         break;
     default:
-      //alertDialog(code + " unknow")
-      break;
+        break;
   }
   return false;
 }
@@ -1297,7 +1318,7 @@ function buildEvents() {
 	addEvent('tcopy', topCopy);
   addEvent('tcopyren', topCopyRename);
   addEvent('tcomp', topComp);
-  addEvent('tsync', topSync);
+  addEvent('dsync', topDirSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
 	addEvent('tquit', topQuit);
@@ -1320,7 +1341,6 @@ function buildEvents() {
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 
-
   // drag and drop events
 
   const darear = document.getElementById('rcontent');
@@ -1340,9 +1360,8 @@ function buildEvents() {
     'drop', 
     function(evnt) {
       if (evnt.stopPropagation) evnt.stopPropagation();
-      //var x = evnt.dataTransfer.getData('text');
-      topCopy();
-      evnt.preventDefault(); // for Firefox
+      topCopy(true);
+      evnt.preventDefault(); 
       return false;
     }, 
     false
