@@ -17,14 +17,10 @@
 <div class="toolbar" id="topbar"> 
 <div class="tbicon" id='tinvert' title="Invert left and right panels"><span>&hArr;</span></div>
 <div class="tbicon" id='tdup' title="Display left on right too"><span>&rArr;</span></div>
-
-<div class="tbicon" id='tcomp' title="Compare directories"><span class="dirside">&#128458;</span><span class="tbrside">?</span></div>
-<div class="tbicon" id='tcopy' title="Copy selected files/dirs to right window"><span class="tblside">&#128462;</span><span class="tbrside">&#128459;</span></div>
 <div class="tbicon" id='tcopyren' title="Copy a file or dir with a new name"><span class="tblside">&#128462;</span><span class="tbren">xy</span></div> 
-<div class="tbicon" id='dsync' title="Synchronize target with source"><span class="dirside">&#128458;</span><span class="tbrside">=</span></div>
+<div class="tbicon" id='tsync' title="Synchronize target with source"><span class="dirleft">&#128448;</span><span class="dirright">⇨</span></div>
 <div class="tbicon" title="Make a zip archive" onclick="topZip()"><span class="bkside">&#128217;</span><span class="tblabel">zip</span></div>
 <div class="tbicon" id='tedit' title="Open/Close the editor"><span id="spanedit">&#128459;</span><span class="tbelabel">&#128393;</span></div>
-
 
 <div class="tbright">
 <div class="tbicon" id='topt' title="Setting up A.E."><span>&#128736;</span></div>
@@ -59,9 +55,11 @@
 	<div class="panicon" id="lup" title="Up to parent dir">⬆</div>
 	<div class="panicon" id="lhome" title="Up to root dir">🔝</div>	
 	<div class="panicon" id="lreload" title="Refresh">⟳</div>	
-    <div class="panicon" id="lcreate" title="Create a subdirectory">&#128193;</div>
-    <div class="panicon" id="ldel" title="Delete selected files and dirs">❌</div>  
-    <div class="panicon" id="lbox" title="Open a box of apps">&#128230;</div>
+  <div class="panicon" id="lcreate" title="Create a subdirectory">&#128193;</div>
+  <div class="panicon" id="lcomp" title="Compare files"><span>&#128471;</span></div>
+  <div class="panicon" id="lcopy" title="Copy to the right panel"><span>⇨</span></div>			
+  <div class="panicon" id="ldel" title="Delete selected files and dirs">&#128465;</div>  
+  <div class="panicon" id="lbox" title="Open a box of apps">&#128230;</div>
   </div>
   <div class="fullpath">
    <div class="fsroot">
@@ -86,9 +84,11 @@
 	<div class="panicon" id="rup" title="Up to parent dir">⬆</div>
 	<div class="panicon" id="rhome" title="Up to root dir">🔝</div>	
 	<div class="panicon" id="rreload" title="Refresh">⟳</div>
-    <div class="panicon" id="rcreate" title="Create a subdirectory">&#128193;</div>
-    <div class="panicon" id="rdel" title="Delete selected files and dirs">❌</div>  
-    <div class="panicon" id="rbox" title="Open a box of apps">&#128230;</div>    
+  <div class="panicon" id="rcreate" title="Create a subdirectory">&#128193;</div>
+  <div class="panicon" id="rcomp" title="Compare files"><span>&#128471;</span></div>
+  <div class="panicon" id="rcopy" title="Copy to the left panel"><span>⇦</span></div>		
+  <div class="panicon" id="rdel" title="Delete selected files and dirs">&#128465;</div>  
+  <div class="panicon" id="rbox" title="Open a box of apps">&#128230;</div>    
   </div>
   <div class="fullpath"> 
     <div class="fsroot">
@@ -129,6 +129,45 @@
 </div>
 </div> <!--explorer-->
 <div id="dCont"></div>
+
+<!--Synchro-->
+
+<div id="syncDialog">
+    <h3>Directory synchronization</h3>
+    <p class="syncPath" id="syncSrcPath">&nbsp;</p>
+    <p id="syncArrow">⇨</p>
+    <p class="syncPath" id="syncTgtPath">&nbsp;</p>
+    <p style="font-size:11px">Updates the content of the right panel. Warning: older files are replaced without a confirmation prompt.</p>
+    <label>
+        <input type="checkbox" id="syncRecursive">
+        Includes sub-directories
+    </label>
+
+    <div style="margin-top: 8px;">
+        <button id="syncCancel">Cancel</button>
+        <button id="syncStart">Start</button>        
+    </div>
+
+    <div id="treeSyncPanel">
+      <br>
+      <hr>
+      <p>Deleting files in the target not present in the source</p>
+      <div style="margin-top: 8px;">
+        <button id="syncCheckAll">Select all</button>
+        <button id="syncUncheckAll">Deselect all</button>
+        <span id="counter"></span>
+      </div>
+
+      <div id="syncFileList"></div>
+      <div id="treeSyncFooter">
+        <button id="syncCancelDelete">Cancel</button>
+        <button id="syncDelete">Delete selected</button>
+      </div>
+  </div>  
+</div>
+
+
+
 <script>
 
 function startExplorer() {

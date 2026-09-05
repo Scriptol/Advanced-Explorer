@@ -1,10 +1,10 @@
 /*
   Advanced Explorer Node server
-	(c) 2012-2026 Denis Sureau
+	(c) 2012-2025 Denis Sureau
 	Free, open source under the GPL 3 License.
 */
 
-const debug = false;
+const debug = true;
 
 const http = require("http"),
       path = require("path"),
@@ -81,13 +81,14 @@ function runScript(exists, file, param) {
   
 }
 
+
 var mainEvent;
 ipcMain.on('interface', (event, data) => {
    mainEvent = event;
    var jo = JSON.parse(data);
    jo.event = event;
    if(debug) console.log("Received: " + jo.command)    
-   explorer.shell(jo);
+   explorer.explorerShell(jo);
 })
 
 // Create a TCP server to communicate with native script

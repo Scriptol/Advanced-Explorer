@@ -253,9 +253,19 @@ a {
 }
 
 
-.dirside {
+.dirleft {
     position: absolute;
-    top: 15%;
+    top: 25%;
+	left: 25%;
+	font-size:14px;
+}
+
+.dirright {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+	font-size:12px;
+    pointer-events: none;
 }
 
 .bkside {
@@ -318,27 +328,6 @@ a {
     transform-origin: center;
 }
 
-.panicon {
-	height:28px;
-	width:28px;
-	vertical-align:middle;
-	font-size: 20px;	
-	color:lightgreen;	
-	display: inline-block;
-	cursor: pointer;
-	padding:0px;
-	margin:4px 0 0 8px;
-	text-align:center;
-  	border-radius:3px;
-}
-
-.panicon:hover {
-	background: #333;
-	border: 1px solid #888;
-	border-top: 1px solid #aaa;
-	border-left: 1px solid #aaa;
-}
-
 .toolpane {
 	display:flex;
   	align-items: center;
@@ -355,8 +344,54 @@ a {
 	box-shadow:inset 6px 6px 8px rgba(64,64,64,.6), inset -4px -4px 8px rgba(32,32,32,.2), 2px 2px 4px #444;
 }
 
+.panicon {
+	height:28px;
+	width:28px;
+	vertical-align:middle;
+	font-size: 20px;	
+	color:lightgreen;	
+	display: inline-block;
+	cursor: pointer;
+	padding:0px;
+	margin:4px 0 0 8px;
+	text-align:center;
+	border:1px solid #333;
+  	border-radius:3px;
+}
+
+.panicon:hover {
+	background: #333;
+	border: 1px solid #888;
+	border-top: 1px solid #aaa;
+	border-left: 1px solid #aaa;
+	color:orange;
+}
+#ldel, #rdel {
+	transform:scale(1.2,1)
+}
+
+#ldel:hover, #rdel:hover {
+	color:red;
+	font-weight:bold;
+}
+
+
 #lreload, #rreload {
 	padding-top:2px!important;
+}
+
+
+#lcomp, #rcomp {
+    font-size: 20px;
+    line-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#lcomp span, #rcomp span {
+    display: inline-block;
+    transform: translateY(-2px);   /* remonte l’icône de 2px */
 }
 
 .etool {
@@ -844,4 +879,89 @@ button {
 .modal-dialog label {
     font-size: 14px;
     color: #bbb;
+}
+
+#syncDialog {
+    display: none;
+	position: fixed;
+	top: 10%;
+	left: 50%;
+	transform: translateX(-50%);
+    width: 600px;
+	max-height: 80vh;    
+	background: #444;
+	color: white;
+    border: 1px solid #999;
+	border-radius: 4px;
+	padding: 10px;
+	font-size:13px;
+	box-sizing: border-box
+}
+
+
+#treeSyncPanel {
+    margin-top: 10px;
+    display: none;
+    flex-direction: column;
+    flex: 1;  
+}
+
+#counter {
+ 	float:right;
+	font-size:18px;
+	text-align:right;
+	margin-right:16px;
+}
+
+#syncFileList {
+	margin-top: 15px;
+    background: #000;
+	color:white;
+	padding: 8px;	
+    border: 1px solid #666;
+	height:108px;
+	max-height:108px;
+    flex: 1;
+    width: 100%;
+    overflow-y: auto;  
+}
+
+#treeSyncFooter {
+    margin-top: 4px;
+    display: flex;
+	flex-shrink: 0;
+    justify-content: flex-end;
+    gap: 10px;
+    background: inherit;
+    padding: 8px;
+}
+
+
+#syncDialog #syncArrow {
+	display:inline-block;
+	transform:scale(2);
+	color:lightgreen;
+	margin: 2px 0;
+	text-align:center;
+	line-height:14px;
+	width:100%;
+}
+
+#syncDialog .syncPath {
+	background:black;
+	color:white;
+	border:1px solid #999;
+	border-radius:3px;
+	margin: 2px 0;
+	padding:4px;
+	line-height:16px;
+}
+
+
+#syncDialog button {
+	background:#666;
+	color:white;
+	border:1px solid #999;
+	border-radius: 3px;
+	font-size:12px;
 }

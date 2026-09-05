@@ -147,7 +147,8 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
           img = '&#128455;';
           break;           
     case 'mpg':
-    case 'mkv':      
+    case 'mkv':
+    case 'mp4':      
           img='&#127902;'        
           break;
     case 'mp3':
@@ -1136,16 +1137,6 @@ function isDirectory(item) {
   Return the list of selected filename or dirnames
 */
 
-/*
-function getSelectedNames(source) {  
-  let namelist = new Array();
-  let slist = getSelected(source);
-	for(i = 0; i < slist.length; i++) {
-      namelist.push(slist[i].dataset.name)
-  }
-	return namelist;    
-}
-*/
 
 function getSelectedNames(src) {  
   let source = document.getElementById(src);

@@ -7,10 +7,17 @@ var currpanel = leftpanel;
 var AExplorerDrag = {'lcontent': true, 'rcontent':false };
 var AExplorerSort = {'lcontent': 0, 'rcontent':0 };
 
+function getLeftPath() {
+  return document.getElementById('lcontentpath').value;
+}
+
+function getRightPath() {
+	return document.getElementById('rcontentpath').value;  
+}
+
+
 function sameDir() {
-  const l = document.getElementById('lcontentpath').value;
-  const r = document.getElementById('rcontentpath').value;
-  return(l == r);
+  return(getLeftPath() == getRightPath());
 }
 
 let copyUpdateTimer = null;
@@ -251,7 +258,7 @@ ipcRenderer.on('computer' , (event, data) => {
   displayDrives(jobj.letter, jobj.drives)
 });
 
-ipcRenderer.on('interface', (event, data) => {
+ipcRenderer.on('interface', (event, data) => { 
   let jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'notification':
@@ -272,11 +279,8 @@ ipcRenderer.on('interface', (event, data) => {
     case 'status':
         updateStatusBar(jobj.content);
         break;
-    case 'synchro'        :
-        const ifr = document.getElementById("syncframe");
-        const page = (ifr.contentWindow || ifr.contentDocument);
-        const storage = page.document.getElementById("syncresult");
-	      storage.innerHTML = jobj.content;
+    case 'counter':
+        syncDialog.updateCounter(jobj.content)
         break;
     case 'image': 
         socketImage(jobj);
@@ -293,7 +297,19 @@ ipcRenderer.on('interface', (event, data) => {
         let rp = document.getElementById('rcontent');
         if (rp.style) rp.style.cursor=jobj.pointer;
         break;
- 
+    case "orphan":  
+        if(syncDialog == undefined) {
+          console.error("syncDialog undefined");
+          break;
+        }
+        if (typeof syncDialog.addFiles === "function") {
+          syncDialog.addFiles(jobj.dir, jobj.list);
+        } 
+        else {
+          console.error("syncDialog.addFiles() unknown !");
+        }
+        break;
+       
     case "boxapp":     
         boxApp(jobj);
         break;
@@ -401,10 +417,180 @@ function buildXData(target) {
   sendFromInterface(a);
 }
 
+
+
+function dirSynchro() {
+  if(document.getElementById('dirpane').style.display=="none")	return;
+	let source = getLeftPath()
+	let target = getRightPath()
+	if(source == target) {
+		alertDialog("Left and right panel must be differend directories!");
+		return;
+	}  
+
+  if(insidezip['lcontent']) {
+    alertDialog("Zip content no supported")
+    return;
+  }
+
+  let namelist = getSelectedNames('lcontent');
+	if(namelist.length == 0) {
+    alertDialog("Up to date or empty directory, nothing to copy")
+	}
+  
+	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
+	sendFromInterface(a);
+}
+
+
+/* Synchro arborescente */
+
+
+const syncDialog = {
+    dialog: null,
+    fileList: null,
+    recursiveCheck: null,
+    treePanel: null,
+
+    init() {
+        this.dialog = document.getElementById("syncDialog");
+        this.fileList = document.getElementById("syncFileList");
+        this.recursiveCheck = document.getElementById("syncRecursive");
+        this.treePanel = document.getElementById("treeSyncPanel");
+        this.updateCounter(0)
+
+        document.getElementById("syncStart").addEventListener("click", () => {
+            this.start();
+        });
+
+        document.getElementById("syncCancel").addEventListener("click", () => {
+            this.hide();
+        });
+
+        document.getElementById("syncCheckAll").addEventListener("click", () => {
+            this.checkAll();
+        });
+
+        document.getElementById("syncUncheckAll").addEventListener("click", () => {
+            this.uncheckAll();
+        });
+
+        document.getElementById("syncDelete").addEventListener("click", () => {
+            this.deleteSelected();
+        });
+
+        document.getElementById("syncCancelDelete").addEventListener("click", () => {
+            this.hide();
+        });
+
+        this.recursiveCheck.addEventListener("change", () => {
+          const recursive = this.recursiveCheck.checked;
+          this.treePanel.style.display = recursive ? "block" : "none";
+          this.dialog.style.height = recursive ? "480px" : "240px";
+        });
+
+    },
+    show() {
+        this.dialog.style.display = "flex";
+        this.dialog.style.flexDirection = "column";
+        const recursive = this.recursiveCheck.checked;
+
+        if(recursive) {
+          this.treePanel.style.display = "flex";  
+          this.treePanel.style.flexDirection = "column";
+          this.dialog.style.height = "480px";
+        }
+        else {
+          this.dialog.style.height = "240px";
+        }
+        document.getElementById("syncSrcPath").innerHTML = getLeftPath();
+        document.getElementById("syncTgtPath").innerHTML = getRightPath();
+    },
+    hide() {
+        this.dialog.style.display = "none";
+        this.fileList.innerHTML = "";
+    },
+    updateCounter(num) {
+      document.getElementById("counter").innerHTML = num
+    },
+
+    addFiles(dir, files) { 
+        const d = document.createElement("div");
+        d.style.cssText = "padding: 3px 0;";
+        d.innerHTML = `<p><u>${dir}</u></p>`;
+        this.fileList.appendChild(d);
+
+        files.forEach(fullPath => {
+            const row = document.createElement("div");
+            row.style.cssText = "padding: 3px 0;";
+            row.innerHTML = `
+                <input type="checkbox" class="syncFileCheck" checked data-file="${fullPath}">
+                <span>${fullPath}</span>
+            `;
+            this.fileList.appendChild(row);
+        });
+    },
+
+    checkAll() {
+        document.querySelectorAll(".syncFileCheck").forEach(cb => cb.checked = true);
+    },
+
+    uncheckAll() {
+        document.querySelectorAll(".syncFileCheck").forEach(cb => cb.checked = false);
+    },
+
+    getSelectedFiles() {
+        return [...document.querySelectorAll(".syncFileCheck")]
+            .filter(cb => cb.checked)
+            .map(cb => cb.dataset.file);
+    },
+
+    start() {
+        const l = getSelectedNames('lcontent').length
+        if(l && l > 0) {
+          alertDialog("Selection not allowed here. Use Copy instead")
+          return;
+        }
+        const recursive = this.recursiveCheck.checked;
+        if(!recursive) {
+          compare(false); 
+          compareAfter = true;
+          dirSynchro(false);
+          this.hide();
+          document.getElementById('rcontentlist').focus();          
+          return;
+        }
+        sendFromInterface({
+            "command": "sync",
+            "source": getLeftPath(),
+            "target": getRightPath(),
+            recursive
+        })
+    },
+
+    deleteSelected() {
+        const selectedFiles = this.getSelectedFiles();
+        sendFromInterface({
+            "command": "unlink",
+            "list": selectedFiles,
+            "target": "rcontent",
+            "fullpath": true
+        });
+    }
+};
+
+
+
+
+
 /*
 	Top Events building
 */
 
+
+function dirDisplayed() {
+  return document.getElementById('dirpane').style.display=="none"
+}
 
 var topInvert = function () {
 	if(document.getElementById('dirpane').style.display=="none")	return;
@@ -422,34 +608,10 @@ var panelReload = function (target) {
 }
 
 var topDup = function (target) {
-	if(document.getElementById('dirpane').style.display=="none")	return;
+	if(!dirDisplayed)	return;
 	const l = document.getElementById('lcontentpath');
   const b = { 'file': '', 'command': 'getdir', 'path': l.value,  'target': 'rcontent', 'dot': dotFlag()  };  
 	sendFromInterface(b);
-}
-
-var topCopy = function (pflag) {
-  if(document.getElementById('dirpane').style.display=="none")	return;
-	let left = document.getElementById('lcontentpath').value;
-	let right = document.getElementById('rcontentpath').value;
-	if(left == right) {
-		alertDialog("Left and right panel must be differend directories!");
-		return;
-	}  
-  if(pflag == undefined) pflag = true;
-
-	let namelist = getSelectedNames('lcontent');
-	if(pflag && namelist.length == 0) {
-		alertDialog("No dir/file selected in left panel");
-		return;
-	}
-    if(insidezip['lcontent']) {
-        keyUnzip()
-        return;
-    }
-
-	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
-	sendFromInterface(a);
 }
 
 
@@ -498,59 +660,27 @@ var topZip = function (target) {
 	})
 }
 
-
-
-var topComp = function (target) { 
-	if(document.getElementById('dirpane').style.display=="none")	return;
-  compare(false); 
-  document.getElementById('lcontentlist').focus();
-}
-
-
-function topDirSync() {
-	if(document.getElementById('dirpane').style.display=="none")	return;
-  confirmDialog("&#9888; Overwrite right panel files with newer left panel files", function(answer) {
-    if(answer == false) return;
+function directorySync() {
+    syncDialog.hide()
     compare(false); 
     compareAfter = true;
-    topCopy(false);
+    dirSynchro(false);
     document.getElementById('rcontentlist').focus();
-  })
 }
 
-function topTreeSync (target) {
-	if(document.getElementById('dirpane').style.display=="none")	return;
-  
-  var x = document.getElementById('syncframe');
-  if(x) {
-    x.id=null;
-    panelReload('lcontent');
-    return;
-  }  
-  
-  let allFlag = false;
-	let nameList = getSelectedNames('lcontent');
-	if(nameList.length == 0) {
-		allFlag = true; 
-	}
-  
-  let lc = document.getElementById('lcontent');
-  let d = document.createElement('iframe');
-  d.src="synchronizer.html";   
-  lc.removeChild(lc.firstChild);
-  lc.appendChild(d);
-  d.width = "100%";
-  d.height = "100%";
-  d.style.border = "0";
-  d.id = 'syncframe';   
-
-	let fcontent = (d.contentWindow || d.contentDocument);
-	fcontent.sourcepath = document.getElementById('lcontentpath').value;
-	fcontent.targetpath = document.getElementById('rcontentpath').value;
-  fcontent.allFlag = allFlag;
-  fcontent.nameList = nameList;
+function treeSync() {
+    socket.send(JSON.stringify({
+        type: "SYNC_START",
+        recursive,
+        files: selectedFiles
+    }));
 }
 
+
+function topSync() {
+	if(!dirDisplayed)	return;
+  syncDialog.show()
+}
 
 function displayEditor(data, fromTop) {               
   let dpane = document.getElementById('dirpane');
@@ -665,6 +795,39 @@ var panelCreate = function(target) {
   });
 }
 
+
+var panelComp = function (target) { 
+	if(document.getElementById('dirpane').style.display=="none")	return;
+  const letter = target[0];
+  compare(letter == "r"); 
+  const l = letter + "contentlist"
+  document.getElementById(l).focus();
+}
+
+var panelCopy = function (source) {
+  if(document.getElementById('dirpane').style.display=="none")	return;
+  const letter = source[0];
+  let target = (letter == 'l') ? 'rcontent' : 'lcontent'
+	if(sameDir()) {
+		alertDialog("Left and right panel must be differend directories!");
+		return;
+	}  
+  
+	let namelist = getSelectedNames(source);
+	if(namelist.length == 0) {
+		alertDialog("No dir/file selected in source panel");
+		return;
+	}
+  if(insidezip[source]) {
+    keyUnzip(source)
+    return;
+  }
+
+	const a = { 'command': 'filecopy', 'list': namelist, 'source' : source, 'target': target};
+	sendFromInterface(a);
+}
+
+
 // check if a new name may be given
 function alreadyInList(parent, name) {
 	let child = parent.firstChild; // child of flist
@@ -736,11 +899,12 @@ var panelDelete = function(target) {
 		message += namelist.length + " files?";
 	else
 		message += namelist[0] + '?';
-	  confirmDialog(message, function(answer) {
+	
+  confirmDialog(message, function(answer) {
       if(answer !== false) {
-        sendFromInterface({ 'command': 'unlink', 'list': namelist, 'target': target });
+        sendFromInterface({ 'command': 'unlink', 'list': namelist, 'target': target, 'fullpath': false });
       }
-    });
+  });
 	  
 }
 
@@ -1089,45 +1253,38 @@ function keyScroll(evt) {
   }
 }
 
-
-
-function keyUnzip() {
+function keyUnzip(source) {
   let list = config.Unarchive.list;
   let overwrite = list[0].checkbox;
   let keepath = list[1].checkbox;
+  const letter = source[0]
+  const target = (letter == 'l') ? "rcontent" : "lcontent"
 
-  let namelist = getSelectedNames('lcontent');
-  if(insidezip['lcontent']) {
-    let zipname = document.getElementById('lcontentpath').value;
+  let namelist = getSelectedNames(source);
+  let command;
+  let zipname;
+  if(insidezip[source]) {
+    zipname = document.getElementById(letter + 'contentpath').value;
    	if(namelist.length == 0) {
-		  alertDialog("Select files to extract in the left panel.");
+		  alertDialog("Select files to extract in the other panel.");
     }
-    
-    const a = { 
-     'command': 'extract',
-     'archive': zipname,
-     'filelist': namelist,
-     'overwrite': overwrite,
-     'keepath': keepath,
-     'source': 'lcontent',
-     'target': 'rcontent'  
-    };
-    sendFromInterface(a);
-		return;
-	}
-  else 
-  {
-    zipname = namelist[0];
-    const a = {  
-     'command': 'unzip',
-     'archive': zipname,
-     'overwrite': overwrite,
-     'keepath': keepath,
-     'source': 'lcontent',
-     'target':'rcontent' 
-    };
-    sendFromInterface(a);
+    command = "extract"
   }
+  else {
+    zipname = namelist[0];
+    command = "unzip"
+  }  
+    
+  const a = { 
+    'command': command,
+    'archive': zipname,
+    'filelist': namelist,
+    'overwrite': overwrite,
+    'keepath': keepath,
+    'source': source,
+    'target': target  
+  };
+  sendFromInterface(a);
 }
 
 
@@ -1258,20 +1415,22 @@ var keydownHandler = function(evt, target) {
         break;
     case "KeyU":  // unzip      
         if(!evt.ctrlKey) break;
-        if(target != "lcontent") {
-          alertDialog("From the left panel only")
-          break;
+        if(target == "lcontent") {
+          keyUnzip(target)
         }   
-        keyUnzip()
+        else {
+          keyUnzip("rcontent")
+        }
         evt.stopPropagation();
         break;
     case "KeyC"    : // copy
         if(!evt.ctrlKey) break;
-        if(target != "lcontent") {
-          alertDialog("From the left panel only")
-          break;
+        if(target == "lcontent") {
+          panelCopy(target);
         }  
-        topCopy(true);
+        else {
+          panelCopy("rcontent");
+        }
         evt.stopPropagation();
         break;    
     case "Enter": // enter
@@ -1315,10 +1474,8 @@ function addInputEvent(id, func, target) {
 function buildEvents() {  
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
-	addEvent('tcopy', topCopy);
   addEvent('tcopyren', topCopyRename);
-  addEvent('tcomp', topComp);
-  addEvent('dsync', topDirSync);
+  addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);
 	addEvent('tquit', topQuit);
@@ -1327,6 +1484,8 @@ function buildEvents() {
 	addEvent('lhome', panelHome, 'lcontent');
 	addEvent('lup', panelUp, 'lcontent');
   addEvent('lcreate', panelCreate, 'lcontent');
+  addEvent('lcomp', panelComp, 'lcontent');
+  addEvent('lcopy', panelCopy, 'lcontent');
 	addEvent('ldel', panelDelete, 'lcontent');
   addEvent('lbox', panelBox, 'lcontent');
 
@@ -1336,12 +1495,16 @@ function buildEvents() {
 	addEvent('rhome', panelHome, 'rcontent');
 	addEvent('rup', panelUp, 'rcontent');
   addEvent('rcreate', panelCreate, 'rcontent');
+  addEvent('rcomp', panelComp, 'rcontent');
+  addEvent('rcopy', panelCopy, 'rcontent');
 	addEvent('rdel', panelDelete, 'rcontent');
   addEvent('rbox', panelBox, 'rcontent');
 
 	addInputEvent('rcontentpath', panelGo, 'rcontent');
 
-  // drag and drop events
+  syncDialog.init();
+
+	// drag and drop events
 
   const darear = document.getElementById('rcontent');
 
@@ -1360,7 +1523,7 @@ function buildEvents() {
     'drop', 
     function(evnt) {
       if (evnt.stopPropagation) evnt.stopPropagation();
-      topCopy(true);
+      panelCopy('lcontent');
       evnt.preventDefault(); 
       return false;
     }, 
