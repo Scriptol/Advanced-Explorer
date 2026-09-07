@@ -1,6 +1,6 @@
 /*
   Advanced Explorer Node server
-	(c) 2012-2025 Denis Sureau
+	(c) 2012-2026 Denis Sureau
 	Free, open source under the GPL 3 License.
 */
 
@@ -84,8 +84,14 @@ function runScript(exists, file, param) {
 
 var mainEvent;
 ipcMain.on('interface', (event, data) => {
-   mainEvent = event;
-   var jo = JSON.parse(data);
+  mainEvent = event;
+  let jo = JSON.parse(data);
+
+  if (jo.type === "ESCAPE") {
+    explorer.abortRequested = true;
+    console.log("Escape pressed → abort requested");
+  }
+
    jo.event = event;
    if(debug) console.log("Received: " + jo.command)    
    explorer.explorerShell(jo);

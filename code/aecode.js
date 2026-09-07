@@ -309,7 +309,6 @@ ipcRenderer.on('interface', (event, data) => {
           console.error("syncDialog.addFiles() unknown !");
         }
         break;
-       
     case "boxapp":     
         boxApp(jobj);
         break;
