@@ -888,14 +888,14 @@ button {
 	left: 50%;
 	transform: translateX(-50%);
     width: 600px;
-	max-height: 80vh;    
+	max-height: 632px;    
 	background: #444;
 	color: white;
     border: 1px solid #999;
 	border-radius: 4px;
 	padding: 10px;
 	font-size:13px;
-	box-sizing: border-box
+	box-sizing: border-box;
 }
 
 
@@ -919,8 +919,8 @@ button {
 	color:white;
 	padding: 8px;	
     border: 1px solid #666;
-	height:108px;
-	max-height:108px;
+	min-height:140px;
+	max-height:140px;
     flex: 1;
     width: 100%;
     overflow-y: auto;  
@@ -933,7 +933,7 @@ button {
     justify-content: flex-end;
     gap: 10px;
     background: inherit;
-    padding: 8px;
+    padding: 4px;
 }
 
 
