@@ -575,6 +575,7 @@ const syncDialog = {
             "target": "rcontent",
             "fullpath": true
         });
+        this.hide();
     }
 };
 
