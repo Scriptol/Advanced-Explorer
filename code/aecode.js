@@ -633,31 +633,39 @@ function checkSelected() {
   return true;
 }
 
-let zipname="";
+let zipName="";
 var topZip = function (target) {
-	let namelist = getSelectedNames('lcontent');
-	if(namelist.length == 0) {
+	let nameList = getSelectedNames('lcontent');
+	if(nameList.length == 0) {
 		alertDialog("No dir/file selected in left panel");
 		return;
 	}
 
-	promptDialog("Zip archive name:", `${zipname}`, function(answer) {
-    if(answer == false)  return;
-    zipname = noHTMLchars(answer);
-    if(zipname == "") return;
+  if(nameList.length == 1) {
+    zipName = replaceExtension(nameList[0], ".zip")
+  }
 
-    let p = zipname.lastIndexOf(".");
-	  if(zipname.substr(p) != ".zip")	zipname += ".zip";
-    let archiver = config.Archiver.input;
-	  let a = { 'command': 'archive', 
-      'archiver': archiver,
-      'zipname': zipname, 
-      'list': namelist,
-      'source' : 'lcontent',
-      'target': 'rcontent' 
-	  };
+  promptDialog("Zip archive name:", zipName, function(answer) {
+    if (answer === false || answer === null) return;
+    zipName = noHTMLchars(answer.trim());
+    if (zipName === "") return;
+
+    let p = zipName.lastIndexOf(".");
+    if (p === -1 || zipName.slice(p).toLowerCase() !== ".zip") {
+        zipName += ".zip";
+    }
+
+    let a = {
+        "command": "archive",
+        "zipName": zipName,
+        "list": nameList,
+        "sourcePath": getLeftPath(),
+        "targetPath": getRightPath()
+    };
+
     sendFromInterface(a);
-	})
+  });
+
 }
 
 function directorySync() {
@@ -1415,12 +1423,7 @@ var keydownHandler = function(evt, target) {
         break;
     case "KeyU":  // unzip      
         if(!evt.ctrlKey) break;
-        if(target == "lcontent") {
-          keyUnzip(target)
-        }   
-        else {
-          keyUnzip("rcontent")
-        }
+        keyUnzip(target)
         evt.stopPropagation();
         break;
     case "KeyC"    : // copy

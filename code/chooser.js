@@ -414,6 +414,18 @@ function noHTMLchars(s) {
 }
 
 
+function replaceExtension(fPath, newExt) {
+  if (!newExt.startsWith(".")) {
+    newExt = "." + newExt;
+  }
+  const lastSlash = Math.max(fPath.lastIndexOf("/"), fPath.lastIndexOf("\\"));
+  const lastDot = fPath.lastIndexOf(".");
+  if (lastDot <= lastSlash) {
+    return fPath + newExt;
+  }
+  return fPath.slice(0, lastDot) + newExt;
+}
+
 
 function view(element, filepath, panelid, forcePage) { 
   if(insidezip[panelid]) { // always displayed like a page
@@ -861,7 +873,6 @@ function rsel(element) {
   if(x) x.parentNode.removeChild(x); 
   
   let parent = element.parentNode; 
-  let isImage=false;
   let isExecutable = false;
   let isZip = false;
   let ext = getNameSelected(element);
@@ -936,7 +947,7 @@ function rsel(element) {
   
   if(isZip)  {
     let pe = document.createElement('p');
-    pe.onclick=function() { keyUnzip(); };
+    pe.onclick=function() { keyUnzip(target); };
     pe.setAttribute('class', 'ctxline');
     pe.innerHTML = "Unzip";    
     d.appendChild(pe);

@@ -57,14 +57,12 @@ a {
     all: unset;
     display: none;
     position: absolute;
-    background: #ccc;
     color: #000;
     font-size: 12px;
     user-select: none;
     padding:8px;
     text-align: center;
     top: 24px;
-    -left: calc(50% - 150px);
     z-index: 9999;
     width: 180px;
     min-height: 40px;
@@ -718,9 +716,6 @@ a {
 	border:1px solid #CCC;
 	background-color: #333;
 	color:#FFF;
-	-background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
-	-background-image: linear-gradient(top, #ffffff, #e6e6e6);
-	-background-repeat: repeat-x;
 	font-size:15px;
 	font-weight:bold;
 }  
