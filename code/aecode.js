@@ -243,8 +243,8 @@ ipcRenderer.on('interface', (event, data) => {
   let jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'computer':
-        const diff = JSON.stringify(drivesOnComputer.sort()) === JSON.stringify(jobj.drives.sort())
-        if(drivesOnComputer.length == 0 || diff) {
+        const same = JSON.stringify(drivesOnComputer.sort()) === JSON.stringify(jobj.drives.sort())
+        if(!same) {
           drivesOnComputer = jobj.drives.slice();
         }
         displayDrives(jobj.letter, drivesOnComputer)
@@ -1183,6 +1183,7 @@ function changeDirectory(element, code) {
 }
 
 let drivesOnComputer = []
+
 function displayDrives(letter, dlist) {
     let id = letter + "bm"
 	  let d = document.getElementById(id);
