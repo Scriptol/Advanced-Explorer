@@ -217,6 +217,23 @@ function sortByDate(a, b) {
   return 0;
 }
 
+function buildInfos(dn, fn, ts) {
+   let lpd = dn > 1 ? 's, ' : ', ';
+   let lpf = fn > 1 ? 's, ' : ', ';
+        
+   let stats = "<span class='lstats'>"
+        + dn + " dir" + lpd
+        + fn + " file" + lpf
+        + ts + " bytes</span>";   
+
+    return stats    
+}
+
+function formatNumber(n) {
+  return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
+
 // Display list of files in lcontent or rcontent
 
 function fileList(content, sortMode = 0) {
@@ -230,6 +247,7 @@ function fileList(content, sortMode = 0) {
 	fpath.value = filepath;
   
 	let listid = target + "list";
+  let infoid = target + 'infos';  
 	let dir = content.list;
     switch(sortMode) {
     case SORT_BY_SIZE:
@@ -242,9 +260,19 @@ function fileList(content, sortMode = 0) {
         dir.sort(sortByName);
         break;
     }
-	let page = "<div class='filechooser'><div class='flist' id='"+ listid +"' tabindex='0'>";
+
+  let page =
+  "<div class='filechooser'>" +
+    "<div class='flist' id='" + listid + "' tabindex='0'></div>" +
+    "<div class='dirinfos' id='" + infoid + "'></div>" +
+  "</div>";
+  d.innerHTML = page;
+	
 	let dirlist = "";
 	let filelist ="";
+  let dirNum = 0
+  let fileNum = 0
+  let totalSize = 0
 	
 	for(let i = 0; i < dir.length; i++) {
 		let item = dir[i];
@@ -253,19 +281,22 @@ function fileList(content, sortMode = 0) {
 
 		if(type=='dir') {
 			dirlist += buildDir(name, target); 
+      if(name != "..") dirNum++
 		}
 		else {
-			let timesize = item[2];
+			let size = item[2];
       let filedate = item[3];    
 			let p = name.lastIndexOf('.');
 			let ext = name.slice(p + 1);
 			if(extmask && ext != extmask) continue; 
-			filelist += buildLink(filepath, name, target, timesize, filedate, ext);
+			filelist += buildLink(filepath, name, target, size, filedate, ext);
+      fileNum ++
+      totalSize += size
 		}
 	}
 	
-	page += dirlist + filelist + "</div></div>";
-	d.innerHTML = page;
+  document.getElementById(listid).innerHTML = dirlist + filelist;
+  document.getElementById(infoid).innerHTML = buildInfos(dirNum, fileNum, formatNumber(totalSize))
 
   let x;
   if(target=='lcontent')
@@ -1153,11 +1184,11 @@ function getSelectedNames(src) {
   let source = document.getElementById(src);
   let namelist = new Array();
 	let parent = source.firstChild;	
-	let slist = new Array();
 	let child = parent.firstChild.firstChild; 
 	while(child) 	{
-    if(child.className == "entrybold")
-      namelist.push(child.dataset.name)  
+    if(child.className == "entrybold") {
+      namelist.push(child.dataset.name) 
+    } 
 		child = child.nextSibling;
 	}  	
   return namelist;    
@@ -1173,7 +1204,6 @@ function getAllNames(src) {
   let source = document.getElementById(src);
   let namelist = new Array();
 	let parent = source.firstChild;	
-	let slist = new Array();
 	let child = parent.firstChild.firstChild; 
 	while(child) 	{
     namelist.push(child.dataset.name)  
@@ -1181,6 +1211,11 @@ function getAllNames(src) {
 	}  	
   return namelist;    
 }
+
+function getFileName(path) {
+    return path.split(/[/\\]/).pop();
+}
+
 
 /*
   selectToDelete(panelname)
@@ -1283,7 +1318,8 @@ function compare(invertFlag) {
 
     let s = ""; 
     if (total > 1) s = "s";
-    const result = total + ' file' + s + ' updated or missing.';
+    const result = total + ' file' + s + ' to update or copy';
+    updateMessage(result, false)
     console.log(result);
 }
 

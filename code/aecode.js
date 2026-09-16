@@ -153,15 +153,15 @@ function socketImage(jobj) {
     let ouverture = "";
     let pmode = "";
  
-    let message = imagepath + ", " + ow + " x " + oh + " px";
+    let message = getFileName(imagepath) + ", " + ow + " x " + oh + " px";
 
-    updateStatusBar(message);
+    updateMessage(message, false);
     let exiff = true;
     EXIF.getData(image, function() {
       iso = EXIF.getTag(this, "ISOSpeedRatings");
       if(iso === undefined) {
         if(w < ow || h < oh)
-        document.getElementById('status').innerHTML += ", resized to " + w.toFixed() + " x "+ h.toFixed();   
+        document.getElementById('message').innerHTML += ", resized to " + w.toFixed() + " x "+ h.toFixed();   
         exiff = false;
         return;     
       }
@@ -194,7 +194,7 @@ function socketImage(jobj) {
     });    
     if(!exiff) return;
     let exif = ` &nbsp;&nbsp;  - &nbsp;&nbsp;   ${model} &nbsp;&nbspF/${focale} &nbsp;&nbsp${zoom} &nbsp;&nbsp${exposition}s &nbsp;&nbspISO ${iso} &nbsp;&nbsp${pmode} `;
-    document.getElementById('status').innerHTML += exif;
+    document.getElementById('message').innerHTML += exif;
     return;
   };
 
@@ -220,47 +220,35 @@ function processDirdata(jobj) {
 
 }
 
-function updateStatusBar(message) {
-  if(message===undefined) message="";
-  document.getElementById('status').innerHTML = message;
+
+let messageTimer = null;
+
+function updateMessage(info, remain) { 
+    const msg = document.getElementById("message");
+    msg.textContent = info;
+
+    if (messageTimer) {
+        clearTimeout(messageTimer);
+    }
+
+    messageTimer = setTimeout(() => {
+        if(!remain) msg.textContent = "";
+        messageTimer = null;
+    }, 10000); // 10s
 }
 
-ipcRenderer.on('stats', (event, data) => {
-  let jobj = JSON.parse(data);
-  if(jobj.target == 'lcontent') {
-     leftDirs = jobj.dirs;
-     leftFiles = jobj.files;
-     leftSize = jobj.size;
-   }
-   else {
-     rightDirs = jobj.dirs;
-     rightFiles = jobj.files;
-     rightSize = jobj.size;
-   }
-  
-   let lpd = leftDirs > 1 ? 's, ' : ', ';
-   let lpf = leftFiles > 1 ? 's, ' : ', ';
-   let rpd = rightDirs > 1 ? 's, ' : ', ';
-   let rpf = rightFiles > 1 ? 's, ' : ', ';
-        
-   let stats = "<span class='lstats'>"
-        + leftDirs + " dir" + lpd
-        + leftFiles + " file" + lpf
-        + leftSize + " bytes.</span><span class='rstats'>"
-        + rightDirs + " dir" + rpd
-        + rightFiles + " file" + rpf
-        + rightSize + " bytes.</span>"; 
-   updateStatusBar(stats);
-}); 
 
-ipcRenderer.on('computer' , (event, data) => {
-  let jobj = JSON.parse(data);
-  displayDrives(jobj.letter, jobj.drives)
-});
 
 ipcRenderer.on('interface', (event, data) => { 
   let jobj = JSON.parse(data);
   switch(jobj.type) {
+    case 'computer':
+        const diff = JSON.stringify(drivesOnComputer.sort()) === JSON.stringify(jobj.drives.sort())
+        if(drivesOnComputer.length == 0 || diff) {
+          drivesOnComputer = jobj.drives.slice();
+        }
+        displayDrives(jobj.letter, drivesOnComputer)
+        break;
     case 'notification':
         showNotification(jobj);
         break;
@@ -273,11 +261,14 @@ ipcRenderer.on('interface', (event, data) => {
     case 'editor':
         displayEditor(jobj, false);
         break;
-    case 'message':
+    case 'alert':
         alertDialog(jobj.content); 
-        break;    
+        break; 
+    case 'message':
+        updateMessage(jobj.content, false)
+        break;
     case 'status':
-        updateStatusBar(jobj.content);
+        updateMessage(jobj.content, true);
         break;
     case 'counter':
         syncDialog.updateCounter(jobj.content)
@@ -420,9 +411,9 @@ function buildXData(target) {
 
 function dirSynchro() {
   if(document.getElementById('dirpane').style.display=="none")	return;
-	let source = getLeftPath()
-	let target = getRightPath()
-	if(source == target) {
+	let sourcedir = getLeftPath()
+	let targetdir = getRightPath()
+	if(sameDir()) {
 		alertDialog("Left and right panel must be differend directories!");
 		return;
 	}  
@@ -437,7 +428,12 @@ function dirSynchro() {
     alertDialog("Up to date or empty directory, nothing to copy")
 	}
   
-	const a = { 'command': 'filecopy', 'list': namelist, 'source' : 'lcontent', 'target': 'rcontent'};
+	const a = { 
+    'command': 'filecopy', 
+    'list': namelist, 
+    'source' : sourcedir, 
+    'target': targetdir
+  };
 	sendFromInterface(a);
 }
 
@@ -684,6 +680,56 @@ function treeSync() {
     }));
 }
 
+function confirmDialogAsync(question) {
+    return new Promise(resolve => {
+        confirmDialog(question, answer => resolve(answer));
+    });
+}
+
+async function copyList(list, sourcepanel, targetpanel) {
+    let sourcedir;
+    let targetdir;
+    let count = 0;
+    if(sourcepanel == 'lcontent') {
+      sourcedir = getLeftPath()
+      targetdir = getRightPath()
+    }
+    else {
+      targetdir = getLeftPath()
+      sourcedir = getRightPath()
+    }
+
+    const tgtList = getAllNames(targetpanel);
+    for (const name of list) {
+        const exists = tgtList.includes(name);
+        if (exists) {
+            const answer = await confirmDialogAsync(
+                `${name} exist in ${targetdir}. Overwrite ?`
+            );
+            if (!answer) {
+                continue;
+            }
+        }
+  
+        updateMessage("Copying " + name + " to " + targetdir)
+        const sourcename = path.join(sourcedir, name)
+        const targetname = path.join(targetdir, name)
+        sendFromInterface({
+            "command": "copyone",
+            "name": name,
+            "sourcename": sourcename,
+            "targetname": targetname,
+            "sourcedir": sourcedir,
+            "targetdir": targetdir,
+            "target" : targetpanel
+        });
+        
+        count++
+    }
+
+    updateMessage(count + " files copied.", false);
+}
+
 
 function topSync() {
 	if(!dirDisplayed)	return;
@@ -814,13 +860,11 @@ var panelComp = function (target) {
 
 var panelCopy = function (source) {
   if(document.getElementById('dirpane').style.display=="none")	return;
-  const letter = source[0];
-  let target = (letter == 'l') ? 'rcontent' : 'lcontent'
-	if(sameDir()) {
+  if(sameDir()) {
 		alertDialog("Left and right panel must be differend directories!");
 		return;
 	}  
-  
+
 	let namelist = getSelectedNames(source);
 	if(namelist.length == 0) {
 		alertDialog("No dir/file selected in source panel");
@@ -831,8 +875,9 @@ var panelCopy = function (source) {
     return;
   }
 
-	const a = { 'command': 'filecopy', 'list': namelist, 'source' : source, 'target': target};
-	sendFromInterface(a);
+  const letter = source[0];
+  const target = (letter == 'l') ? 'rcontent' : 'lcontent'
+  copyList(namelist, source, target);
 }
 
 
@@ -881,12 +926,8 @@ var elementRename = function(spanitem, panelName) {
 function panelFileInfo(target) { 
 	let slist = getSelectedNames(target); 
 	if(slist.length < 1) 	{
-		target = 'rcontent';
-		slist = getSelectedNames(target);
-		if(slist.length < 1) {
-			//alertDialog('File info: ' + slist.length + " selected. ");
-			return;
-		}
+    alertDialog("Select a file or directory");
+		return;
 	}
 	const a = { 'command': 'dirinfo', 'target': target, 'filelist': slist };
   sendFromInterface(a);
@@ -895,9 +936,8 @@ function panelFileInfo(target) {
 
 var panelDelete = function(target) {
 	let namelist = getSelectedNames(target);
-
 	if(namelist.length == 0) 	{
-		alertDialog("Nothing selected to delete");
+		alertDialog("Select files to delete");
 		return;
 	}
   selectToDelete(target);
@@ -1142,6 +1182,7 @@ function changeDirectory(element, code) {
   chDir(dpath, target)
 }
 
+let drivesOnComputer = []
 function displayDrives(letter, dlist) {
     let id = letter + "bm"
 	  let d = document.getElementById(id);
@@ -1150,9 +1191,8 @@ function displayDrives(letter, dlist) {
     let blist = ""
     let i;
 	  for(i = 0; i < dlist.length; i++) {
-      let path = dlist[i]
 		  let item = dlist[i]
-      blist +=  "<p data-path='" + path 
+      blist +=  "<p data-path='" + item 
         + "' onclick='changeDirectory(this, " 
         + code 
         + ")'><span class='drive-item'><span class='icodsk'>&#128436;</span>"
@@ -1176,12 +1216,12 @@ function computer(letter) {
       d.style.display = "none"
       return;  
   }
-  const a = {
-    "command":"getdrivelist",
-    "letter": letter
-  }
- 
-  sendFromInterface(a)
+  d.style.display = "block"
+  d.onmouseleave = () => {
+      d.style.display = "none";
+  };   
+  if(drivesOnComputer.length !=0)  displayDrives(letter, drivesOnComputer)
+  sendFromInterface({ "command":"getdrivelist", "letter": letter })
 }
 
 
@@ -1428,12 +1468,7 @@ var keydownHandler = function(evt, target) {
         break;
     case "KeyC"    : // copy
         if(!evt.ctrlKey) break;
-        if(target == "lcontent") {
-          panelCopy(target);
-        }  
-        else {
-          panelCopy("rcontent");
-        }
+        panelCopy(target);
         evt.stopPropagation();
         break;    
     case "Enter": // enter
