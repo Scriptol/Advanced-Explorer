@@ -243,11 +243,8 @@ ipcRenderer.on('interface', (event, data) => {
   let jobj = JSON.parse(data);
   switch(jobj.type) {
     case 'computer':
-        const same = JSON.stringify(drivesOnComputer.sort()) === JSON.stringify(jobj.drives.sort())
-        if(!same) {
-          drivesOnComputer = jobj.drives.slice();
-        }
-        displayDrives(jobj.letter, drivesOnComputer)
+        drivesOnComputer = jobj.drives.slice();
+        displayDrives(jobj.letter, event)
         break;
     case 'notification':
         showNotification(jobj);
@@ -1177,22 +1174,21 @@ function closeRecentOnOutsideClick(e) {
 function changeDirectory(element, code) {
   let letter = (code == 0 ? "l" : "r")
   let target = letter + "content";
-  let dpath = element.dataset.path;
-  element.parentNode.remove()
-  chDir(dpath, target)
+  element.parentNode.style.display="none"
+  chDir(element.dataset.path, target)
 }
 
 let drivesOnComputer = []
 
-function displayDrives(letter, dlist) {
+function displayDrives(letter) {
     let id = letter + "bm"
 	  let d = document.getElementById(id);
     if (!d) return;
     let code = (letter == "l" ? 0 : 1);
     let blist = ""
     let i;
-	  for(i = 0; i < dlist.length; i++) {
-		  let item = dlist[i]
+	  for(i = 0; i < drivesOnComputer.length; i++) {
+		  let item = drivesOnComputer[i]
       blist +=  "<p data-path='" + item 
         + "' onclick='changeDirectory(this, " 
         + code 
@@ -1209,21 +1205,26 @@ function displayDrives(letter, dlist) {
 }
 
 
-function computer(letter) {
+function computer(letter, event) {  
+  if (event) event.stopPropagation();   
   let id = letter + "bm"
 	let d = document.getElementById(id);
   if (!d) return;
+
   if (getComputedStyle(d).display === "block")   {
       d.style.display = "none"
       return;  
   }
   d.style.display = "block"
   d.onmouseleave = () => {
-      d.style.display = "none";
+      if (getComputedStyle(d).display === "block")   {
+        d.style.display = "none"
+      }
   };   
-  if(drivesOnComputer.length !=0)  displayDrives(letter, drivesOnComputer)
+  if(drivesOnComputer.length !=0)  displayDrives(letter)
   sendFromInterface({ "command":"getdrivelist", "letter": letter })
 }
+
 
 
 function bookmark(letter) {
