@@ -1068,27 +1068,15 @@ function recentsClear(idx) {
     Recdirs.list[idx]=[];
 }
   
-//  Bookmarks.
 
-/*
-function bookmarkDelete(idx, name) {
-  try {
-  let bm = config.Bookmarks.list[idx].select
-  let tf = bm.indexOf(name)
-  if(tf > -1)
-    bm.splice(tf, 1)
-  }
-  catch(e) { }
-}
-*/
-
-function openDir(element, code, popup) {
+function openBM(element, code) {
   let letter = (code == 0 ? "l" : "r")
   let target = letter + "content";
   let dpath = element.dataset.path;
-  element.parentNode.remove()
+  element.parentNode.style.display="none"
   chDir(dpath, target)
 }
+
 
 function closeDrive(element) {
   element.style.display="none"  
@@ -1112,7 +1100,7 @@ function fillRecents(popup, code) {
         for(let i = 0; i < Math.min(25, r.length); i++) {
           blist +=  "<p class='recent-item'" 
           + " data-path='" + r[i] + "'"
-          + " onclick='openDir(this, " + code + ")'>"
+          + " onclick='openBM(this, " + code + ")'>"
           + r[i] 
           + "</p>"
         }
