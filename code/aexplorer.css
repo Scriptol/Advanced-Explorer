@@ -28,6 +28,69 @@ a {
 	overflow:visible;
 }
 
+
+
+#dirpane, #editpane, #optpane {
+	margin:0px auto;	
+	min-width:480px;
+	width:100%;
+	height:100%;
+	padding:0 4px 48px 0;
+	text-align:center;
+}
+
+#dirpane {
+    display: flex;
+    flex-direction: row;
+}
+
+#editpane {
+	margin:0 8px 0 2px;
+	padding:0 4px 58px 0;
+}
+
+
+
+#lpane, #rpane {
+	display:inline-block;	
+	height:100%;	
+	width:100%;
+	margin:0px;
+	min-width:320px;
+	text-align:left;
+	background:#222;
+	padding:0px 4px 74px 0;
+}
+
+
+#lcontent, #rcontent {
+	display:flex;	
+	flex-direction:column;
+	width:100%;
+	height:100%;
+	min-height:128px;	
+	border:1px solid #666;
+	margin:4px;
+	background:#000;
+	padding-bottom:0px;
+}
+
+#lup, #rup {
+	transform:scale(1.5,1);
+}
+
+
+#editor, #options {
+	overflow:scroll;
+	border:none;
+	margin:none;
+	padding:none;
+	width:100%;
+	height:100%;
+	min-width:480px;
+	min-height:320px;
+}
+
 #outer {
 	width:100%;
 	height:100%;
@@ -120,74 +183,6 @@ a {
 	color: blue;
 }
 
-
-#dirpane, #editpane, #optpane {
-	margin:0px auto;	
-	min-width:480px;
-	width:100%;
-	height:100%;
-	padding:0 4px 48px 0;
-	text-align:center;
-}
-
-#dirpane {
-    display: flex;
-    flex-direction: row;
-}
-
-#editpane {
-	margin:0 8px 0 2px;
-	padding:0 4px 58px 0;
-}
-
-
-
-#statubar {
-	height:32px;
-	padding:2px 8px 0 2px;	
-	margin-right:2px;
-	background:#222;
-}
-
-#lpane, #rpane {
-	display:inline-block;	
-	width:49.6%;
-	height:100%;	
-	margin:0px;
-	min-width:320px;
-	text-align:left;
-	background:#222;
-	padding:0px 4px 74px 0;
-}
-
-
-#lcontent, #rcontent {
-	display:flex;	
-	flex-direction:column;
-	width:100%;
-	height:100%;
-	min-height:128px;	
-	border:1px solid #666;
-	margin:4px;
-	background:#000;
-	padding-bottom:0px;
-}
-
-#lup, #rup {
-	transform:scale(1.5,1);
-}
-
-
-#editor, #options {
-	overflow:scroll;
-	border:none;
-	margin:none;
-	padding:none;
-	width:100%;
-	height:100%;
-	min-width:480px;
-	min-height:320px;
-}
 
 .toolbar {
 	display:flex;
@@ -501,17 +496,25 @@ a {
 }
 
 .innpath {
-	margin:3px 4px 2px 8px;
+	margin:1px 2px 0px 0px;
 	width:96%;
 	line-height:18px;	
 	font-size:14px;
 	border:none;
-	padding:0;
+	padding:2px;
+	padding-left:8px;
 	background:#333;
 	display:block;
 	color:white;
   	width:92%;
 }
+
+.innpath:focus {
+	outline:none;
+    border: 1px solid #ccc;
+	border-radius:2px;
+}
+
 
 .fstar {
   	position:relative;	
@@ -521,6 +524,7 @@ a {
 
 .fstar:hover {
 	color:orange;
+	margin-top:-2px;
 }
 
 .fstar.active {
@@ -539,7 +543,7 @@ a {
 
 .farrow {
     display: inline-block;
-	margin-top:4px;
+	margin-top:2px;
     cursor: pointer;
     user-select: none;
     font-size: 20px;
@@ -549,29 +553,6 @@ a {
 .farrow:hover {
 	color:orange;
 }
-
-/*
-#outerstatus {
-	height:26px;
-	padding:0px;
-	right:8px;
-	border:1px solid #666;
-	background:#333;
-	display:block;
-	margin:0 4px 0 4px;
-}
-
-#status {
-	margin:3px 16px 2px 8px;
-	line-height:18px;	
-	font-size:14px;
-	border:none;
-	padding:0;
-	background:#333;
-	display:block
-	color:white;
-}
-*/
 
 .recent-popup {
 	all: unset;
