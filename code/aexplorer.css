@@ -520,11 +520,11 @@ a {
   	position:relative;	
 	margin-left:auto;
 	color:white;
+	margin-top:-2px;	
 }
 
 .fstar:hover {
 	color:orange;
-	margin-top:-2px;
 }
 
 .fstar.active {
