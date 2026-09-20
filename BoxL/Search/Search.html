@@ -9,7 +9,7 @@ body, input {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 }
 body {
-	padding:32px;
+	padding:24px;
 }
 #result {
   width:100%;
@@ -17,6 +17,12 @@ body {
   padding:8px;
   border-radius:4px;
   margin:16px 0 0 0;
+  text-align:left;
+}
+#info {
+	width:100%;
+	display:block;
+	margin-bottom:8px;
 }
 </style>
 <script src="../../xdata.js" type="text/javascript" charset="utf-8"></script>
@@ -28,8 +34,7 @@ function clear() {
   document.getElementById('result').innerHTML = "";
 }
 
-function message(content)
-{
+function message(content) {
   var target = document.getElementById('result');
   content = content.replace("<img", "&ltimg;");
   content = content.replace("<a", "&lta;");  
@@ -39,8 +44,7 @@ function message(content)
   target.innerHTML += content;
 }
 
-function updateInfo()
-{
+function updateInfo() {
 	var sourcePath = xdata.source.path;
     var lst = xdata.source.list; 
     var searchinfo = document.getElementById("info");
@@ -54,10 +58,10 @@ function updateInfo()
 	} 
 	else
 	{
-	    searchinfo.innerHTML = "Processing all files in <b>" + sourcePath + "</b.";
-	    if(document.getElementById("recurse").checked) 
+	    searchinfo.innerHTML = "Processing all files in : <b>" + sourcePath + "</b.";
+	    if(document.getElementById("recurse").checked) {
 			searchinfo.innerHTML += " and subdirectories";
-	    searchinfo.innerHTML += ".";
+		}
 	}
 }
 
@@ -68,8 +72,7 @@ ipcRenderer.on("interface", (event, data) => {
   }
 });
 
-function searchOnly() 
-{
+function searchOnly() {
 	var lst = xdata.source.list;
 	var opt = "";
 	if(lst.length > 0)  opt += " -l";
@@ -92,7 +95,7 @@ function searchOnly()
         'script' : "BoxL/Search/search.js",
         'options': opt
     };
-    ipcRenderer.send("interface", JSON.stringify(a));  		
+    ipcRenderer.invoke("interface", JSON.stringify(a));  		
     clear();	
 }
 
@@ -124,7 +127,7 @@ function searchAndReplace()
         'script' : "BoxL/Search/searep.js",
         'options': opt
   };
-    ipcRenderer.send("interface", JSON.stringify(a));  	
+    ipcRenderer.invoke("interface", JSON.stringify(a));  	
   clear();		
 }
 */
@@ -134,7 +137,7 @@ window.onload=updateInfo;
 
 <body>
 <h1>Text search in files</h1>
-<div id="info"></div>
+<p id="info"></p>
 <form method="" action="">
 <p>
   Include subdirectories   <input type="checkbox" id="recurse" value="" onClick="updateInfo()">
@@ -156,7 +159,7 @@ window.onload=updateInfo;
 </p>	
 </form>
 <fieldset><legend>Results</legend>
- <div id="result"></div>
+ 	<div id="result"></div>
 </fieldset>
 </body>
 </html>

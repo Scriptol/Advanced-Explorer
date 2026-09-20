@@ -165,10 +165,11 @@ body {
 	margin-left: auto;
   	background:#444;
   	overflow:hidden;
+    text-overflow: ellipsis;	
   	color:#FFF;
   	font-family:Arial, sans-serif;
-  	margin-top:2px;
-  	margin-right:16px;
+  	margin-right:16;
+    font-size: 18px;
 }
 
 

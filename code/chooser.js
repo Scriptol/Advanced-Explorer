@@ -40,9 +40,16 @@ ipcRenderer.on("message", (event, data) => {
 });
 
 
+/*
 function sendFromInterface(a) {
     ipcRenderer.send("interface", JSON.stringify(a));
 }
+*/
+
+function sendFromInterface(data) {
+    return ipcRenderer.invoke('interface', JSON.stringify(data));
+}
+
 
 function dotFlag() {
     return  config.Display.list[0].checkbox;
@@ -541,15 +548,15 @@ function view(element, filepath, panelid, forcePage) {
         
 }
 
-/*
-function nodeClear(node) {
-  let child = node.firstChild;
-  while(child) {
-    child.className="file";
-    child = child.nextSibling;
-  }  
+function deselectName(name, panel) {
+  let child = document.getElementById(panel).firstChild.firstChild.firstChild
+	while(child) {
+    if(child.dataset.name == name) 	{
+      child.className="file";  
+	  }
+		child = child.nextSibling;
+	}  	  
 }
-*/
 
 function deselectAll(parent) {
 	let child = parent.firstChild; // child of flist

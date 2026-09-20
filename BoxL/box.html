@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<!-- Advanced Explorer Box Panel (c) 2015-2017 Scriptol.com -->
+<!-- Advanced Explorer Box Panel (c) 2015-2026 Scriptol.com -->
 <html>
 <head>
 <title>Advanced Explorer Box</title>
@@ -69,7 +69,7 @@ window.onload = function() {
         'command': 'fillbox', 
         'target': target 
     };  
-    ipcRenderer.send("interface", JSON.stringify(a));  
+    ipcRenderer.invoke("interface", JSON.stringify(a));  
 }
 
 </script>

@@ -683,6 +683,8 @@ function confirmDialogAsync(question) {
     });
 }
 
+
+
 async function copyList(list, sourcepanel, targetpanel) {
     let sourcedir;
     let targetdir;
@@ -708,22 +710,19 @@ async function copyList(list, sourcepanel, targetpanel) {
             }
         }
   
-        updateMessage("Copying " + name + " to " + targetdir)
+        updateMessage("Copying " + name + " to " + targetdir, true)
         const sourcename = path.join(sourcedir, name)
         const targetname = path.join(targetdir, name)
-        sendFromInterface({
+        await sendFromInterface({
             "command": "copyone",
-            "name": name,
             "sourcename": sourcename,
             "targetname": targetname,
-            "sourcedir": sourcedir,
-            "targetdir": targetdir,
             "target" : targetpanel
         });
-        
+        deselectName(name, sourcepanel)
         count++
     }
-
+    panelReload(targetpanel)
     updateMessage(count + " files copied.", false);
 }
 
@@ -1159,11 +1158,16 @@ function closeRecentOnOutsideClick(e) {
 }
 
 
-function changeDirectory(element, code) {
+function changeDrive(element, code) {
   let letter = (code == 0 ? "l" : "r")
   let target = letter + "content";
   element.parentNode.style.display="none"
-  chDir(element.dataset.path, target)
+
+	sendFromInterface({
+      'command': 'chdrive', 
+      'path': element.dataset.path,
+      'target': target
+  });  
 }
 
 let drivesOnComputer = []
@@ -1178,7 +1182,7 @@ function displayDrives(letter) {
 	  for(i = 0; i < drivesOnComputer.length; i++) {
 		  let item = drivesOnComputer[i]
       blist +=  "<p data-path='" + item 
-        + "' onclick='changeDirectory(this, " 
+        + "' onclick='changeDrive(this, " 
         + code 
         + ")'><span class='drive-item'><span class='icodsk'>&#128436;</span>"
         + "<span class='bmname'>"+ item + "</span></span></p>"
@@ -1254,7 +1258,6 @@ function keyScroll(evt) {
   let isSHIFT = evt.shiftKey;
   let isCTRL =  evt.ctrlKey;
   let element = null
-  let temp
   let offset;
   
   if(chooserLastSelected == null) return;
@@ -1352,62 +1355,44 @@ function AESaveDialog(cb) {
   let framedit = document.getElementById("editor");
 	let fc = (framedit.contentWindow || framedit.contentDocument);
 	let temp = fc.editor.getValue();  
+
 	if(temp.length > 0)	{  
         let sDialog = document.createElement("dialog")
         sDialog.id="sDialog"
+
+        sDialog.innerHTML = `
+            <p>Save changes in ${getFileNode(fc.filename || "untitled")}?</p>
+            <menu>
+                <button data-action="cancel">Cancel</button>
+                <button data-action="nosave">Do not save</button>
+                <button data-action="save">Save</button>                
+            </menu>
+        `;
+
         document.body.appendChild(sDialog)
-        
-        let sLabel = document.createElement("p")
-        sLabel.innerHTML = "Save changes in " + getFileNode(fc.filename) + "?"
-        sDialog.appendChild(sLabel)
+          sDialog.showModal();
 
-        let menu = document.createElement("menu")
-        sDialog.appendChild(menu)
+        sDialog.querySelectorAll("button").forEach(btn => {
+            btn.onclick = () => sDialog.close(btn.dataset.action);
+        });        
         
-        let b2 = document.createElement("button")
-        b2.onclick=function() { sDialog.close(2) }
-        b2.innerHTML="Save"
-        menu.appendChild(b2)
-        
-        let b1 = document.createElement("button")
-        b1.onclick=function() { sDialog.close(1) }
-        b1.innerHTML="Do not save"
-        menu.appendChild(b1)
-
-        let b0 = document.createElement("button")
-        b0.onclick=function() { sDialog.close(0) }
-        b0.innerHTML="Cancel"
-        menu.appendChild(b0)
-        sDialog.showModal();
-        
-        sDialog.addEventListener('close', function(e) {
+        sDialog.addEventListener('close', function() {
             let response = sDialog.returnValue;
-            if(response == 0) {
-                cb(false); 
+            if (response === "cancel") {
+                document.body.removeChild(sDialog);
+                cb(false);
                 return;
             }
-            if(response == 1) {
-                fc.changedStatus(false); 
-                cb(true); // do not save and continue
-                return;    
+            if (response === "nosave") {
+                fc.changedStatus(false);
+                document.body.removeChild(sDialog);
+                cb(true);
+                return;
             }
-            dialog.showSaveDialog(null, {
-                title:"Save current text",
-                defaultPath: "file:///" + fc.filename,
-                buttonLabel: "Save file and continue"
-                }, 
-                function(fpath) {
-                    document.body.removeChild(sDialog)
-                    if(fpath == undefined) {
-                        cb(false)  // cancel
-                        return;
-                    }
-                    fc.changedStatus(false);                 
-                    fc.filename = fpath;
-                    fc.save(false);
-                    cb(true)
-                    return;                
-            });
+            // save
+            fc.changedStatus(false);
+            fc.save(false);
+            cb(true);
         });    
     } 
 }

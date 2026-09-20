@@ -12,7 +12,6 @@ const http = require("http"),
       runner = require("child_process"),
       net = require('net'),
       fs = require("fs");
-
 const { app, BrowserWindow, ipcMain } = require('electron/main');
 const explorer = require("explorer");
 require('@electron/remote/main').initialize();
@@ -83,32 +82,39 @@ function runScript(exists, file, param) {
 
 
 var mainEvent;
-ipcMain.on('interface', (event, data) => {
+ipcMain.handle('interface', (event, data) => {
   mainEvent = event;
   let jo = JSON.parse(data);
 
   if (jo.type === "ESCAPE") {
     explorer.abortRequested = true;
     console.log("Escape pressed → abort requested");
+    return { success: false, aborted: true };
   }
 
    jo.event = event;
    if(debug) console.log("Received: " + jo.command)    
-   explorer.explorerShell(jo);
+   return explorer.explorerShell(jo);
 })
 
 // Create a TCP server to communicate with native script
 
 var nativeServer = net.createServer(function(ncom) { 
-  ncom.setEncoding("utf8");
-  ncom.on('error', function(err) {
-    console.log("TCP error: " + err.stack);
-  });    
-  ncom.on('data', function(data) { 
-    mainEvent.sender.send("interface", data);   // send data
-  });
-  ncom.on('end', function() {});
+    ncom.setEncoding("utf8");
+
+    ncom.on('error', function(err) {
+        console.log("TCP error: " + err.stack);
+    });    
+
+    ncom.on('data', function(data) { 
+        if (win && !win.isDestroyed()) {
+            win.webContents.send("interface", data);
+        }
+    });
+
+    ncom.on('end', function() {});
 });
+
 
 nativeServer.listen(1031, '127.0.0.1');
 

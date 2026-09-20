@@ -85,7 +85,7 @@ function update(config) {
 function serverSave(filename) {
  	var content= 'var config=' + JSON.stringify(config, null, 4);
     var a = { 'command': 'savesys', 'filename': filename, 'content': content  };
-    ipcRenderer.send("interface", JSON.stringify(a));    
+    ipcRenderer.invoke("interface", JSON.stringify(a));    
 }
 
 function saveIni(filename) {

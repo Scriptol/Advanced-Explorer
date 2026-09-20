@@ -48,7 +48,7 @@ window.onload=function()
         'script' : "BoxL/Hello/hello.js",
         'options': "Hello server!"
     };
-    ipcRenderer.send("interface", JSON.stringify(a));  
+    ipcRenderer.invoke("interface", JSON.stringify(a));  
     message("Sent to server: Hello server! (to be displayed by the console)");    
 };
 

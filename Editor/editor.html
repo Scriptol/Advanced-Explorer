@@ -43,14 +43,14 @@ Make use of:
     
 <script>
     
-let editorHasContent = false;
+var editorHasContent = false;
 const { contextBridge, ipcRenderer } = top.require('electron');
 const remote = top.require('@electron/remote');
 const { dialog } = remote;
 
-let editor = ace.edit("editor");
-let root;
-let recents;
+var editor = ace.edit("editor");
+var root;
+var recents;
     
 
 var languageExt = {
@@ -126,8 +126,8 @@ var languageExt = {
     }
 );	
 
-function updateStatusBar(message) { 
-    parent.document.getElementById('message').innerHTML = message;
+function updateMessage(message) { 
+    parent.updateMessage(message, false);
 }
 
 function setFileName(fname) {
@@ -159,7 +159,7 @@ function newDoc() {
     editorIcon(false);  
     setFileName("");
     changedStatus(false);
-    updateStatusBar("");
+    updateMessage("");
 }
 
 function clearDoc() {
@@ -186,7 +186,7 @@ function displaySub(data) {
     setFileName(fname);
     addToRecents(fname);
     changedStatus(false);
-    updateStatusBar(filename);
+    updateMessage(filename);
     editorIcon(true);
     recentsDisplay();  
     editor.focus();   
@@ -225,7 +225,7 @@ function openDoc(filepath) {
         'target': null,
         'inEditor': true 
     };
-    ipcRenderer.send("interface", JSON.stringify( a));
+    ipcRenderer.invoke("interface", JSON.stringify( a));
 }
 
 function getActiveRow(fname) {
@@ -282,7 +282,7 @@ function addToRecents() {
         parent.config.Recents.list=[];
     }
     recents = parent.config.Recents;    
-    var pos = indexInRecents(filename);
+    const pos = indexInRecents(filename);
     if(pos !== -1)
         recents.list.splice(pos, 1);  
     else {    
@@ -292,7 +292,7 @@ function addToRecents() {
 }
 
 function removeFromRecents(filename) {
-    var pos = indexInRecents(filename);
+    const pos = indexInRecents(filename);
     if(pos === -1) return;
     recents.list.splice(pos, 1);    
     recentsDisplay();
@@ -436,12 +436,12 @@ function changedStatus(status) {
 function editDoc(data) {
     setFileName(data.filename);
     editor.setValue(data.content, -1);
-    var mode = "plain_text";
+    let mode = "plain_text";
     if(data.ext in languageExt) {   
         mode = "ace/mode/" + languageExt[data.ext];
     }    
     editor.getSession().setMode(mode); 
-    var row = getActiveRow(filename);   
+    let row = getActiveRow(filename);   
     editor.scrollToLine(row);
     changedStatus(false);
     editorIcon(true);
@@ -471,7 +471,7 @@ ipcRenderer.on("editor", (event, data) => {
             var a = {
                 "type":"answer", "data": data        
             }
-            ipcRenderer.send("interface", JSON.stringify(a));
+            ipcRenderer.invoke("interface", JSON.stringify(a));
         }
         break;
     case "message":    
@@ -480,7 +480,7 @@ ipcRenderer.on("editor", (event, data) => {
     case "mouse":
         break;  
     case "status":  
-        updateStatusBar(data.content);   
+        updateMessage(data.content);   
         break;    
     default:
         alertDialog("Unknow message '" + data.type + "' in editor");
@@ -503,7 +503,7 @@ var winsave = function() {
 }
 
 function save(pflag) { 
-    var content = editor.getValue();
+    let content = editor.getValue();
     if(content.length === 0) {
         alertDialog("Nothing to save.")
         return; 
@@ -511,7 +511,7 @@ function save(pflag) {
     if(pflag || filename === undefined || filename === "") {
         var x = winsave() 
         if(x == "") {
-            updateStatusBar("Content not saved");
+            updateMessage("Content not saved");
             return;
         }
         setFileName(x);
@@ -520,15 +520,15 @@ function save(pflag) {
         editor.focus();
     }    
     setActiveRow();
-    updateStatusBar(x);
+    updateMessage(x);
     changedStatus(false);
-    var a = { 
+    const a = { 
         'command': 'save', 
         'filename': filename, 
         'content' : content,
         'overwrite' : true 
     };
-    ipcRenderer.send("interface", JSON.stringify(a));
+    ipcRenderer.invoke("interface", JSON.stringify(a));
 }
 
 window.onload=function() {

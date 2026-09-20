@@ -69,7 +69,7 @@ window.onload = function() {
         'command': 'fillbox', 
         'target': target 
     };  
-    ipcRenderer.send("interface", JSON.stringify(a));  
+    ipcRenderer.invoke("interface", JSON.stringify(a));  
 }
 
 </script>
