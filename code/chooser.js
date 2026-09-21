@@ -909,8 +909,8 @@ function copyRename(element) {
 
     promptDialog("Copy under a new name:", dispname, function(answer) {
         if(answer == false) return;
-        let targetname = path.join(currentpath['rcontent'], noHTMLchars(answer));
-        let sourcename = path.join(currentpath['rcontent'], oldname)
+        let targetname = path.join(getRightPath(), noHTMLchars(answer));
+        let sourcename = path.join(getLeftPath(), oldname)
         if(targetname == "") return;
         let a = { 
             command: 'copyrename',
