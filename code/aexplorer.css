@@ -133,7 +133,7 @@ a {
     all: unset;
     display: none;
     position: absolute;
-    color: #000;
+    color: #FFF;
     font-size: 12px;
     user-select: none;
     padding:8px;
@@ -147,26 +147,29 @@ a {
     overflow: visible;
     opacity:1;
     font-family: sans-serif;
-    background:
-        linear-gradient(135deg,
-            #ffffff 0%,
-            #d9d9d9 25%,
-            #b5b5b5 50%,
-            #e0e0e0 75%,
-            #ffffff 100%
-        ),
-        radial-gradient(circle at top left,
-            rgba(255,255,255,0.7),
-            transparent 60%
-        ),
-        radial-gradient(circle at bottom right,
-            rgba(0,0,0,0.3),
-            transparent 70%
-        );
-    background-blend-mode: screen;
-    box-shadow:
-        inset 0 0 12px rgba(255,255,255,0.4),
-        inset 0 0 20px rgba(0,0,0,0.3);
+
+	background:
+    linear-gradient(135deg,
+        #2a2a9a 0%,
+        #3c3c9c 20%,
+        #1a1a9a 45%,
+        #4a4a9a 70%,
+        #2a2a9a 100%
+    ),
+    radial-gradient(circle at top left,
+        rgba(255,255,255,0.45),
+        transparent 60%
+    ),
+    radial-gradient(circle at bottom right,
+        rgba(0,0,0,0.75),
+        transparent 70%
+    );	
+
+	background-blend-mode: screen;
+	box-shadow:
+    inset 0 0 12px rgba(128,128,128,0.15),
+    inset 0 0 20px rgba(0,0,0,0.6);
+
 }
 
 
@@ -180,7 +183,7 @@ a {
 }
 
 .comlist .item a {
-	color: blue;
+	color: lightblue;
 }
 
 

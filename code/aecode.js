@@ -226,13 +226,14 @@ let messageTimer = null;
 function updateMessage(info, remain) { 
     const msg = document.getElementById("message");
     msg.textContent = info;
+    if(remain) return;
 
     if (messageTimer) {
         clearTimeout(messageTimer);
     }
 
     messageTimer = setTimeout(() => {
-        if(!remain) msg.textContent = "";
+        msg.textContent = "";
         messageTimer = null;
     }, 10000); // 10s
 }
@@ -723,7 +724,7 @@ async function copyList(list, sourcepanel, targetpanel) {
         count++
     }
     panelReload(targetpanel)
-    updateMessage(count + " files copied.", false);
+    sendFromInterface({"command": "showCount"})
 }
 
 
@@ -899,7 +900,6 @@ function acceptRename(oldname, newname, target) {
 
 
 var elementRename = function(spanitem, panelName) {
-  let saved = spanitem.innerHTML;
   let oldname = noHTMLchars(spanitem.dataset.name);
 
 	promptDialog("Enter a new name :", `${oldname}`, function(answer) {
@@ -910,8 +910,12 @@ var elementRename = function(spanitem, panelName) {
         alertDialog("Name already used");
         return;
     } 
-    spanitem.dataset.name = newname;
-    spanitem.innerHTML = saved.replace(oldname, newname)
+    let fullPath;
+    if(panelName == "lcontent")
+      fullPath = getLeftPath()
+    else
+      fullPath = getRightPath()
+    renameEntry(spanitem, newname, fullPath)
     acceptRename(oldname, newname, panelName);    
   });  
 } 

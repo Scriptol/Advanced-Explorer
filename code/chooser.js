@@ -40,12 +40,6 @@ ipcRenderer.on("message", (event, data) => {
 });
 
 
-/*
-function sendFromInterface(a) {
-    ipcRenderer.send("interface", JSON.stringify(a));
-}
-*/
-
 function sendFromInterface(data) {
     return ipcRenderer.invoke('interface', JSON.stringify(data));
 }
@@ -182,6 +176,42 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
 }
 
 
+function renameDir(el, newname) {
+    el.dataset.name = newname;
+    const iconSpan = el.querySelector(".ficon");
+    const textNode = iconSpan.nextSibling;
+    if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        textNode.nodeValue = newname;
+    }
+    const target = el.getAttribute("onDblClick").match(/,"([^"]+)"/)[1];
+    el.setAttribute("onDblClick", `chDir("${newname}","${target}")`);
+}
+
+
+function renameFile(el, newname, fullPath) {
+    el.dataset.name = newname;
+    const iconSpan = el.querySelector(".ficon");
+    const textNode = iconSpan.nextSibling;
+    if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+        textNode.nodeValue = newname;
+    }
+    const dbl = el.getAttribute("onDblClick");
+    const match = dbl.match(/view\(this,\s*"([^"]+)",\s*"([^"]+)"\)/);
+    if (match) {
+        const panelid = match[2];
+        el.setAttribute("onDblClick", `view(this, "${fullPath}", "${panelid}")`);
+    }
+}
+
+
+function renameEntry(el, newname, fullPath) {
+  if(isDirectory(el))
+    renameDir(el, newname)
+  else
+    renameFile(el, newname, fullPath)
+}
+
+
 /*
  File Display
   Display a list of files and directories.
@@ -248,10 +278,10 @@ function fileList(content, sortMode = 0) {
 	insidezip[target]=content.iszip;
 	let d = document.getElementById(target);
 	let extmask = content.extmask; 
-	let filepath = content.path;
+	let filepath = content.path;  // the directory read
 	let fpathid = target + "path";
 	let fpath = document.getElementById(fpathid);
-	fpath.value = filepath;
+	fpath.value = filepath;  // set directory for the panel
   
 	let listid = target + "list";
   let infoid = target + 'infos';  
