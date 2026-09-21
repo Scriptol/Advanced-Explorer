@@ -263,7 +263,8 @@ ipcRenderer.on('interface', (event, data) => {
         alertDialog(jobj.content); 
         break; 
     case 'message':
-        updateMessage(jobj.content, false)
+        const remain = (jobj.remain == undefined) ? false : jobj.remain
+        updateMessage(jobj.content, remain)
         break;
     case 'status':
         updateMessage(jobj.content, true);

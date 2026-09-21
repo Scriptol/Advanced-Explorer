@@ -905,19 +905,16 @@ function winToUnix(p) {
 
 function copyRename(element) {
     let oldname = getNameSelected(element);
-    oldname = noHTMLchars(oldname);
-
     let dispname = clipBoardFn !== "" ? clipBoardFn : oldname;
-    let tPath = pathJoin(currentpath['rcontent'], dispname)
-    let sPath = pathJoin(currentpath['lcontent'], oldname)
 
-    promptDialog("Copy under a new name:", tPath, function(answer) {
+    promptDialog("Copy under a new name:", dispname, function(answer) {
         if(answer == false) return;
-        let targetname = noHTMLchars(answer);
+        let targetname = path.join(currentpath['rcontent'], noHTMLchars(answer));
+        let sourcename = path.join(currentpath['rcontent'], oldname)
         if(targetname == "") return;
         let a = { 
             command: 'copyrename',
-            oldname: sPath,
+            oldname: sourcename,
             newname: targetname,
             sourcePanel: 'lcontent',
             targetPanel: 'rcontent',
