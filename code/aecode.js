@@ -211,7 +211,6 @@ var rightSize;
 function processDirdata(jobj) {
   const target = jobj.target;
   fileList(jobj, AExplorerSort[target]);
-  currentpath[target] = jobj.path;
 
   if(compareAfter) {
     compare(true)
@@ -701,6 +700,7 @@ async function copyList(list, sourcepanel, targetpanel) {
     }
 
     const tgtList = getAllNames(targetpanel);
+    let reset = true
     for (const name of list) {
         const exists = tgtList.includes(name);
         if (exists) {
@@ -719,9 +719,11 @@ async function copyList(list, sourcepanel, targetpanel) {
             "command": "copyone",
             "sourcename": sourcename,
             "targetname": targetname,
-            "target" : targetpanel
+            "target" : targetpanel,
+            "reset" : reset
         });
         deselectName(name, sourcepanel)
+        reset = false
         count++
     }
     panelReload(targetpanel)

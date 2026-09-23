@@ -13,10 +13,8 @@
 */
 
 
-var currentpath = [];
 var insidezip = [];
 var elementToSelect = null;
-var elementToOffset = null;
 var ChooserDrag = null;
 var clipBoardFn = "";
 
@@ -49,11 +47,10 @@ function dotFlag() {
     return  config.Display.list[0].checkbox;
 }
 
-function fileButton(target, dragflag) {
-  let filepath = currentpath[target];
+function fileButton(target, filePath) {
 	sendFromInterface( { 
     'command': 'getdir', 
-    'path': filepath,         
+    'path': filePath,         
     'target': target,
     'dot': dotFlag()  
   })
@@ -91,13 +88,14 @@ function buildDir(pathname, target) {
   Building the entry for a file
 */  
 
-function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
+function buildLink(filepath, fname, panelid, size, filedate, ext) {
     filepath = filepath.replace(/\\/gi, '/');
     let sep = '/';
     if(filepath.slice(-1) == '/')   sep = '';
     let fpath = filepath + sep + fname;
 
     let img;
+    let fsize;
     switch(ext.toLowerCase()) {
     case 'gif':
     case 'jpg':
@@ -158,18 +156,18 @@ function buildLink(filepath, fname, panelid, timesize, filedate, ext) {
     default:
           img = '&#128459;'
     }
-
+  fsize = formatNumber(size)
   let balise =
       "<div class='file' " 
       + "data-name='" + fname + "' " 
-      + "data-size='" + timesize + "' " 
+      + "data-size='" + size + "' " 
       + "data-date='" + filedate + "' " 
       + "onDblClick='view(this, \"" + fpath + "\",\"" + panelid + "\")' " 
       + "onClick='sel(event, this)' " 
       + "oncontextmenu='return rsel(this)'>" 
       + "<span class='ficon'>" + img + "</span>" 
       + fname 
-      + "<span class='timesize'>" + timesize + " " + filedate + "</span>" 
+      + "<span class='timesize'>" + fsize + " " + filedate + "</span>" 
       + "</div>";
 
     return balise;

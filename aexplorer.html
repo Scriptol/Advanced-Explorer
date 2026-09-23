@@ -29,7 +29,7 @@
   <span  title="Help">❓</span>
   <div class="comlist" unselectable="on">
       <p class="item"><b>Advanced Explorer</b></p>
-      <p class="item">Version 8.2</p>
+      <p class="item">Version 8.3</p>
       <p class="item">&copy; 2001-2026 D. Sureau</p>
       <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
       <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
@@ -168,8 +168,8 @@ function startExplorer() {
     if(!config) {
         alertDialog("&#9785; Config file missing. Copy config.model to aexplorer.ini.js")
     }  
-    var lpath = config.Memory.list[0].input;
-    var rpath = config.Memory.list[1].input;
+    let lpath = config.Memory.list[0].input;
+    let rpath = config.Memory.list[1].input;
     if(lpath == '') { 
         lpath = "/"; 
         rpath = "/"; 
@@ -177,17 +177,15 @@ function startExplorer() {
     if(!config.RECENTSMAX) {
       config.RECENTSMAX = 32
     }
-    currentpath['lcontent'] = lpath;
-    currentpath['rcontent'] = rpath;	
-    fileButton('lcontent', true);
-    fileButton('rcontent', false);
+    fileButton('lcontent', lpath);
+    fileButton('rcontent', rpath);
     buildEvents(); 
 }
 
 
 function quitSub() {
-  config.Memory.list[0].input = currentpath['lcontent'];
-  config.Memory.list[1].input = currentpath['rcontent'];
+  config.Memory.list[0].input = getLeftPath();
+  config.Memory.list[1].input = getRightPath();
   var frameopt = document.getElementById("options");
   var fo = (frameopt.contentWindow || frameopt.contentDocument);
   fo.saveFromAE('aexplorer.ini.js', config);    
@@ -196,8 +194,8 @@ function quitSub() {
 }
 
 function exitExplorer() {
-  var framedit = document.getElementById("editor");
-	var fc = (framedit.contentWindow || framedit.contentDocument);
+  let framedit = document.getElementById("editor");
+	let fc = (framedit.contentWindow || framedit.contentDocument);
   fc.setActiveRow();
   if(!fc.editorHasContent) {
     quitSub();
