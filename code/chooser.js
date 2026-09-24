@@ -167,7 +167,7 @@ function buildLink(filepath, fname, panelid, size, filedate, ext) {
       + "oncontextmenu='return rsel(this)'>" 
       + "<span class='ficon'>" + img + "</span>" 
       + fname 
-      + "<span class='timesize'>" + fsize + " " + filedate + "</span>" 
+      + "<span class='timesize'>" + fsize + " &nbsp;&nbsp;" + filedate + "</span>" 
       + "</div>";
 
     return balise;
