@@ -29,7 +29,7 @@
   <span  title="Help">❓</span>
   <div class="comlist" unselectable="on">
       <p class="item"><b>Advanced Explorer</b></p>
-      <p class="item">Version 8.3</p>
+      <p class="item">Version 8.4</p>
       <p class="item">&copy; 2001-2026 D. Sureau</p>
       <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
       <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
@@ -144,17 +144,14 @@
     </div>
 
     <div id="treeSyncPanel">
-      <p>Deleting files in the target not present in the source</p>
-      <div style="margin-top: 8px;">
-        <button id="syncCheckAll">Select all</button>
-        <button id="syncUncheckAll">Deselect all</button>
-        <span id="counter"></span>
-      </div>
+      <p>Deleting files in the target not present in the source :  <span id="counter"></span></p>
 
       <div id="syncFileList"></div>
       <div id="treeSyncFooter">
         <button id="syncCancelDelete">Cancel</button>
-        <button id="syncDelete">Delete selected</button>
+        <button id="syncCheckAll">Select all</button>
+        <button id="syncUncheckAll">Deselect all</button>
+        <button id="syncDelete" class="red">Delete selected</button>
       </div>
   </div>  
 </div>

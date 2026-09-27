@@ -811,6 +811,23 @@ button {
     transform: translateY(1px);
 }
 
+.red {
+    --btn-color: #d40000 !important; 
+    background: var(--btn-color) !important;
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+}
+
+.red:hover {
+    border-top: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-left: 2px solid color-mix(in srgb, var(--btn-color) 70%, grey);
+    border-bottom: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    border-right: 2px solid color-mix(in srgb, var(--btn-color) 80%, white);
+    transform: translateY(1px);
+}
+
 
 .icoelem {
 	display:inline-block;
@@ -913,13 +930,13 @@ button {
 }
 
 #syncFileList {
-	margin-top: 15px;
+	margin-top: 0px;
     background: #000;
 	color:white;
 	padding: 8px;	
     border: 1px solid #666;
-	min-height:140px;
-	max-height:140px;
+	min-height:168px;
+	max-height:168px;
     flex: 1;
     width: 100%;
     overflow-y: auto;  
