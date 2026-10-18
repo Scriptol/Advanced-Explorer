@@ -1280,14 +1280,17 @@ function compare(invertFlag) {
     let total = 0;
     let sourcePanel;
     let targetPanel;
+    let sourcePath;
 
     if(invertFlag) {
       sourcePanel = 'rcontent'
       targetPanel = 'lcontent'
+      sourcePath = document.getElementById('rcontentpath').value;
     }
     else {
       sourcePanel = 'lcontent'
       targetPanel = 'rcontent'
+      sourcePath = document.getElementById('lcontentpath').value;
     }
 
     let tparent = document.getElementById(targetPanel).firstChild;
@@ -1350,7 +1353,7 @@ function compare(invertFlag) {
 
     let s = ""; 
     if (total > 1) s = "s";
-    const result = total + ' file' + s + ' to update or copy';
+    const result = total + ' file' + s + ' in ' + sourcePath + ' missing of different in target panel';
     updateMessage(result, false)
     console.log(result);
 }
