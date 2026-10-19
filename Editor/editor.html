@@ -31,7 +31,7 @@ Make use of:
             <div class="edicon" id="outdent" onClick="act(this)" title="Unindent  SHIFT-TAB">⇤</div>
             <div class="edicon" id="indent"  onClick="act(this)" title="Indent  TAB">⇥</div>
             <div class="edicon" id="cut"     onClick="act(this)" title="Cut  CTRL-X">✂</div>
-            <div class="edicon" id="copy"    onClick="act(this)" title="Copy  CTRL-X">&#128458;</div>
+            <div class="edicon" id="copy"    onClick="act(this)" title="Copy  CTRL-C">&#128458;</div>            
             <div class="edicon" id="paste"   onClick="act(this)" title="Paste  CTRL-V">📋</div>
             <div class="edicon" id="undo"    onClick="act(this)" title="Undo  CTRL-Z">↶</div>
             <div class="edicon" id="redo"    onClick="act(this)" title="Redo  CTRL-Y">↷</div>
@@ -44,6 +44,7 @@ Make use of:
 <script>
     
 var editorHasContent = false;
+var editorMyClipboard = ""
 const { contextBridge, ipcRenderer } = top.require('electron');
 const remote = top.require('@electron/remote');
 const { dialog } = remote;
@@ -126,6 +127,15 @@ var languageExt = {
     }
 );	
 
+
+editor.on("paste", function(e) {
+    if(!editorHasContent) {
+        editorIcon(true)
+        editorHasContent = true
+    }
+});
+
+
 function updateMessage(message) { 
     parent.updateMessage(message, false);
 }
@@ -156,6 +166,7 @@ function editorIcon(actif) {
 
 function newDoc() {
     editor.session.setValue("");
+    editorHasContent = false
     editorIcon(false);  
     setFileName("");
     changedStatus(false);
@@ -385,21 +396,19 @@ function act(element) {
             break;	
         case "outdent":		
             editor.blockOutdent();	
-            break;					
+            break;
+        case "copy": 
+            editorMyClipboard = editor.getCopyText();
+            break;            					
         case "cut": 
             editorMyClipboard = editor.getCopyText();
-            editor.remove(); 
-            break;	
-        case "copy":	
-             editorMyClipboard = editor.getCopyText();
+            editor.remove();
             break;	
         case "paste":
-             editor.insert(editorMyClipboard);
+            editorIcon(true)
+            editor.insert(editorMyClipboard);
+            changedStatus(true);
             break;	
-        case "set":
-        case "clear":
-            editorIcon(false);
-            break;
         case "saveas":
             save(true);
 	       break;
