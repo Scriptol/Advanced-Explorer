@@ -354,7 +354,6 @@ function fileList(content, sortMode = 0) {
 		} 
 	}     
 	elementToSelect = null;
-	elementToOffset = null;
   restorePreviousTop(target, x)
 }
 
@@ -501,8 +500,6 @@ function view(element, filepath, panelid, forcePage) {
     return;
   }   
 
-  //filepath = replaceFilename(filepath, getNameSelected(element)); 
-
   let p = filepath.lastIndexOf('.');
 	let ext = filepath.slice(p + 1);
   if(forcePage) ext ='';
@@ -601,7 +598,7 @@ var chooserLastSelected = null;
 function setSelected(element) {
   let name = getNameSelected(element); 
   if(!name) return;
-  if(name.charAt(0) == '.') return;
+  if(name.slice(0,2) === "..") return;
   element.className="entrybold";	    
 }
 
@@ -683,6 +680,7 @@ function pointFile(element) {
   return parent.id; 	
 }
 
+/*
 function getPointedContent(panelName) {
 	let slist = getSelected(panelName);
 	if(slist.length != 1) {
@@ -691,6 +689,7 @@ function getPointedContent(panelName) {
 	}
 	return slist[0];
 }
+*/  
 
 function edit(element) {
   let target = pointFile(element);
