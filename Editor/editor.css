@@ -155,10 +155,24 @@ body {
 .edicon {
 	display:inline-block;
     box-sizing: border-box;	
+    transform: scale(1.2);
+    margin-top:-2px;
+    margin-right:8px;
 }
 
 .edicon:hover {
 	color:orange;
+}
+
+#cut {
+    transform:scale(1);
+}
+
+#copy {
+    margin-top:-8px;
+}
+#undo,  #redo {
+    margin-top:6px;
 }
 
 .tfield {
