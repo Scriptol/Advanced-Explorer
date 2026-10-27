@@ -12,17 +12,16 @@
    - The Explorer.js module.
 */
 
+const { contextBridge, ipcRenderer } = require('electron');
+const { dialog } = require('@electron/remote');
+const path = require("path");
+
 
 var insidezip = [];
 var elementToSelect = null;
 var ChooserDrag = null;
 var clipBoardFn = "";
-
 var customview = [];
-
-const { contextBridge, ipcRenderer } = require('electron');
-const { dialog } = require('@electron/remote');
-const path = require("path");
 
 
 // event
@@ -354,7 +353,14 @@ function fileList(content, sortMode = 0) {
 		} 
 	}     
 	elementToSelect = null;
-  restorePreviousTop(target, x)
+
+  let currentPath = null;
+  if(target== "lcontent")
+    currentPath = getLeftPath()
+  else
+    currentPath = getRightPath()
+  restoreScroll(target, currentPath)
+  restoreSelection(target, currentPath)
 }
 
 
@@ -380,81 +386,66 @@ function setDrag(id) {
 
 // change dir 
 
-var topLDir = []
-var topLIndex = 0
-var topLRow = 0
-var topRDir = []
-var topRIndex = 0
-var topRRow = 0
-
-
-function restorePreviousTop(target, parent) { 
-  let container = parent.parentNode
-  if(target == "lcontent") {
-    container.scrollTop = topLRow;
-  }
-  else {
-    container.scrollTop = topRRow;
-  }  
+const scrollMemory = {
+  lcontent: {}, 
+  rcontent: {}  
 }
 
-function setTopDir(target) {
-  if(target == "lcontent") {
-    topLRow = 0
-    topLIndex = 0
-  }
-  else {
-    topRRow = 0
-    topRIndex = 0
-  }
+const selectionMemory = {
+  lcontent: {}, 
+  rcontent: {}  
 }
 
-function restoreScrollInstant(parent, savedScroll) {
-    parent.style.scrollBehavior = "auto";
-    requestAnimationFrame(() => {
-        parent.scrollTop = savedScroll;
-        requestAnimationFrame(() => {
-            parent.style.scrollBehavior = "";
-        });
-    });
+function saveSelection(target, currentPath, name) {
+  if (!name) return
+
+  selectionMemory[target][currentPath] = name
 }
 
 
-function setDirTopRow(path, target) {
-  let parentId = target+ "list"
-  let parent = document.getElementById(parentId)
-  if(parent==null) return
-  parent = parent.parentNode
-  if(target == "lcontent") {
-    if(path == "..") {
-      topLIndex = Math.max(0, topLIndex - 1)
-      topLRow = topLDir[topLIndex]
-    }  
-    else {
-      topLDir[topLIndex] = parent.scrollTop
-      topLIndex++;      
-    }
-  
-  }
-  else {
-    if(path == "..") {
-      topRIndex = Math.max(0, topRIndex - 1)
-      topRRow = topRDir[topRIndex]
-    }
-    else {
-      topRDir[topRIndex] = parent.scrollTop
-      topRIndex++;  
+function restoreSelection(target, newPath) {
+  const list = document.getElementById(target + "list")
+  if (!list) return
+
+  const name = selectionMemory[target][newPath]
+  if (!name) return
+
+  const children = list.children
+  for (let child of children) {
+    if (getNameSelected(child) === name) {
+      setSelected(child)
+      child.scrollIntoView({ block: "nearest" })
+      chooserLastSelected = child
+      return
     }
   }
-
 }
 
 
-function chDir(filepath, target) {    
+function saveScroll(target, currentPath) {
+  const list = document.getElementById(target + "list")
+  if (!list) return
+  scrollMemory[target][currentPath] = list.scrollTop
+}
+
+function restoreScroll(target, newPath) {
+  const list = document.getElementById(target + "list")
+  if (!list) return
+  list.scrollTop = scrollMemory[target][newPath] ?? 0
+}
+
+
+function chDir(filepath, target) { 
+  let currentPath = null;
 	if((filepath.length > 8) && filepath.slice(0, 8) == "file:///") {
 		filepath = filepath.slice(8);
   }  
-  setDirTopRow(filepath, target)
+  if(target== "lcontent")
+    currentPath = getLeftPath()
+  else
+    currentPath = getRightPath()
+  saveSelection(target, currentPath, filepath)
+  saveScroll(target, currentPath)
  
 	sendFromInterface({
       'file': 'code/chooser.js', 
@@ -656,6 +647,7 @@ function sel(evt, element) {
     }
 
     setSelected(element);
+             
     chooserLastSelected = element;
 }
 
@@ -922,6 +914,34 @@ function copyRename(element) {
     });
 }
 
+function storeList(source) {
+    let folder = source + "path"
+    let tDir = null;
+    let sDir = null;
+    let target = null;
+    if(folder[0] == "l") {
+      sDir = getLeftPath()
+      tDir = getRightPath()
+      target="rcontent"
+    }  
+    else {
+      sDir = getRightPath()
+      tDir = getLeftPath()
+      target="lcontent"
+    }
+    promptDialog("Enter file name to store dir list in a text file : ", tDir, function(answer) {
+        if(answer == false) return;
+        let fileName = noHTMLchars(answer);
+        if(fileName == "") return;
+        sendFromInterface({ 
+            command: 'storeList',
+            dir: sDir,
+            file: fileName,
+            target : target
+        });
+    });  
+}
+
 
 function elementClip(element) {
     let oldname = getNameSelected(element);
@@ -1045,6 +1065,12 @@ function rsel(element) {
   px.setAttribute('class', 'ctxline');
   px.innerHTML = "Clipboard"; 
 
+  let fd = document.createElement('p');
+  d.appendChild(fd);
+  fd.onclick=function() { storeList(target); };
+  fd.setAttribute('class', 'ctxline');
+  fd.innerHTML = "Store list";   
+
   return false;
 }
 
@@ -1128,6 +1154,12 @@ function dsel(element) {
     p4.setAttribute('class', 'ctxline');
     p4.innerHTML = "Copy/Rename"; 
   }  
+
+  let fd = document.createElement('p');
+  d.appendChild(fd);
+  fd.onclick=function() { storeList(target); };
+  fd.setAttribute('class', 'ctxline');
+  fd.innerHTML = "Store list";     
  
   return false;
 }
