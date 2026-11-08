@@ -237,6 +237,9 @@ function updateMessage(info, remain) {
     }, 10000); // 10s
 }
 
+function runScript(program, script, options) {
+  sendFromInterface({command:"run", "program": program, "script": script, "options": options})     
+}
 
 
 ipcRenderer.on('interface', (event, data) => { 
@@ -267,6 +270,10 @@ ipcRenderer.on('interface', (event, data) => {
         break;
     case 'status':
         updateMessage(jobj.content, true);
+        break;
+    case 'syncDelNow' :
+        document.getElementById("syncMessage").style.display="none"
+        document.getElementById("treeSyncFooter").style.display="block"
         break;
     case 'counter':
         syncDialog.updateCounter(jobj.content)
@@ -299,11 +306,16 @@ ipcRenderer.on('interface', (event, data) => {
         }
         break;
     case "boxapp":     
-        boxApp(jobj);
+        boxApp(script, panel);
         break;
-  
+    case "askParam":
+      promptDialog(jobj.message, "", function(answer) {
+        if(answer == false) return; 
+        runScript(jobj.program, jobj.script, answer)
+      });
+      break;
     default:
-        
+      break;
   }
 });
 
@@ -314,6 +326,7 @@ ipcRenderer.on('interface', (event, data) => {
 
 function getExtension(filename) {
   let p = filename.lastIndexOf('.');
+  if(p == -1) return ""
   return filename.slice(p + 1);
 }
 
@@ -608,7 +621,7 @@ var topDup = function (target) {
 	sendFromInterface(b);
 }
 
-
+/*
 var topCopyRename = function() {
   let namelist = getSelected('lcontent');
 	if(namelist.length != 1) {
@@ -617,6 +630,7 @@ var topCopyRename = function() {
 	} 
   copyRename(namelist[0]);
 }  
+*/
 
 function checkSelected() {
   let namelist = getSelectedNames('lcontent');
@@ -959,6 +973,7 @@ var panelDelete = function(target) {
 	  
 }
 
+
 function openBox(target) {   
   let letter = target.charAt(0).toUpperCase();
   let parent = window.document.getElementById(target);
@@ -985,9 +1000,10 @@ function closeBox(target) {
     parent.removeChild(box);
 }
 
+// open app in the AE window
 
-function boxApp(apath, target) {
-  const parent = document.getElementById(target);
+function boxApp(apath, panel) {
+  const parent = document.getElementById(panel);
 
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
@@ -1018,6 +1034,7 @@ var panelBox = function(target) {
   if(check != null)  buildXData(target);
   openBox(target)
 }
+
 
 var panelGo = function(target, x) {
 	const a = { 'command': 'godir', 'path': x.value, 'target': target };
@@ -1494,7 +1511,6 @@ function addInputEvent(id, func, target) {
 function buildEvents() {  
 	addEvent('tinvert', topInvert);
 	addEvent('tdup', topDup);
-  addEvent('tcopyren', topCopyRename);
   addEvent('tsync', topSync);
 	addEvent('tedit', topEdit);
   addEvent('topt', topSetup);

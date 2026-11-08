@@ -24,9 +24,8 @@ function fillBox(name)
     const divtag = document.createElement("div");
     href.appendChild(divtag);
 
-    const contentpath = name + "/" + name;
-    const pagepath = contentpath + ".html";
-    const iconpath = contentpath + ".png";
+    const pagepath = name + "/" + "index.html";
+    const iconpath = name + "/" + name + ".png";
     
     href.setAttribute("href", pagepath);
     href.setAttribute("title", pagepath);
@@ -48,7 +47,7 @@ function loadPage(element) {
     top.boxApp(progpath, target)
 }
 
-ipcRenderer.on("box", (event, data) => {
+ipcRenderer.on("box", (event, data) => { 
     var jobj = JSON.parse(data);
     boxPath = jobj.path
     if(jobj.action == 'fillbox' && jobj.target == target) {

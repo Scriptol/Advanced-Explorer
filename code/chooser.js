@@ -74,14 +74,17 @@ function replaceFilename(path, name) {
 
 
 
-function buildDir(pathname, target) {
-	return "<div class='dir' data-name='" 
-  + pathname 
-  + "' onDblClick='chDir(\"" + pathname + "\",\"" + target + "\")' onClick='sel(event, this)' oncontextmenu='return dsel(this)'>"
-  + "<span class='ficon'>&#128193;</span>" 
-  + pathname 
-  + "</div>";
+function buildDir(pathname, target) { 
+    return "<div class='dir' data-name='" 
+    + pathname 
+    + "' onDblClick='chDir(\"" + pathname + "\",\"" + target + "\")' "
+    + "onClick='sel(event, this)' "
+    + "oncontextmenu='return dSel(this, \"" + target + "\")'>"
+    + "<span class='ficon'>&#128193;</span>" 
+    + pathname 
+    + "</div>";
 }
+
 
 /*
   Building the entry for a file
@@ -163,7 +166,7 @@ function buildLink(filepath, fname, panelid, size, filedate, ext) {
       + "data-date='" + filedate + "' " 
       + "onDblClick='view(this, \"" + fpath + "\",\"" + panelid + "\")' " 
       + "onClick='sel(event, this)' " 
-      + "oncontextmenu='return rsel(this)'>" 
+      + "oncontextmenu='return fSel(this, \"" + panelid + "\")'>"
       + "<span class='ficon'>" + img + "</span>" 
       + fname 
       + "<span class='timesize'>" + fsize + " &nbsp;&nbsp;" + filedate + "</span>" 
@@ -672,16 +675,6 @@ function pointFile(element) {
   return parent.id; 	
 }
 
-/*
-function getPointedContent(panelName) {
-	let slist = getSelected(panelName);
-	if(slist.length != 1) {
-		alertDialog(slist.length + " selected. Select just one file or directory to rename, please.");
-		return null;
-	}
-	return slist[0];
-}
-*/  
 
 function edit(element) {
   let target = pointFile(element);
@@ -892,21 +885,34 @@ function winToUnix(p) {
   return p.replace(/\\/g, "/").toLowerCase();
 }
 
-function copyRename(element) {
+function copyRename(element, sPanel) {
     let oldname = getNameSelected(element);
     let dispname = clipBoardFn !== "" ? clipBoardFn : oldname;
+    let tPanel;
+    let sPath;
+    let tPath;
+    if(sPanel == "lcontent") {
+      tPanel = "rcontent"
+      sPath = getLeftPath()
+      tPath = getRightPath()
+    }
+    else {
+      tPanel = "lcontent"
+      sPath = getRightPath()
+      tPath = getLeftPath()
+    }
 
     promptDialog("Copy under a new name:", dispname, function(answer) {
         if(answer == false) return;
-        let targetname = path.join(getRightPath(), noHTMLchars(answer));
-        let sourcename = path.join(getLeftPath(), oldname)
+        let sourcename = path.join(sPath, oldname)
+        let targetname = path.join(tPath, noHTMLchars(answer));
         if(targetname == "") return;
         let a = { 
             command: 'copyrename',
             oldname: sourcename,
             newname: targetname,
-            sourcePanel: 'lcontent',
-            targetPanel: 'rcontent',
+            sourcePanel: sPanel,
+            targetPanel: tPanel,
             isDirectory: isDirectory(element)
         };
 
@@ -950,7 +956,7 @@ function elementClip(element) {
 }
 
 
-function rsel(element) {
+function fSel(element, panel) {
   let x = document.getElementById('ctxmenu1');
   if(x) x.parentNode.removeChild(x); 
   
@@ -1029,7 +1035,7 @@ function rsel(element) {
   
   if(isZip)  {
     let pe = document.createElement('p');
-    pe.onclick=function() { keyUnzip(target); };
+    pe.onclick=function() { keyUnzip(panel); };
     pe.setAttribute('class', 'ctxline');
     pe.innerHTML = "Unzip";    
     d.appendChild(pe);
@@ -1041,36 +1047,34 @@ function rsel(element) {
   p2.innerHTML = "Edit"; 
   d.appendChild(p2);  
 
-  let target = pointFile(element);
+  //let target = pointFile(element);
   
   let p3 = document.createElement('p');
-  p3.onclick=function() { elementRename(element, target); };
+  p3.onclick=function() { elementRename(element, panel); };
   p3.setAttribute('class', 'ctxline');
   p3.innerHTML = "Rename"; 
   d.appendChild(p3);  
 
-  if(target == 'lcontent')  {
-	  let p = document.createElement('p');
-	  d.appendChild(p);
-	  p.onclick=function() { 
-      copyRename(element) 
-    };
-	  p.setAttribute('class', 'ctxline');
-	  p.innerHTML = "Copy/Rename"; 
-  }
+	let p4 = document.createElement('p');
+  d.appendChild(p4);
+	p4.onclick=function() { 
+    copyRename(element, panel) 
+  };
+  p4.setAttribute('class', 'ctxline');
+	p4.innerHTML = "Copy/Rename"; 
 
   let px = document.createElement('p');
   d.appendChild(px);
-  px.onclick=function() { elementClip(element, target); };
+  px.onclick=function() { elementClip(element, panel); };
   px.setAttribute('class', 'ctxline');
   px.innerHTML = "Clipboard"; 
-
+/*
   let fd = document.createElement('p');
   d.appendChild(fd);
   fd.onclick=function() { storeList(target); };
   fd.setAttribute('class', 'ctxline');
   fd.innerHTML = "Store list";   
-
+*/
   return false;
 }
 
@@ -1095,7 +1099,7 @@ function dirinfo(element) {
 	sendFromInterface(a);
 }
 
-function dsel(element) {
+function dSel(element, panel) {
   let x = document.getElementById('ctxmenu2');
   if(x) x.parentNode.removeChild(x); 
   let parent = element.parentNode; 
@@ -1142,25 +1146,22 @@ function dsel(element) {
   
   let p3 = document.createElement('p');
   d.appendChild(p3);
-  p3.onclick=function() { elementRename(element, pointFile(element)); };
+  p3.onclick=function() { elementRename(element, panel); };
   p3.setAttribute('class', 'ctxline');
   p3.innerHTML = "Rename";   
   
-  let target = pointFile(element);  
-  if(target == 'lcontent')  {
-    let p4 = document.createElement('p');
-    d.appendChild(p4);
-    p4.onclick=function() { copyRename(element) };
-    p4.setAttribute('class', 'ctxline');
-    p4.innerHTML = "Copy/Rename"; 
-  }  
-
+  let p4 = document.createElement('p');
+  d.appendChild(p4);
+  p4.onclick=function() { copyRename(element, panel) };
+  p4.setAttribute('class', 'ctxline');
+  p4.innerHTML = "Copy/Rename"; 
+/*
   let fd = document.createElement('p');
   d.appendChild(fd);
   fd.onclick=function() { storeList(target); };
   fd.setAttribute('class', 'ctxline');
   fd.innerHTML = "Store list";     
- 
+*/ 
   return false;
 }
 
@@ -1384,7 +1385,7 @@ function compare(invertFlag) {
 
     let s = ""; 
     if (total > 1) s = "s";
-    const result = total + ' file' + s + ' in ' + sourcePath + ' missing of different in target panel';
+    const result = total + ' file' + s + ' in ' + sourcePath + ' missing or different in target panel';
     updateMessage(result, false)
     console.log(result);
 }

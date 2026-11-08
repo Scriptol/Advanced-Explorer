@@ -60,25 +60,46 @@ function getFilename(request, response) {
 }
 
 
-// Run a local script at the Web interface request
-function runScript(exists, file, param) {
-  if(!exists) {
-    console.log("File not found");
-    return false;
-  }
+function buildBoxList(basePath) {
+    let result = [];
 
-  console.log("Running...");
-  
-  var r = runner.exec(file, param, function(err, stdout, stderr) { 
-      console.log(stderr);
+    if (!fs.existsSync(basePath)) {
+        console.log("Répertoire introuvable :", basePath);
+        return result;
     }
-  );
-  if(debug) console.log(file + " launched by the server...");
-  r.on('exit', function (code) {
-    if(debug) console.log('Local script terminated.');
-  });  
-  
+
+    const dirs = fs.readdirSync(basePath);
+
+    dirs.forEach(name => {
+        const dirPath = path.join(basePath, name);
+        const stat = fs.statSync(dirPath);
+        if (!stat.isDirectory()) return;
+        const files = fs.readdirSync(dirPath);
+        const indexFile = files.find(f => /^index\./.test(f));
+        if (!indexFile) return;
+
+        result.push({
+            name,
+            path: `${path.basename(basePath)}/${name}/${indexFile}`
+        });
+    });
+    return result;
 }
+
+function updateScripts() {
+    const xscriptsPath = path.join(__dirname, "xscripts.js");
+
+    const boxlPath = path.join(__dirname, "boxl");
+    const boxrPath = path.join(__dirname, "boxr");
+
+    let xscripts = {};
+    xscripts.boxl = buildBoxList(boxlPath);
+    xscripts.boxr = buildBoxList(boxrPath);
+
+    const newContent = "var xscripts = " + JSON.stringify(xscripts, null, 2) + ";";
+    fs.writeFileSync(xscriptsPath, newContent);
+}
+
 
 
 var mainEvent;
@@ -142,6 +163,8 @@ function createWindow () {
 
     explorer.setRoot(__dirname);
     console.log("Working directory : " + __dirname)
+
+    updateScripts();
 
   // And load the HTML page
 

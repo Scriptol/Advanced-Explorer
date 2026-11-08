@@ -5,6 +5,7 @@
 <title>Advanced Explorer</title>
 <link rel="stylesheet" href="code/aexplorer.css"> 
 <base href="./">
+<script type="text/javascript" src="xscripts.js"></script>
 <script type="text/javascript" src="code/chooser.js"></script>
 <script type="text/javascript" src="aexplorer.ini.js"></script>
 <script type="text/javascript" src="code/exif.js"></script>
@@ -17,7 +18,6 @@
 <div class="toolbar" id="topbar"> 
 <div class="tbicon" id='tinvert' title="Invert left and right panels"><span>&hArr;</span></div>
 <div class="tbicon" id='tdup' title="Display left on right too"><span>&rArr;</span></div>
-<div class="tbicon" id='tcopyren' title="Copy a file or dir with a new name"><span class="tblside">&#128462;</span><span class="tbren">xy</span></div> 
 <div class="tbicon" id='tsync' title="Synchronize target with source"><span class="dirleft">&#128448;</span><span class="dirright">⇨</span></div>
 <div class="tbicon" title="Make a zip archive" onclick="topZip()"><span class="bkside">&#128217;</span><span class="tblabel">zip</span></div>
 <div class="tbicon" id='tedit' title="Open/Close the editor"><span id="spanedit">&#128459;</span><span class="tbelabel">&#128393;</span></div>
@@ -29,7 +29,7 @@
   <span  title="Help">❓</span>
   <div class="comlist" unselectable="on">
       <p class="item"><b>Advanced Explorer</b></p>
-      <p class="item">Version 8.5</p>
+      <p class="item">Version 8.7</p>
       <p class="item">&copy; 2001-2026 D. Sureau</p>
       <p class="item" data-type="helpen"><a href="https://www.scriptol.com/scripts/advanced-explorer-manual.php">English manual</a></p>
       <p class="item" data-type="helpfr"><a href="https://www.scriptol.fr/scripts/advanced-explorer-manuel.php">Manuel français</a></p>  
@@ -52,14 +52,21 @@
 <div id="dirpane">
 <div id="lpane">
   <div class="toolpane" id="lcontrol">
-	<div class="panicon" id="lup" title="Up to parent dir">⬆</div>
-	<div class="panicon" id="lhome" title="Up to root dir">🔝</div>	
-	<div class="panicon" id="lreload" title="Refresh">⟳</div>	
-  <div class="panicon" id="lcreate" title="Create a subdirectory">&#128193;</div>
-  <div class="panicon" id="lcomp" title="Compare files"><span>&#128471;</span></div>
-  <div class="panicon" id="lcopy" title="Copy to the right panel"><span>⇨</span></div>			
-  <div class="panicon" id="ldel" title="Delete selected files and dirs">&#128465;</div>  
-  <div class="panicon" id="lbox" title="Open a box of apps">&#128230;</div>
+	  <div class="panicon" id="lup" title="Up to parent dir">⬆</div>
+	  <div class="panicon" id="lhome" title="Up to root dir">🔝</div>	
+	  <div class="panicon" id="lreload" title="Refresh">⟳</div>	
+    <div class="panicon" id="lcreate" title="Create a subdirectory">&#128193;</div>
+    <div class="panicon" id="lcomp" title="Compare files"><span>&#128471;</span></div>
+    <div class="panicon" id="lcopy" title="Copy to the right panel"><span>⇨</span></div>			
+    <div class="panicon" id="ldel" title="Delete selected files and dirs">&#128465;</div>  
+    <div class="popmenu">
+      <div class="panicon" id="lbox" title="Scripts">&#128230;</div>
+      <span class="poplist">
+        <p id="storeList" onclick='storeList("lcontent")'>Store list</p>  
+        <p onclick='panelBox("lcontent")'>Box</p>  
+        <hr>
+      </span>    
+    </div>  
   </div>
   <div class="fullpath">
    <div class="fsroot">
@@ -81,14 +88,21 @@
 
 <div id="rpane">
   <div class="toolpane" id="rcontrol">
-	<div class="panicon" id="rup" title="Up to parent dir">⬆</div>
-	<div class="panicon" id="rhome" title="Up to root dir">🔝</div>	
-	<div class="panicon" id="rreload" title="Refresh">⟳</div>
-  <div class="panicon" id="rcreate" title="Create a subdirectory">&#128193;</div>
-  <div class="panicon" id="rcomp" title="Compare files"><span>&#128471;</span></div>
-  <div class="panicon" id="rcopy" title="Copy to the left panel"><span>⇦</span></div>		
-  <div class="panicon" id="rdel" title="Delete selected files and dirs">&#128465;</div>  
-  <div class="panicon" id="rbox" title="Open a box of apps">&#128230;</div>    
+	  <div class="panicon" id="rup" title="Up to parent dir">⬆</div>
+	  <div class="panicon" id="rhome" title="Up to root dir">🔝</div>	
+	  <div class="panicon" id="rreload" title="Refresh">⟳</div>
+    <div class="panicon" id="rcreate" title="Create a subdirectory">&#128193;</div>
+    <div class="panicon" id="rcomp" title="Compare files"><span>&#128471;</span></div>
+    <div class="panicon" id="rcopy" title="Copy to the left panel"><span>⇦</span></div>		
+    <div class="panicon" id="rdel" title="Delete selected files and dirs">&#128465;</div>  
+    <div class="popmenu">
+      <div class="panicon" id="rbox" title="Scripts">&#128230;</div>
+      <span class="poplist">
+        <p id="storeList" onclick='storeList("rcontent")'>Store list</p>
+        <p onclick='panelBox("rcontent")'>Box</p>    
+        <hr>
+      </span>    
+    </div>     
   </div>
   <div class="fullpath"> 
     <div class="fsroot">
@@ -148,18 +162,88 @@
       <p>Deleting files in the target not present in the source : </p>
 
       <div id="syncFileList"></div>
-      <div id="treeSyncFooter">
+      <div id="treeSyncFooter" style="display:none">
         <button id="syncCancelDelete">Cancel</button>
         <button id="syncCheckAll">Select all</button>
         <button id="syncUncheckAll">Deselect all</button>
         <button id="syncDelete" class="red">Delete selected</button>
       </div>
+      <div id="syncMessage">
+        <p>Copying</p>
+      </div>
   </div>  
 </div>
 
-
-
 <script>
+
+function getProgram(ext) {
+  let program;
+  switch(ext) {
+    case "js":
+    case "ts":
+      program="node"
+      break;
+    case "php":
+      program="php"
+      break;
+    case "py":
+      program="python"
+      break
+    default:
+      program=""
+      break
+  }
+  return program
+}
+
+function fillBoxMenus() {
+    const leftMenu = document.querySelector('#lbox').parentElement.querySelector('.poplist');
+
+    if (xscripts.boxl && Array.isArray(xscripts.boxl)) {
+        xscripts.boxl.forEach(item => {
+            const p = document.createElement("p");
+            p.textContent = item.name;
+            p.onclick = () => {
+              const ext = getExtension(item.path)  
+              switch(ext) {
+                case "html": 
+                    boxApp(item.path, "lcontent")
+                    break;
+                default:
+                    runScript(getProgram(ext), item.path, "")
+                    break;
+              }
+            };
+            leftMenu.appendChild(p);
+        });
+    }
+
+    const rightMenu = document.querySelector('#rbox').parentElement.querySelector('.poplist');
+
+    if (xscripts.boxr && Array.isArray(xscripts.boxr)) {
+        xscripts.boxr.forEach(item => {
+            const p = document.createElement("p");
+            p.textContent = item.name;
+            
+            p.onclick = () => {
+              const ext = getExtension(item.path)
+              switch(ext) {
+                case "html": 
+                  
+                    boxApp(item.path, "rcontent")
+                    break;
+                default:
+                    runScript(getProgram(ext), item.path, "")
+                    break;
+              }              
+            };
+
+            rightMenu.appendChild(p);
+        });
+    }
+}
+
+
 
 function startExplorer() {
     ChooserDrag = AExplorerDrag;
@@ -177,6 +261,7 @@ function startExplorer() {
     }
     fileButton('lcontent', lpath);
     fileButton('rcontent', rpath);
+    fillBoxMenus()
     buildEvents(); 
 }
 

@@ -186,6 +186,45 @@ a {
 	color: lightblue;
 }
 
+/* Popmenu */
+
+.popmenu {
+    display:block;
+    position:relative;
+    font-family: Arial,serif;
+}
+
+.popmenu .poplist {
+    display:none;
+    background:black;
+    color: #ddd;
+    font-size:13px;
+}
+
+.popmenu p {
+    margin:6px 2px 2px 8px;
+}
+
+.popmenu p:hover {
+    color:orange;
+}
+
+.popmenu:hover .poplist {
+    display:block;
+    position:absolute;
+    top:16px;    
+    left:0;
+    z-index:1005;
+    width:128x;
+    min-width:128px;    
+    max-width:128px;
+    min-height:40px;
+    border:1px solid #BBB;    
+    overflow:visible;
+    padding:0 0 6px 0;
+}
+
+
 
 .toolbar {
 	display:flex;
